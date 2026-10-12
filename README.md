@@ -399,6 +399,13 @@ Practice should provide useful setup, tyre, and car-behaviour information, while
 
 The detailed income rates, contract terms, debt rules, and recovery objectives remain to be balanced during prototyping.
 
+### Confirmed rival AI decision
+
+- **Rival progression:** Independent simulation. Each rival team develops according to its own resources, priorities, strengths, weaknesses, and decisions. No hidden rubber-banding or secret performance boosts.
+- **Career difficulty:** Player-selectable Casual, Standard, and Challenging presets. Presets should adjust starting conditions and/or AI decision quality transparently, without changing race outcomes behind the player's back.
+
+The exact preset effects and rival decision algorithms remain to be designed and tested.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
