@@ -519,6 +519,15 @@ Exact automation rules, project queue limits, staff authority, and player overri
 
 Exact capacity values, facility upgrade costs, department-specific restrictions, and queue priority rules remain to be designed and balanced.
 
+### Confirmed long-term career progression decision
+
+- **Career model:** Endless career. The player continues managing the same team across seasons, with no forced reset.
+- **Evolving world:** Rival teams continue developing, technical regulations change over time, and new fictional drivers enter the market.
+- **Persistence:** Long-term team progress, facilities, staff development, reputation, and career history remain part of the same save as the team evolves.
+- **Player choice:** Multiple save slots still allow players to start separate careers, but starting over is never required to continue progressing.
+
+Long-term balancing must keep later seasons interesting without relying on forced resets. Endgame rival evolution, regulation cadence, and performance ceilings remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
