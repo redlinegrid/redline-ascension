@@ -711,6 +711,89 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Polished Redline Paddock experience**: the first playable prototype should establish the game's dark motorsport identity, restrained racing-red accents, responsive layout, timing tower and clear strategy panels. Keep the scope focused and avoid advanced animation or extensive dashboard polish until the core game loop is proven.
 
+## Consolidated first playable prototype specification
+
+### Goal
+
+Deliver a compact, polished, end-to-end playable slice that proves the central Redline Paddock loop before expanding into the full career-management game. This is a prototype milestone, not a promise that every planned career feature will be present immediately.
+
+### Player loop
+
+1. Start a new local career with a basic team identity, two drivers and a modest starting budget.
+2. Review one fictional circuit and the car's baseline performance and condition.
+3. Prepare the car with a small number of meaningful setup choices and select each driver's starting tyre and race strategy.
+4. Run a race against eight rival drivers on a 10-car grid.
+5. Follow the race through a responsive timing tower, driver status panels, strategy controls and a readable event log. Cars drive automatically; the player controls strategic decisions.
+6. Receive the classification, prize money, a financial summary and an explanatory post-race report.
+7. Spend available resources on at least one meaningful car improvement, then prepare for the next event.
+8. Save and restore the career, including a race in progress, without losing the simulation state.
+
+### Prototype inclusions
+
+- One fictional circuit and a 10-car grid: two player-controlled team entries plus eight rival cars.
+- Deterministic hybrid event-driven race simulation, designed so important events are resolved at specific simulation moments and state can be serialized and restored.
+- Basic tyre compounds and wear, fuel effects, pace modes, overtaking, pit stops and a small set of incidents. Keep the first implementation intentionally narrower than the complete planned simulation.
+- Individual strategy for each of the player's two drivers, including tyre selection and pit-window/stop commands. Rival strategy can be simpler but should use the same core race rules.
+- Basic rival behaviour sufficient to create competition, traffic and strategic variation; no rubber-banding or hidden performance boosts.
+- A simple team economy with starting funds, race income/prize money, limited upgrade costs and a clear transaction summary.
+- One upgrade path that connects development cost to a tangible car-performance change; use a simplified research/manufacturing/install flow if needed to preserve the long-term design direction.
+- Basic driver/team identity and a dark, responsive motorsport interface with restrained racing-red accents, a timing tower, driver panels, strategy controls and race-event log.
+- Local save-ready architecture and a simple way to save and restore career/race state.
+
+### Explicitly out of scope for the first playable slice
+
+- The full 22-car grid and complete 11-team field.
+- Full six-race season and longer calendar progression.
+- Complete staffing departments, staff career development and advanced management automation.
+- Full sponsor negotiation, contract objectives and reputation-driven sponsor market.
+- Full driver market, youth academy, scouting and retirement/new-prospect lifecycle.
+- All advanced R&D branches, every component family, full spare inventory and complex manufacturing/repair queues.
+- Full regulation-transition lifecycle and legacy-component resale systems.
+- Full sprint weekend, complete Q1/Q2/Q3 and Sprint Shootout formats.
+- Advanced weather forecasting, detailed safety-car/red-flag rules and the full incident/damage model.
+- Multiple career slots, polished autosave UX and backup import/export.
+- Advanced animations and dashboard polish beyond what is needed to make the prototype coherent and readable.
+
+These remain part of the intended broader game where already established in the design, but should not block the first playable loop.
+
+### Technical implementation principles
+
+- Use React, TypeScript and Vite for the browser application.
+- Keep the race simulation in a pure TypeScript engine, separated from UI code and suitable for running in a Web Worker when appropriate.
+- Use deterministic seeded simulation and explicitly serializable state, including RNG state, car/tyre/fuel condition, pit operation state, race clock, event queue, weather/race-control state and pending player commands.
+- Separate simulation rules from presentation so the prototype can scale from 10 to 22 cars and add more race systems without rewriting the UI.
+- Use local-first persistence; design a versioned save format and validate loaded state. Do not require accounts, network access or a generative-AI service for core gameplay.
+- Keep interface components responsive and usable on mobile as well as desktop.
+- Prefer clear event logs and post-race explanations over visual effects that obscure why a result occurred.
+
+### Prototype acceptance criteria
+
+The prototype is considered playable when a user can:
+
+- Start a new career and see the team, two drivers, budget and car condition.
+- Prepare a race and make separate strategic choices for both drivers.
+- Start, pause, resume and change simulation speed during a race.
+- Observe rival cars, overtakes, tyre condition, pit stops and race events changing over time.
+- Complete the race and receive a classification, financial result and understandable explanation of key events.
+- Purchase or complete at least one car improvement and observe its intended effect in the next race.
+- Save and reload both between races and during a race, with the simulation resuming consistently.
+- Complete the loop without a network connection after the app has been loaded.
+- Use the core race interface on a mobile-sized viewport without essential controls or information becoming inaccessible.
+
+### Implementation order
+
+1. Establish the app shell, theme, responsive layout and a small amount of representative race data.
+2. Implement and test the pure deterministic simulation model with two player cars and eight rivals.
+3. Build the race interface and wire it to the simulation, including pause/speed controls, strategy commands, timing tower and event log.
+4. Implement race completion, classification, prize money and the post-race report.
+5. Add the simple upgrade/economy loop and carry the upgraded car into the next event.
+6. Add save/restore for career and in-progress race state, then test repeatability and reload recovery.
+7. Balance and polish the end-to-end loop before expanding scope.
+
+### Scope-control rule
+
+Do not add a new design-review question unless the answer would materially change the architecture or invalidate the agreed prototype. Use sensible defaults for numbers and low-risk details, document them as provisional, and tune them through testing. The user must explicitly authorize implementation before game source code is started.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
