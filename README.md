@@ -457,6 +457,13 @@ Exact contract terms, objective scoring, payment schedules, and consequences for
 
 Exact staff roles, skill categories, experience curves, salary progression, and retention mechanics remain to be designed.
 
+### Confirmed championship scoring and sprint decision
+
+- **Championship scoring:** Use a modern F1-inspired points system, with points awarded to the top 10 finishers.
+- **Championships:** Track both the Drivers' Championship and Constructors' Championship.
+- **Sprint format:** Selected rounds feature sprint qualifying and a shorter sprint race, adding extra sporting and strategic opportunities.
+- **Rules still to define:** Exact points values, sprint points, sprint-round selection, classification requirements, penalties, fastest-lap treatment, and championship tie-breakers.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
