@@ -661,6 +661,15 @@ Exact production slots, component costs, installation time, compatibility rules,
 
 Exact installation duration, the treatment of emergency repairs, and how unusually short gaps affect unfinished work remain to be defined.
 
+### Confirmed car development progression
+
+- **Hybrid development tree:** Routine incremental upgrades improve existing engineering concepts, while breakthrough projects unlock alternative designs with distinct performance trade-offs.
+- **Strategic variety:** Engineering directions may favour different characteristics, such as high downforce for technical circuits or low drag for circuits with long straights.
+- **Long-term progression:** Career development should involve shaping the team's engineering philosophy, not merely increasing component levels every season.
+- **Manufacturing integration:** Unlocked designs still require component manufacturing and installation on individual cars under the existing production rules.
+
+Exact technology branches, prerequisite projects, trade-off magnitudes, and how regulations affect older concepts remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
