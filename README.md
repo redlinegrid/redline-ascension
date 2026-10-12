@@ -679,6 +679,10 @@ Exact technology branches, prerequisite projects, trade-off magnitudes, and how 
 
 Exact notice periods, transition deadlines, regulation scope, and the treatment of inventory or components already in production remain to be designed.
 
+### Confirmed old-component rules
+
+- **Legacy components after regulation changes**: affected components cannot be used in regulated competition once the new rules take effect, but remain in inventory or may be used for non-racing purposes. Resale or salvage value recovers part of the investment rather than deleting the assets outright.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
