@@ -536,6 +536,15 @@ Long-term balancing must keep later seasons interesting without relying on force
 
 Exact phase durations, elimination counts, tyre rules, and sprint-weekend qualifying variations remain to be defined.
 
+### Confirmed sprint weekend format decision
+
+- **Sprint grid:** A dedicated, condensed Sprint Shootout determines the starting order for the sprint race.
+- **Sprint race:** The sprint is a shorter race with its own sporting and strategic decisions.
+- **Grand Prix grid:** The sprint result determines the starting grid for the main Grand Prix.
+- **Design goal:** Give sprint weekends a distinct identity and make sprint performance consequential, while keeping the shootout shorter than regular Q1–Q3 qualifying.
+
+The exact shootout phases, elimination counts, sprint distance, points allocation, and treatment of penalties or unclassified sprint results remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
