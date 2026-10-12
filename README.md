@@ -486,6 +486,14 @@ The exact regulation interval, rule packages, transition timing, and component-s
 
 The exact reputation changes, sponsor reactions, recovery pacing, and attribution of lap-time losses remain to be balanced and validated.
 
+### Confirmed save system decision
+
+- **Save model:** Local-first browser saves with automatic saving, plus exportable backups that players can restore later. The game should remain playable offline and should not require an account.
+- **Career slots:** Support multiple independent career slots so players can maintain separate teams and experiments without overwriting their main career.
+- **Data protection:** Make destructive actions explicit, validate imported backups, and provide clear warnings before deleting a career or replacing saved data.
+
+The exact autosave cadence, backup file format, save migrations, and recovery behavior remain to be specified during implementation planning.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
