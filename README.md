@@ -441,6 +441,14 @@ Team naming and visual customisation, starting driver choices, initial car speci
 
 Detailed livery editing and custom logo uploads are not included in this decision; the initial approach uses preset visual assets and configurable colours.
 
+### Confirmed sponsorship decision
+
+- **Sponsorship model:** Contract-based offers with different payment levels, contract lengths, and performance requirements. The quality and availability of offers are influenced by team reputation.
+- **Sponsor objectives:** A mixed set of objectives covering race results, race reliability, facility development, promising driver signings, and team reputation.
+- **Career balance:** Developing teams should have viable routes to sponsorship through consistent progress and reliability, not only wins or podiums.
+
+Exact contract terms, objective scoring, payment schedules, and consequences for missed targets remain to be balanced.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
