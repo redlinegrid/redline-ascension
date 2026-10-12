@@ -510,6 +510,15 @@ Distribution and hosting costs, if any, should be considered separately without 
 
 Exact automation rules, project queue limits, staff authority, and player override behavior remain to be designed.
 
+### Confirmed research and development capacity decision
+
+- **Concurrent project capacity:** Facility-based. Facilities determine how many research and development projects can run at the same time.
+- **Progression:** Facility upgrades unlock additional concurrent project capacity, giving infrastructure investment lasting strategic value.
+- **Staff contribution:** Staff skills and assignments influence project speed and quality, but do not replace facility capacity.
+- **Queue behavior:** Projects may wait in a queue until capacity becomes available, working with the hybrid automation model.
+
+Exact capacity values, facility upgrade costs, department-specific restrictions, and queue priority rules remain to be designed and balanced.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
