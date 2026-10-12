@@ -643,6 +643,15 @@ Exact damage categories, repair durations, replacement inventory, capacity inter
 
 Exact component categories, inventory limits, storage costs, manufacturing lead times, and rules for using older specifications remain to be designed.
 
+### Confirmed car upgrade manufacturing decision
+
+- **Manufacture and install per car:** R&D completes a design, but components must then be manufactured and installed on each race car.
+- **Limited production capacity:** Manufacturing capacity constrains how quickly components can be produced, so players may need to prioritise one car over the other.
+- **Management integration:** Production connects R&D, engineering capacity, spare inventory, repair needs, and race-weekend preparation.
+- **Strategic purpose:** A new design does not automatically upgrade the whole team; players make deliberate allocation decisions.
+
+Exact production slots, component costs, installation time, compatibility rules, and whether old-spec parts can be reused remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
