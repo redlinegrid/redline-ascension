@@ -464,6 +464,14 @@ Exact staff roles, skill categories, experience curves, salary progression, and 
 - **Sprint format:** Selected rounds feature sprint qualifying and a shorter sprint race, adding extra sporting and strategic opportunities.
 - **Rules still to define:** Exact points values, sprint points, sprint-round selection, classification requirements, penalties, fastest-lap treatment, and championship tie-breakers.
 
+### Confirmed technical regulation decision
+
+- **Regulation cycle:** Technical regulations change periodically every few seasons, with advance notice so the player can plan research, spending, facilities, and car development.
+- **Impact on existing development:** Moderate. Some components and engineering advantages lose effectiveness under new rules, while facilities, staff, accumulated knowledge, and most career progress retain value.
+- **Design goal:** Create meaningful changes in engineering priorities without making players feel that their long-term investments have been erased.
+
+The exact regulation interval, rule packages, transition timing, and component-specific effects remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
