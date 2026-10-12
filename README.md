@@ -385,6 +385,13 @@ Testing should cover both software correctness and racing behaviour.
 
 The race engine should be proven before investing heavily in the full management layer or polished presentation.
 
+### Confirmed race weekend decision
+
+- **Weekend format:** Full weekend — FP1, FP2, FP3, qualifying, and the race.
+- **Practice behaviour:** Optional. The player can run a practice session or skip it.
+
+Practice should provide useful setup, tyre, and car-behaviour information, while skipping it should keep the career moving without forcing repetitive sessions.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
