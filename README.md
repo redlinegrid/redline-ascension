@@ -502,6 +502,14 @@ The exact autosave cadence, backup file format, save migrations, and recovery be
 
 Distribution and hosting costs, if any, should be considered separately without changing this no-monetisation commitment.
 
+### Confirmed long-term management automation decision
+
+- **Management style:** Hybrid automation. The player sets priorities and launches important projects, while staff handle routine work.
+- **Convenience features:** Optional repeat queues and configurable automation rules reduce repetitive tasks without removing meaningful decisions from the player.
+- **Design principle:** Automation should be transparent and configurable. The player can understand what the team is doing, why it is doing it, and which budget or capacity limits apply.
+
+Exact automation rules, project queue limits, staff authority, and player override behavior remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
