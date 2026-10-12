@@ -472,6 +472,12 @@ Exact staff roles, skill categories, experience curves, salary progression, and 
 
 The exact regulation interval, rule packages, transition timing, and component-specific effects remain to be designed.
 
+### Confirmed race distance and time-control decision
+
+- **Race distance:** Condensed races that preserve meaningful tyre degradation, fuel decisions, pit stops, and safety-car possibilities.
+- **Race time controls:** Players can pause, resume, and switch between 1×, 2×, and 4× simulation speed.
+- **Design goal:** Make races strategically engaging without requiring players to watch every lap in real time. Exact lap counts and race durations will be tuned through simulation testing.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
