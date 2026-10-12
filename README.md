@@ -707,6 +707,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Save-ready from day one**: structure the simulation so its complete state can be serialized and restored, including mid-race state. The first prototype may use a simple save/resume interface; autosave polish, multiple career slots, and backup import/export can be added later. This avoids making persistence a late architectural retrofit.
 
+### Confirmed prototype visual scope
+
+- **Polished Redline Paddock experience**: the first playable prototype should establish the game's dark motorsport identity, restrained racing-red accents, responsive layout, timing tower and clear strategy panels. Keep the scope focused and avoid advanced animation or extensive dashboard polish until the core game loop is proven.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
