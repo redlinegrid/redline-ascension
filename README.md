@@ -413,6 +413,13 @@ The exact preset effects and rival decision algorithms remain to be designed and
 
 The exact command timing, command priority, and pit-request rules will be defined during simulation design.
 
+### Confirmed championship structure decision
+
+- **Season length:** Start with a six-race season, then unlock 10-, 16-, and 20-race seasons as the career progresses.
+- **Circuit calendar:** Fixed calendar order, so players can plan development around upcoming circuit characteristics and compare seasons consistently.
+
+The unlock conditions, exact circuit roster, and race spacing remain to be specified.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
