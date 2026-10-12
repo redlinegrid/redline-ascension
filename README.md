@@ -608,6 +608,15 @@ Exact tyre allocations, sprint requirements, classification conditions, and the 
 
 Exact fuel limits, consumption rates, reserve requirements, and how safety cars or race-distance changes affect estimates remain to be balanced.
 
+### Confirmed car setup decision
+
+- **Setup depth:** Use a focused engineering setup with a small number of meaningful adjustments rather than only presets or a highly complex engineering model.
+- **Setup parameters:** Initial candidates include aero balance, ride height, suspension stiffness, and brake bias.
+- **Trade-offs:** Adjustments affect competing performance characteristics, so there is no universally perfect setup for every circuit or condition.
+- **Practice feedback:** Practice sessions provide information that helps players refine the setup. Skipping practice leaves a usable baseline setup available, but sacrifices some learning and optimisation opportunities.
+
+Exact parameter ranges, interactions, driver feedback, setup recommendations, and circuit-specific effects remain to be designed and balanced.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
