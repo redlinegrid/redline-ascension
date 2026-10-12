@@ -1,0 +1,407 @@
+# Redline Paddock
+
+> **Build your team. Engineer your future.**  
+> A single-player idle motorsport management game built around long-term progression, strategic race control, and evolving rivals.
+
+**Status:** Planning and design  
+**Repository:** Private  
+**Project type:** Independent game project — separate from Redline Grid
+
+Redline Paddock is a motorsport management game inspired by the satisfying long-term progression of idle games such as *Melvor Idle*. Players build a team over time, develop drivers and technology, manage finances, and compete in race weekends. Most management systems progress while the player is away, while races remain a deliberate activity the player can return to and influence.
+
+This README records the current design direction. Specific numbers, balance values, and features remain subject to iteration. No application implementation has started.
+
+---
+
+## Contents
+
+- [Design pillars](#design-pillars)
+- [Core gameplay loop](#core-gameplay-loop)
+- [Idle and offline progression](#idle-and-offline-progression)
+- [Race weekend and race control](#race-weekend-and-race-control)
+- [Race simulation](#race-simulation)
+- [Team development](#team-development)
+- [Drivers and staff](#drivers-and-staff)
+- [Rivals and AI](#rivals-and-ai)
+- [Championship and finances](#championship-and-finances)
+- [Presentation and UX](#presentation-and-ux)
+- [Technical direction](#technical-direction)
+- [Proposed project structure](#proposed-project-structure)
+- [Testing and quality goals](#testing-and-quality-goals)
+- [Development roadmap](#development-roadmap)
+- [Open design decisions](#open-design-decisions)
+- [Project boundaries](#project-boundaries)
+
+---
+
+## Design pillars
+
+1. **Progress while away.** Research, training, and eligible management systems use elapsed time, not time spent staring at the game.
+2. **Meaningful choices, not constant chores.** The player should be able to check in briefly, make decisions, queue work, and leave without feeling punished.
+3. **Races are playable events.** Races run automatically by default, with optional hands-on strategy control when the player wants it.
+4. **Trade-offs matter.** Faster development, reliability, cost, tyre life, and outright pace should compete with one another.
+5. **Rivals evolve.** AI teams develop their cars, manage budgets, and change priorities over multiple seasons.
+6. **Offline-first and single-player.** The core experience should not depend on a server, multiplayer service, or generative AI.
+7. **Readable motorsport data.** Timing, strategy, car performance, and race events should be presented in a clear, information-rich interface that works on desktop and mobile.
+
+## Core gameplay loop
+
+1. Review the team's finances, staff, facilities, drivers, and championship position.
+2. Start or queue research, training, engineering work, and facility upgrades.
+3. Choose development priorities and accept the associated cost, time, and performance trade-offs.
+4. Leave the game while eligible projects continue to progress.
+5. Return to an offline progress report and review completed work, income, experience, and rival changes.
+6. Prepare for qualifying and the race weekend.
+7. Watch the race automatically or take control of selected strategic decisions.
+8. Review results, championship points, finances, and the next development cycle.
+
+## Idle and offline progression
+
+Progression is planned across three time horizons:
+
+| Horizon | Example activities |
+| --- | --- |
+| Short term — minutes to hours | Driver training, component analysis, pit crew drills, small engineering tasks |
+| Medium term — hours to days | Aerodynamic packages, reliability programmes, facility upgrades, advanced driver development |
+| Long term — weeks and seasons | Championship campaigns, young-driver development, major facility expansion, building a lasting team |
+
+### Offline rules
+
+- Projects advance using elapsed time.
+- Completed work remains completed; progress is not wasted.
+- Eligible follow-up projects may be queued when resources and capacity permit.
+- Staff and facility capacity limit advanced programmes.
+- Returning players receive a clear report of research completions, driver XP, sponsor income, operating costs, and notable rival developments.
+- Being away should not trigger surprise firings, destroy progress, or make the career irrecoverable.
+- AI rivals advance on a comparable elapsed-time basis.
+- Research unlocks choices; it should not silently remove meaningful trade-offs.
+- Race weekends and championship results wait for the player. An active race pauses when the game is closed unless the player has explicitly enabled automatic completion.
+
+Exact rules for time changes, project queues, income limits, and offline simulation still need to be specified and tested.
+
+## Race weekend and race control
+
+The intended race experience combines a live 2D top-down circuit with a motorsport-style control interface.
+
+### Planned race-control elements
+
+- Circuit map with live car positions
+- Timing tower and sector/lap information
+- Driver and car status panels
+- Tyre, fuel, damage, and reliability information
+- Strategy console and pit-stop controls
+- Engineer recommendations with estimates and confidence, not guaranteed answers
+- Radio-style messages and a race event log
+- Weather and race-control status
+- Pause/resume and 1×, 2×, and 4× simulation speeds
+- Automatic race running by default, with optional player intervention
+
+The initial concept includes **11 fictional teams and 22 cars**, with the player managing one team and its two drivers. The other ten teams are AI rivals. This grid size and roster are initial design targets, not final balance commitments.
+
+The first playable milestone should prove the race simulation on a simple circuit before the full management game is built around it.
+
+## Race simulation
+
+The simulation should be deterministic: the same initial state, random seed, and player commands should produce the same result. Rendering and UI code must not change race outcomes.
+
+### Lap-time model
+
+A conceptual model for lap time is:
+
+`T_lap = T_base + Δ_tyre + Δ_fuel + Δ_traffic + Δ_weather + Δ_driver + Δ_setup + ε`
+
+This is a design model rather than a final calibrated formula. Each term will be refined through testing and balancing.
+
+### Car characteristics
+
+Planned performance and reliability characteristics include:
+
+- Aerodynamic efficiency and downforce
+- Mechanical grip and chassis balance
+- Power delivery and energy deployment
+- Vehicle weight
+- Reliability
+- Tyre management
+
+### Tyres and fuel
+
+- Dry compounds: Soft, Medium, and Hard
+- Wet-weather compounds: Intermediate and Wet
+- Tyre state tracks compound, wear, temperature, and age.
+- Degradation can move through normal, high, and critical regimes.
+- Fuel weight and consumption affect pace.
+- Driver pace modes include conserving, balanced running, and pushing.
+
+Tyre behaviour should make compound choice, stint length, temperature, and race conditions strategically relevant.
+
+### Traffic, overtaking, and pit stops
+
+Overtaking should consider the gap, closing speed, tyre condition, dirty air, driver racecraft, circuit characteristics, and any circuit-specific overtaking assistance.
+
+The planned pit-stop flow is:
+
+1. Racing
+2. Pit request accepted
+3. Pit-lane entry
+4. Tyre service
+5. Pit exit and merge
+6. Return to racing
+
+Pit loss should account for lane time, service time, merging, and traffic. The simulation must handle overlapping pit requests and cars rejoining safely.
+
+### Weather and incidents
+
+Planned race conditions and events include changing weather, yellow flags, safety cars, virtual safety cars, red flags, spins, penalties, damage, mechanical problems, and retirements. Their frequency and impact must be tuned using scenario tests rather than arbitrary rates.
+
+### Player commands
+
+Potential commands include:
+
+- Conserve, Balanced, Push, and Attack pace
+- Defend or target a rival
+- Let a teammate through or hold position
+- Pit at the next opportunity
+- Select a tyre compound
+- Review strategy advice
+
+The final command set and how it interacts with automatic racing remain to be defined.
+
+## Team development
+
+Development uses a **hybrid model**:
+
+- **Automatic, low-maintenance projects** provide a simple path for routine progression.
+- **Advanced engineering programmes** let the player allocate staff, manage facility capacity, and choose design trade-offs.
+
+Advanced programmes may optimise cost, reliability, performance, and development time differently. There should not be one universally correct upgrade path.
+
+### Planned departments and specialisations
+
+| Department | Focus |
+| --- | --- |
+| Aerodynamics | Wings, floor development, aerodynamic efficiency |
+| Vehicle Engineering | Chassis balance, mechanical grip, setup quality |
+| Powertrain | Acceleration, energy deployment, efficiency |
+| Reliability | Mechanical failure risk and repair costs |
+| Tyre Engineering | Tyre life and temperature management |
+| Pit Crew | Pit-stop speed and consistency |
+| Driver Academy | Pace, consistency, racecraft, wet-weather ability |
+| Race Strategy | Forecast interpretation and decision support |
+
+Departments can gain experience, level up, unlock projects, and reach mastery milestones. Progression should introduce new options and specialisations rather than only adding flat stat bonuses.
+
+## Drivers and staff
+
+Driver attributes are planned on a 0–100 scale and may include:
+
+- Raw pace
+- Racecraft
+- Consistency
+- Tyre management
+- Wet-weather skill
+- Technical feedback
+- Confidence
+
+Driver development should take time and present choices. Young-driver development and long-term staff or driver planning are part of the career layer, with details to be finalised.
+
+## Rivals and AI
+
+Rival teams should evolve across seasons rather than remain static opponents. They may adjust:
+
+- Car development and technical priorities
+- Budgets and spending
+- Driver and staff choices
+- Research and facility investment
+- Tyre and pit strategy
+- Risk tolerance based on race and championship context
+
+Planned AI archetypes include **Frontrunner**, **Opportunist**, **Aggressor**, and **Weather Gambler**.
+
+Race AI should evaluate pit loss, tyre wear, traffic, weather forecasts, championship position, fuel, and reliability. It must not know future weather or use information unavailable to the player. Rival development should follow the same general elapsed-time principle as the player's development.
+
+The AI will use deterministic game logic and rules, not a generative AI service, so the game remains usable offline.
+
+## Championship and finances
+
+The career layer is expected to include qualifying, race results, championship points and standings, sponsor payments, prize money, salaries, research and upgrade costs, repairs, and facility operating costs.
+
+A finance ledger should make income and expenditure understandable. The player should be able to identify why the team gained or lost money and plan for upcoming commitments.
+
+The first career prototype is tentatively planned around a six-race season. The final calendar, points system, contract rules, sponsor terms, and financial balance are still open for design.
+
+## Presentation and UX
+
+The interface should feel like a focused motorsport engineering workstation:
+
+- Dark charcoal and near-black surfaces
+- Restrained racing-red accents
+- Technical, readable typography
+- Compact panels, timing displays, and data visualisations
+- Clear status hierarchy and useful tooltips
+- Responsive desktop and mobile layouts
+- Touch-friendly controls for race strategy
+- An offline progress summary that is easy to scan
+
+The visual direction may take inspiration from Redline Grid, but **Redline Paddock is a separate project with its own codebase and identity**.
+
+## Technical direction
+
+The current proposed stack is:
+
+- **React + TypeScript + Vite** for the application
+- **Canvas** for the 2D circuit and car rendering
+- **Web Worker** for the simulation engine
+- **IndexedDB** for career and race saves
+- **Progressive Web App (PWA)** support for caching the application shell and essential assets
+
+These are planning choices and may be adjusted after the simulation proof of concept.
+
+### Architecture principles
+
+- Keep the simulation engine independent from React and UI components.
+- The UI sends commands and renders state; the simulation owns the authoritative game state.
+- Use a fixed simulation timestep (initial target: 0.1 simulated seconds) independently of rendering speed.
+- Use seeded, stateful random-number generation for reproducibility.
+- Keep career, race simulation, rendering, and persistence separated.
+- Validate saves and version the save schema so it can evolve safely.
+- Autosave at safe points and preserve a recoverable save before replacing data.
+- Support offline use without requiring cloud accounts.
+
+### Save and resume
+
+The save model is expected to include a schema version, save identifier, save timestamp, career state, and active race snapshot.
+
+A mid-race save must capture enough state to resume consistently, including:
+
+- Random-number generator state
+- All cars and their positions
+- Tyre and fuel state
+- Pit operations
+- Weather and race-control state
+- AI decision state
+- Pending player commands and command sequence numbers
+
+Save/load and mid-race resume must be tested for deterministic consistency. Corrupt-save recovery and schema migration are also important quality goals.
+
+## Proposed project structure
+
+The following is a starting point for future implementation, not a created source tree:
+
+```text
+src/
+  app/
+  components/
+    race-control/
+    circuit-map/
+    timing-tower/
+    strategy-console/
+    management/
+  simulation/
+    engine/
+    physics/
+    tyres/
+    weather/
+    pit-stops/
+    incidents/
+    ai/
+    scoring/
+  career/
+    finances/
+    development/
+    contracts/
+    championship/
+  data/
+    teams/
+    drivers/
+    circuits/
+  persistence/
+  workers/
+  styles/
+tests/
+  unit/
+  simulation/
+  integration/
+  e2e/
+```
+
+## Testing and quality goals
+
+Testing should cover both software correctness and racing behaviour.
+
+- Unit tests for lap-time components, tyre behaviour, pit loss, scoring, and finance calculations
+- Determinism tests using fixed seeds and identical command sequences
+- Scenario tests for dry races, rain, safety cars, failures, overlapping pit stops, penalties, and close finishes
+- Save/load and mid-race resume consistency tests
+- End-to-end checks for core UI flows, offline use, and mobile layouts
+- Large batches of seeded races to evaluate pace variance, tyre degradation, pit loss, overtaking, incident frequency, and strategy effectiveness
+- AI behaviour checks to ensure rivals use plausible strategies and do not receive future information
+
+### Initial acceptance goals
+
+- A complete 22-car race can finish without invalid simulation state.
+- Tyres, pits, traffic, weather, and driver attributes can meaningfully affect outcomes.
+- The two player drivers can receive separate strategic commands.
+- AI teams exhibit recognisable strategy profiles.
+- The race can be paused, sped up, saved, and resumed reliably.
+- Core management progression continues offline.
+- The interface remains usable on mobile.
+- Save corruption or older save versions can be handled safely.
+
+## Development roadmap
+
+### Phase 1 — Simulation proof of concept
+- Build a headless simulation with a simple circuit and 22 cars.
+- Implement lap timing, basic tyre wear, overtaking, and race classification.
+- Establish seeded determinism and automated tests.
+
+### Phase 2 — Interactive race control
+- Add the circuit map, timing tower, and driver/car status.
+- Add player control for both team cars.
+- Implement pace commands, pit requests, pause/resume, and simulation speed controls.
+
+### Phase 3 — Race depth
+- Add weather, AI strategy, safety cars, incidents, penalties, and event/radio messages.
+- Balance and test different race scenarios.
+
+### Phase 4 — Persistence and offline support
+- Implement versioned local saves and safe autosaving.
+- Support mid-race resume and offline application caching.
+- Test deterministic save/load behaviour and recovery.
+
+### Phase 5 — Career management
+- Add qualifying, finances, development projects, contracts, and championship standings.
+- Build the initial six-race career prototype.
+- Add offline progression reports and evolving rival teams.
+
+### Phase 6 — Balance and polish
+- Run large seeded race batches and tune the simulation.
+- Improve accessibility, responsive layouts, and feedback.
+- Review onboarding, save recovery, and overall progression pacing.
+
+The race engine should be proven before investing heavily in the full management layer or polished presentation.
+
+## Open design decisions
+
+These questions should be resolved during planning and prototyping before they become expensive assumptions:
+
+- Exact rules for advancing or changing the clock and calculating offline time
+- How queued projects, income caps, upkeep, and staff capacity work
+- Whether automatic race completion is opt-in and how it affects closed-browser sessions
+- The qualifying format and race-weekend flow
+- How player commands behave when a race is running automatically
+- Initial circuits, calendar, and championship scoring
+- Driver/staff contracts, sponsor terms, and long-term career progression
+- Final simulation formulas, event probabilities, and economy balance
+
+## Project boundaries
+
+- **Single-player only** for the planned experience.
+- **Fictional teams, drivers, circuits, and branding** are the starting direction; avoid unlicensed F1 branding and assets.
+- **No generative AI dependency** in the game simulation.
+- **Offline-first**: the core game should remain playable without a server connection.
+- **Redline Grid is separate and must remain untouched.**
+- This repository is currently for planning. Implementation begins only after the design is reviewed and explicitly approved.
+
+---
+
+*This README is a living design document. Update it as decisions are confirmed and prototypes reveal what works.*
