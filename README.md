@@ -554,6 +554,15 @@ The exact shootout phases, elimination counts, sprint distance, points allocatio
 
 The exact commitment point, pit-window behavior under safety cars or changing weather, and rules for conflicting queued commands remain to be defined.
 
+### Confirmed individual driver strategy decision
+
+- **Control model:** Each driver has an independent race strategy.
+- **Per-car controls:** Each car has its own pace mode, tyre choice, pit window, and tactical commands.
+- **Strategic flexibility:** The player can split strategies when the drivers have different race positions, tyre conditions, traffic, or tactical objectives.
+- **Design goal:** Preserve meaningful two-car team management without requiring constant micromanagement; shared strategy templates may be considered later as a convenience feature.
+
+The exact command set, conflict handling, and per-driver strategy interface remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
