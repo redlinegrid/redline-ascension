@@ -599,6 +599,15 @@ The exact forecast horizon, confidence calculation, update frequency, engineer i
 
 Exact tyre allocations, sprint requirements, classification conditions, and the detailed wet-weather exception logic remain to be defined.
 
+### Confirmed fuel strategy decision
+
+- **Starting fuel:** The player chooses each driver's starting fuel load within safe limits.
+- **Fuel and pace:** Less fuel reduces car weight and can improve pace, but leaves less margin for aggressive fuel use or unexpected race conditions.
+- **In-race refuelling:** Refuelling is not allowed during a race.
+- **Race control:** The player manages fuel consumption with the existing conserve, balanced, and push pace modes, weighing lap time against the risk of running short.
+
+Exact fuel limits, consumption rates, reserve requirements, and how safety cars or race-distance changes affect estimates remain to be balanced.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
