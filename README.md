@@ -545,6 +545,15 @@ Exact phase durations, elimination counts, tyre rules, and sprint-weekend qualif
 
 The exact shootout phases, elimination counts, sprint distance, points allocation, and treatment of penalties or unclassified sprint results remain to be defined.
 
+### Confirmed pit-stop control decision
+
+- **Pit planning:** The player sets a target lap or pit window and chooses the next tyre compound.
+- **Execution:** The car executes the planned stop when conditions permit, subject to valid pit-entry rules and race circumstances.
+- **Revisions:** The player can revise the plan before the pit commitment point. Once committed, the stop follows the pit-operation state machine.
+- **Design goal:** Make strategy deliberate and readable at every simulation speed, including 4×, without requiring constant lap-by-lap monitoring.
+
+The exact commitment point, pit-window behavior under safety cars or changing weather, and rules for conflicting queued commands remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
