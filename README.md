@@ -703,6 +703,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **10-car prototype grid**: the player's team fields two drivers against eight rival drivers. This is large enough to exercise traffic, overtaking, tyre strategy and pit timing while keeping the first simulation easier to debug. The architecture should support scaling up to the intended 22-car, 11-team grid later.
 
+### Confirmed save-ready prototype architecture
+
+- **Save-ready from day one**: structure the simulation so its complete state can be serialized and restored, including mid-race state. The first prototype may use a simple save/resume interface; autosave polish, multiple career slots, and backup import/export can be added later. This avoids making persistence a late architectural retrofit.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
