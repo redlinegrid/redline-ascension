@@ -670,6 +670,15 @@ Exact installation duration, the treatment of emergency repairs, and how unusual
 
 Exact technology branches, prerequisite projects, trade-off magnitudes, and how regulations affect older concepts remain to be designed.
 
+### Confirmed technical regulation transition
+
+- **Advance notice:** Upcoming technical regulations are announced before they take effect.
+- **Transition period:** Teams have a defined window to research and manufacture compliant components.
+- **Existing designs:** Old-spec components remain usable until the new regulations take effect.
+- **Strategic impact:** Players must prioritise R&D, production capacity, and per-car installation before the deadline, balancing current-season performance against future compliance.
+
+Exact notice periods, transition deadlines, regulation scope, and the treatment of inventory or components already in production remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
