@@ -652,6 +652,15 @@ Exact component categories, inventory limits, storage costs, manufacturing lead 
 
 Exact production slots, component costs, installation time, compatibility rules, and whether old-spec parts can be reused remain to be designed.
 
+### Confirmed component installation timing
+
+- **Between race weekends:** Newly manufactured components are installed during the gap between Grand Prix weekends.
+- **Planning requirement:** Players must schedule production and installation deadlines and prioritise which car receives each available upgrade before the next event.
+- **Race-weekend focus:** New components are not installed during an active Grand Prix weekend; setup, qualifying, and race strategy remain the focus of the event.
+- **Integration:** This rule works with per-car manufacturing, limited production capacity, spare inventory, and the parc fermé-style setup lock.
+
+Exact installation duration, the treatment of emergency repairs, and how unusually short gaps affect unfinished work remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
