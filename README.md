@@ -687,6 +687,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Hybrid component system**: manage roughly six major component families for manufacturing, inventory, repairs and installation, while each family has distinct development branches and engineering trade-offs. For example, aerodynamic development can branch toward high downforce or low drag. This keeps routine management understandable while preserving meaningful long-term engineering choices.
 
+### Confirmed component wear and maintenance
+
+- **Hybrid wear system**: components gradually lose condition, with performance penalties emerging at meaningful wear thresholds. Heavy loads, incidents and reliability weaknesses can accelerate wear. Depending on condition and cost, the player can repair, refurbish or replace parts. Exact wear curves, thresholds, costs and service-life balance will be tuned during simulation testing.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
