@@ -528,6 +528,14 @@ Exact capacity values, facility upgrade costs, department-specific restrictions,
 
 Long-term balancing must keep later seasons interesting without relying on forced resets. Endgame rival evolution, regulation cadence, and performance ceilings remain to be designed.
 
+### Confirmed qualifying format decision
+
+- **Format:** Full knockout qualifying across Q1, Q2, and Q3.
+- **Elimination:** The slowest drivers are eliminated at the end of each phase, with the remaining drivers advancing until the final phase determines the leading grid positions.
+- **Design goal:** Preserve the sporting drama and strategic opportunities of a multi-phase qualifying session while keeping each phase condensed for the idle-management format.
+
+Exact phase durations, elimination counts, tyre rules, and sprint-weekend qualifying variations remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
