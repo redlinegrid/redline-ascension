@@ -406,6 +406,13 @@ The detailed income rates, contract terms, debt rules, and recovery objectives r
 
 The exact preset effects and rival decision algorithms remain to be designed and tested.
 
+### Confirmed race-control decision
+
+- **Race-control style:** Hybrid control. Cars race automatically, while the player can issue strategic commands during the race.
+- **Automatic strategy:** Driving is automatic, but pit decisions and tyre choices remain under player control. Optional engineer advice can support decisions without guaranteeing outcomes.
+
+The exact command timing, command priority, and pit-request rules will be defined during simulation design.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
