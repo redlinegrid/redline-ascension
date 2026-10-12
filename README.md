@@ -634,6 +634,15 @@ Exact permitted exceptions, sprint-weekend handling, and whether damage repairs 
 
 Exact damage categories, repair durations, replacement inventory, capacity interactions, and automation thresholds remain to be designed and balanced.
 
+### Confirmed spare-parts and replacement decision
+
+- **Strategic spare inventory:** The team maintains limited stock of important car components rather than having unlimited instant replacements.
+- **Manufacturing lead time:** Replacements may take time to manufacture, so players must plan inventory around expected risks and upcoming race weekends.
+- **Management integration:** Spare stock connects reliability, R&D/manufacturing capacity, repair queues, and finances.
+- **Design goal:** Inventory should create meaningful preparation and risk-management decisions without becoming a tedious warehouse-management system.
+
+Exact component categories, inventory limits, storage costs, manufacturing lead times, and rules for using older specifications remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
