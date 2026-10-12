@@ -590,6 +590,15 @@ Exact probabilities, damage states, repair costs, penalty rules, and retirement 
 
 The exact forecast horizon, confidence calculation, update frequency, engineer integration, and weather-transition model remain to be designed.
 
+### Confirmed tyre rules and mandatory pit-stop decision
+
+- **Dry Grand Prix rule:** Drivers must use at least two different dry tyre compounds and normally complete at least one pit stop.
+- **Wet-weather exceptions:** The mandatory dry-compound requirement does not apply when wet-weather tyre use makes the dry-compound rule inapplicable under the game's sporting regulations.
+- **Sprint races:** Use a simpler, separately defined tyre rule set suited to the shorter race.
+- **Strategic purpose:** Preserve meaningful Soft, Medium, and Hard compound trade-offs, tyre degradation, and pit-window planning without adding unnecessary rule complexity.
+
+Exact tyre allocations, sprint requirements, classification conditions, and the detailed wet-weather exception logic remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
