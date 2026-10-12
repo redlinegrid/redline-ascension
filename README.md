@@ -449,6 +449,14 @@ Detailed livery editing and custom logo uploads are not included in this decisio
 
 Exact contract terms, objective scoring, payment schedules, and consequences for missed targets remain to be balanced.
 
+### Confirmed staff management decision
+
+- **Staff management:** Department-level management. Hire department heads and specialists, manage salaries and assignments, and use staff skills to influence department performance.
+- **Staff progression:** Staff gain experience and improve their skills over time. As their expertise and reputation grow, they may demand higher salaries or become harder to retain.
+- **Management goal:** Keep staffing strategically meaningful without requiring constant micromanagement of every individual task.
+
+Exact staff roles, skill categories, experience curves, salary progression, and retention mechanics remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
