@@ -420,6 +420,13 @@ The exact command timing, command priority, and pit-request rules will be define
 
 The unlock conditions, exact circuit roster, and race spacing remain to be specified.
 
+### Confirmed driver market and development decision
+
+- **Driver market:** A living market with expiring contracts, transfers, retirements, and new fictional prospects entering over time. AI teams make their own roster decisions based on their needs and circumstances.
+- **Driver development:** An active youth academy where the player can scout prospects, invest in training, and decide when to promote them to a race seat.
+
+Contract economics, driver generation, scouting uncertainty, development rates, and promotion requirements remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
