@@ -581,6 +581,15 @@ The exact personality traits, order-resolution rules, morale effects, and fairne
 
 Exact probabilities, damage states, repair costs, penalty rules, and retirement thresholds remain to be tuned through simulation testing.
 
+### Confirmed weather forecasting decision
+
+- **Weather information:** Show current track conditions alongside forecasts of expected changes and estimated timing.
+- **Uncertainty:** Forecasts include confidence levels and can be wrong; they are guidance rather than guarantees.
+- **Strategic impact:** Players can prepare for likely weather changes, but must weigh the cost of acting early against waiting for stronger evidence.
+- **Design goal:** Make weather information useful for planning without making future conditions perfectly predictable.
+
+The exact forecast horizon, confidence calculation, update frequency, engineer integration, and weather-transition model remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
