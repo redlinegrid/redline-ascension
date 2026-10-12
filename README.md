@@ -427,6 +427,13 @@ The unlock conditions, exact circuit roster, and race spacing remain to be speci
 
 Contract economics, driver generation, scouting uncertainty, development rates, and promotion requirements remain to be designed.
 
+### Confirmed career entry decision
+
+- **Career entry:** The player creates a new team with a custom identity. The team occupies one of 11 grid entries alongside 10 AI rival teams.
+- **Starting strength:** Midfield newcomer, with a modest budget and developing facilities. The opening career should offer meaningful decisions and room to grow without making early progress feel hopeless.
+
+Team naming and visual customisation, starting driver choices, initial car specification, and exact starting budgets remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
