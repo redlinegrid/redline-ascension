@@ -617,6 +617,14 @@ Exact fuel limits, consumption rates, reserve requirements, and how safety cars 
 
 Exact parameter ranges, interactions, driver feedback, setup recommendations, and circuit-specific effects remain to be designed and balanced.
 
+### Confirmed setup change rules
+
+- **Parc fermé-style lock:** Players may tune car setup during practice, but setup locks when qualifying begins.
+- **After lock-in:** Setup changes are restricted for the remainder of the weekend, making practice preparation and weather forecasts important.
+- **Design intent:** Preserve meaningful setup commitment without making the weekend cumbersome; any exceptional permitted changes and their effects must be specified in the sporting rules.
+
+Exact permitted exceptions, sprint-weekend handling, and whether damage repairs can affect setup components remain to be defined.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
