@@ -699,6 +699,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **End-to-end vertical slice**: build one compact playable loop in which the player manages a team, prepares a car, races at one circuit, receives prize money and a post-race report, then improves the car for the next event. Start with simplified versions of supporting systems and expand them after the loop is playable and testable. This prototype is intended to validate the core experience before building the full career, all circuits and every advanced management feature.
 
+### Confirmed first-prototype grid size
+
+- **10-car prototype grid**: the player's team fields two drivers against eight rival drivers. This is large enough to exercise traffic, overtaking, tyre strategy and pit timing while keeping the first simulation easier to debug. The architecture should support scaling up to the intended 22-car, 11-team grid later.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
