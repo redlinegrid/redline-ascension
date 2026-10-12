@@ -683,6 +683,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Legacy components after regulation changes**: affected components cannot be used in regulated competition once the new rules take effect, but remain in inventory or may be used for non-racing purposes. Resale or salvage value recovers part of the investment rather than deleting the assets outright.
 
+### Confirmed car component structure
+
+- **Hybrid component system**: manage roughly six major component families for manufacturing, inventory, repairs and installation, while each family has distinct development branches and engineering trade-offs. For example, aerodynamic development can branch toward high downforce or low drag. This keeps routine management understandable while preserving meaningful long-term engineering choices.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
