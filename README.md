@@ -563,6 +563,15 @@ The exact commitment point, pit-window behavior under safety cars or changing we
 
 The exact command set, conflict handling, and per-driver strategy interface remain to be defined.
 
+### Confirmed team orders and teammate cooperation decision
+
+- **Cooperation model:** Personality-driven. Drivers interpret team orders according to their traits, confidence, rivalry, and championship position.
+- **Behavior:** Drivers may cooperate readily, hesitate, or resist instructions depending on the context and their individual characteristics.
+- **Design goal:** Make teammate relationships and team orders strategically meaningful without making every instruction deterministic or requiring constant intervention.
+- **Player control:** The player can still issue tactical commands; the outcome and its effects on morale, confidence, and team harmony depend on the driver and situation.
+
+The exact personality traits, order-resolution rules, morale effects, and fairness/balance safeguards remain to be designed.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
