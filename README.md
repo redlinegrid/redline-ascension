@@ -695,6 +695,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Hybrid event-driven simulation**: race progression advances through simulated time, while meaningful events—including overtakes, pit stops, tyre changes, weather transitions and incidents—are resolved at precise simulation moments. This supports detailed strategic decisions without requiring continuous calculation of every on-screen movement. The model must remain deterministic and saveable so a race can pause and resume reliably. Exact event scheduling and update granularity will be settled during the prototype.
 
+### Confirmed first playable prototype scope
+
+- **End-to-end vertical slice**: build one compact playable loop in which the player manages a team, prepares a car, races at one circuit, receives prize money and a post-race report, then improves the car for the next event. Start with simplified versions of supporting systems and expand them after the loop is playable and testable. This prototype is intended to validate the core experience before building the full career, all circuits and every advanced management feature.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
