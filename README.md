@@ -691,6 +691,10 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 - **Hybrid wear system**: components gradually lose condition, with performance penalties emerging at meaningful wear thresholds. Heavy loads, incidents and reliability weaknesses can accelerate wear. Depending on condition and cost, the player can repair, refurbish or replace parts. Exact wear curves, thresholds, costs and service-life balance will be tuned during simulation testing.
 
+### Confirmed race simulation model
+
+- **Hybrid event-driven simulation**: race progression advances through simulated time, while meaningful events—including overtakes, pit stops, tyre changes, weather transitions and incidents—are resolved at precise simulation moments. This supports detailed strategic decisions without requiring continuous calculation of every on-screen movement. The model must remain deterministic and saveable so a race can pause and resume reliably. Exact event scheduling and update granularity will be settled during the prototype.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
