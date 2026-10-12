@@ -572,6 +572,15 @@ The exact command set, conflict handling, and per-driver strategy interface rema
 
 The exact personality traits, order-resolution rules, morale effects, and fairness/balance safeguards remain to be designed.
 
+### Confirmed race incident severity decision
+
+- **Severity model:** Balanced, risk-based incidents. Most races should run normally, while aggressive driving, poor conditions, traffic, and low reliability increase incident risk.
+- **Consequences:** Serious incidents are uncommon but consequential, potentially involving significant time loss, damage, penalties, or retirement.
+- **Explainability:** Post-race reports should explain contributing factors and distinguish preventable risk from unavoidable bad luck.
+- **Player agency:** Car reliability, driver development, race strategy, and sensible risk management should provide ways to reduce exposure without eliminating all uncertainty.
+
+Exact probabilities, damage states, repair costs, penalty rules, and retirement thresholds remain to be tuned through simulation testing.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
