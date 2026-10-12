@@ -494,6 +494,14 @@ The exact reputation changes, sponsor reactions, recovery pacing, and attributio
 
 The exact autosave cadence, backup file format, save migrations, and recovery behavior remain to be specified during implementation planning.
 
+### Confirmed monetisation decision
+
+- **Monetisation:** The game is free, with no monetisation, advertising, subscriptions, paid progression, or pay-to-win mechanics.
+- **Future content:** No paid add-ons. Future improvements and additional content should be included for players without extra charges.
+- **Design principle:** Progression, offline gains, race strategy, and career recovery must never be tuned to pressure players into spending money.
+
+Distribution and hosting costs, if any, should be considered separately without changing this no-monetisation commitment.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
