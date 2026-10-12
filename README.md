@@ -77,7 +77,12 @@ Progression is planned across three time horizons:
 - Research unlocks choices; it should not silently remove meaningful trade-offs.
 - Race weekends and championship results wait for the player. An active race pauses when the game is closed unless the player has explicitly enabled automatic completion.
 
-Exact rules for time changes, project queues, income limits, and offline simulation still need to be specified and tested.
+### Confirmed offline progression decisions
+
+- **Offline progress cap:** Up to 72 hours of elapsed time are credited when the player returns.
+- **Closing the game mid-race:** The active race pauses and can be resumed later; it does not finish offline.
+
+Still to be specified and tested: clock/time-change handling, project queues, income limits, and the exact offline simulation rules.
 
 ## Race weekend and race control
 
