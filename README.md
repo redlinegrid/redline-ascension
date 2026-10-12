@@ -625,6 +625,15 @@ Exact parameter ranges, interactions, driver feedback, setup recommendations, an
 
 Exact permitted exceptions, sprint-weekend handling, and whether damage repairs can affect setup components remain to be defined.
 
+### Confirmed car damage and repair decision
+
+- **Managed repair queue:** Damage repairs consume both time and money rather than always completing instantly.
+- **Player control:** Players can prioritise urgent repairs, allocate engineering capacity, and choose whether damaged components should be repaired or replaced.
+- **Routine automation:** Staff may automatically handle routine repair work under the team's automation settings.
+- **Strategic consequences:** Repair decisions must balance cost, available capacity, reliability, and readiness for upcoming race weekends.
+
+Exact damage categories, repair durations, replacement inventory, capacity interactions, and automation thresholds remain to be designed and balanced.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
