@@ -392,6 +392,13 @@ The race engine should be proven before investing heavily in the full management
 
 Practice should provide useful setup, tyre, and car-behaviour information, while skipping it should keep the career moving without forcing repetitive sessions.
 
+### Confirmed economy decision
+
+- **Economy difficulty:** Balanced. Budgets and upgrade costs matter, but careful management should make sustainable progress achievable.
+- **Financial failure:** Recovery system. If the team runs out of money, emergency funding, spending cuts, and recovery objectives provide a path back instead of immediately ending the career.
+
+The detailed income rates, contract terms, debt rules, and recovery objectives remain to be balanced during prototyping.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
