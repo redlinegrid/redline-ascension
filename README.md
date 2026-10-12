@@ -478,6 +478,14 @@ The exact regulation interval, rule packages, transition timing, and component-s
 - **Race time controls:** Players can pause, resume, and switch between 1×, 2×, and 4× simulation speed.
 - **Design goal:** Make races strategically engaging without requiring players to watch every lap in real time. Exact lap counts and race durations will be tuned through simulation testing.
 
+### Confirmed sporting setbacks and post-race analysis decision
+
+- **Sporting setbacks:** Poor results can reduce reputation, weaken future sponsor offers, and tighten finances. Players retain a path to recovery through better management and gradual rebuilding rather than being trapped in an unrecoverable spiral.
+- **Post-race reporting:** Provide detailed performance analysis explaining time lost through tyre choices and degradation, pace, pit timing, traffic, reliability, incidents, and car weaknesses.
+- **Design goal:** Results should have meaningful consequences, while clear explanations help players learn from setbacks and make better decisions in future races.
+
+The exact reputation changes, sponsor reactions, recovery pacing, and attribution of lap-time losses remain to be balanced and validated.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
