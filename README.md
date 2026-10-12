@@ -434,6 +434,13 @@ Contract economics, driver generation, scouting uncertainty, development rates, 
 
 Team naming and visual customisation, starting driver choices, initial car specification, and exact starting budgets remain to be designed.
 
+### Confirmed team customisation decision
+
+- **Team identity:** Full identity customisation, including team name, abbreviation, primary and secondary colours, preset logo, car livery, and driver suit colours.
+- **Consistency:** The chosen identity should appear consistently throughout the game, including race visuals, timing tower, driver panels, team screens, and championship standings.
+
+Detailed livery editing and custom logo uploads are not included in this decision; the initial approach uses preset visual assets and configurable colours.
+
 ## Open design decisions
 
 These questions should be resolved during planning and prototyping before they become expensive assumptions:
