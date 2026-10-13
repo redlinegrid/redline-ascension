@@ -33,3 +33,13 @@
 @media(max-width:1100px){.hero-art{left:35%;right:145px;opacity:.65}.hero-art-caption{right:8px;font-size:7px}}
 @media(max-width:760px){.page-heading{min-height:148px;overflow:visible}.heading-copy{z-index:2}.hero-art{left:28%;right:-35px;top:8px;bottom:0;opacity:.26}.hero-art svg{max-height:145px;width:120%}.hero-art-caption{display:none}.weekend-status{z-index:3}.race-panel .panel-heading:after{margin-top:52px}}
 @media(max-width:390px){.hero-art{left:24%;right:-58px;opacity:.19}.page-heading{min-height:142px}}
+
+
+/* Circuit map refinement */
+.track-marker-label{font:6.5px var(--mono);fill:#c6c8ce;letter-spacing:.65px}
+.track-pit-label{font:5.5px var(--mono);fill:#b5b7bf;letter-spacing:.6px}
+.track-sector circle{fill:#1b1c20;stroke:#666a73;stroke-width:.8}
+.track-sector text{font:6px var(--mono);fill:#f4f4f5;text-anchor:middle;font-weight:600}
+.circuit-wrap svg{overflow:visible}
+.circuit-wrap svg path{vector-effect:non-scaling-stroke}
+@media(max-width:760px){.track-marker-label{font-size:6px}.track-pit-label{font-size:5px}.track-sector circle{r:4.5}}
