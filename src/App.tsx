@@ -16,24 +16,44 @@ function loadRace(): RaceState {
 }
 
 const TRACK_POINTS = [
-  [94, 48], [126, 27], [174, 24], [229, 30], [272, 49],
-  [309, 68], [322, 96], [313, 127], [287, 151], [258, 164],
-  [244, 179], [250, 190], [224, 191], [193, 185], [165, 179],
-  [143, 160], [112, 166], [84, 177], [59, 171], [43, 151],
-  [39, 126], [49, 100], [61, 79], [76, 61]
+  [116, 174], [148, 174], [183, 174], [218, 174], [249, 174],
+  [270, 172], [287, 166], [302, 156], [311, 144], [314, 132],
+  [311, 122], [304, 115], [293, 111], [282, 109], [275, 103],
+  [273, 94], [279, 85], [292, 78], [307, 71], [315, 61],
+  [313, 51], [304, 43], [289, 37], [270, 33], [245, 30],
+  [218, 29], [191, 30], [166, 33], [146, 39], [132, 48],
+  [124, 59], [123, 69], [129, 78], [143, 84], [157, 88],
+  [161, 95], [155, 102], [140, 107], [122, 111], [104, 118],
+  [88, 128], [78, 140], [77, 151], [83, 160], [94, 167],
+  [106, 171]
 ] as const;
 
+const TRACK_PATH = TRACK_POINTS.map(([x, y], index) =>
+  (index === 0 ? "M" : "L") + x + " " + y
+).join(" ") + " Z";
+
+const TRACK_SEGMENTS = TRACK_POINTS.map((point, index) => {
+  const next = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
+  return Math.hypot(next[0] - point[0], next[1] - point[1]);
+});
+const TRACK_LENGTH = TRACK_SEGMENTS.reduce((total, length) => total + length, 0);
+
 function trackPosition(progress: number) {
-  const normalized = ((progress % 1) + 1) % 1;
-  const scaled = normalized * TRACK_POINTS.length;
-  const index = Math.floor(scaled);
-  const fraction = scaled - index;
-  const a = TRACK_POINTS[index];
-  const b = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
-  return {
-    x: a[0] + (b[0] - a[0]) * fraction,
-    y: a[1] + (b[1] - a[1]) * fraction,
-  };
+  let distance = (((progress % 1) + 1) % 1) * TRACK_LENGTH;
+  for (let index = 0; index < TRACK_POINTS.length; index++) {
+    const a = TRACK_POINTS[index];
+    const b = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
+    const segmentLength = TRACK_SEGMENTS[index];
+    if (distance <= segmentLength || index === TRACK_POINTS.length - 1) {
+      const fraction = segmentLength === 0 ? 0 : distance / segmentLength;
+      return {
+        x: a[0] + (b[0] - a[0]) * fraction,
+        y: a[1] + (b[1] - a[1]) * fraction,
+      };
+    }
+    distance -= segmentLength;
+  }
+  return { x: TRACK_POINTS[0][0], y: TRACK_POINTS[0][1] };
 }
 
 function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
@@ -52,11 +72,12 @@ function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
           <feGaussianBlur stdDeviation="3"/>
         </filter>
       </defs>
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#17181c" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#737780" strokeWidth="1.2" strokeDasharray="4 6" opacity=".8"/>
-      <path d="M82 59 L98 73" stroke="#f5f5f5" strokeWidth="2.4" strokeLinecap="round"/>
-      <path d="M86 55 L102 69 M78 63 L94 77" stroke="#f04438" strokeWidth="2.4" strokeLinecap="round"/>
+      <path d={TRACK_PATH} fill="none" stroke="#17181c" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={TRACK_PATH} fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={TRACK_PATH} fill="none" stroke="#737780" strokeWidth="1.2" strokeDasharray="4 6" opacity=".8"/>
+      <path d="M116 162 L116 186" stroke="#f5f5f5" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M111 162 L111 186 M121 162 L121 186" stroke="#f04438" strokeWidth="3" strokeLinecap="round"/>
+      <text x="129" y="158" className="track-marker-label">START / FINISH</text>
       <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
       <text x="190" y="121" textAnchor="middle" className="track-center-sub">KUALA LUMPUR GP</text>
       <text x="190" y="137" textAnchor="middle" className="track-center-sub">LIVE TRACKING</text>
