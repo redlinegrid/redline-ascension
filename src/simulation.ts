@@ -178,7 +178,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
 }
 export function ensureFullGrid(saved: RaceState): RaceState {
   if (saved.cars.length >= 22) return saved;
-  const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber, saved.playerTeamName ?? saved.cars.find((car) => car.playerCar)?.team ?? "Redline GP");
+  const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber, saved.playerTeamName ?? saved.cars.find((car) => car.playerCar)?.team ?? "Redline GP", saved.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", saved.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka");
   const existingIds = new Set(saved.cars.map((car) => car.id));
   const missing = fresh.cars.filter((car) => !existingIds.has(car.id));
   return { ...saved, cars: [...saved.cars, ...missing], teamPoints: saved.teamPoints ?? {} };
@@ -294,7 +294,7 @@ export function upgradeCar(state: RaceState, cardId: string): RaceState {
   next.upgradeLevel += 1;
   next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
-  const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber, next.playerTeamName ?? next.cars.find((car) => car.playerCar)?.team ?? "Redline GP");
+  const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber, next.playerTeamName ?? next.cars.find((car) => car.playerCar)?.team ?? "Redline GP", next.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", next.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka");
   next.cars = fresh.cars;
   next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.nextTyre = "HARD"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
   addEvent(next, "Weekend " + (next.weekendNumber - 1) + ": drafted " + card.title + ". " + card.effect);
