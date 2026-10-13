@@ -4,3 +4,32 @@
 @media(max-width:1100px){.app-shell{padding:0 22px}.topbar{gap:25px}.brand{min-width:190px}.main-nav{gap:17px}.content-grid{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)}.stat-cell{padding:15px}.strategy-grid{grid-template-columns:1fr}.driver-strategy+.driver-strategy{border-left:0;border-top:1px solid var(--line)}.driver-strategy{padding:15px 18px}.driver-metrics{margin:13px 0}.strategy-row{margin-top:10px}}
 @media(max-width:760px){.app-shell{padding:0 12px}.topbar{height:65px;gap:0}.brand{min-width:0}.brand-text{font-size:20px}.main-nav{display:none}.top-status{font-size:8px;gap:6px;max-width:150px;overflow:hidden}.top-status b{display:none}.page-heading{padding:26px 0 20px;align-items:flex-start;gap:10px}.page-heading h1{font-size:43px}.page-heading p{font-size:10px;max-width:245px;line-height:1.5}.weekend-status{max-width:140px;gap:8px;margin-top:18px}.weekend-status strong{font-size:8px}.weekend-status div span{font-size:7px;line-height:1.4}.stat-strip{grid-template-columns:1fr 1fr;margin-bottom:13px}.stat-cell{padding:13px 12px;border-bottom:1px solid var(--line)}.stat-cell:nth-child(2){border-right:0}.stat-cell:nth-child(n+3){border-bottom:0}.stat-cell>span{font-size:8px}.stat-cell>strong{font-size:22px;margin-top:7px}.stat-cell small{font-size:8px}.content-grid{grid-template-columns:minmax(0,1fr);gap:12px}.race-panel,.standings-panel,.strategy-panel,.event-panel,.upgrade-panel{grid-column:1;grid-row:auto}.panel-heading{padding:16px}.panel-heading h2{font-size:22px}.circuit-wrap{padding:5px 7px 10px}.circuit-wrap svg{max-height:210px}.map-legend{gap:9px;font-size:7px}.race-controls{padding:12px;flex-wrap:wrap}.control-left{gap:9px}.primary-button{padding:11px 12px;font-size:9px}.speed-control{margin-left:auto}.speed-control>span{font-size:7px}.speed-control button{padding:7px}.standings-row{height:48px;padding:0 12px;grid-template-columns:30px minmax(0,1fr) 53px 20px;gap:6px}.table-header{padding:0 12px;grid-template-columns:30px minmax(0,1fr) 53px 20px;gap:6px}.driver-cell strong{font-size:10px}.driver-cell small{font-size:8px}.gap-cell{font-size:8px}.strategy-grid{grid-template-columns:1fr 1fr}.driver-strategy{padding:13px 11px}.driver-strategy+.driver-strategy{border-left:1px solid var(--line);border-top:0}.driver-head{gap:6px}.driver-number{font-size:18px}.driver-ident strong{font-size:10px}.driver-ident span{font-size:7px}.driver-metrics{gap:8px}.driver-metrics span{font-size:7px}.driver-metrics strong{font-size:9px}.segmented button{font-size:7px}.strategy-row{gap:5px}.strategy-row label{font-size:7px}.strategy-row select{font-size:9px;padding:8px 3px}.engineer-note{padding:13px}.event-list{max-height:310px;padding:0 14px}.upgrade-panel{grid-template-columns:1fr}.upgrade-copy{padding:20px}.upgrade-action{border-left:0;border-top:1px solid #43302e;padding:18px 20px}.upgrade-action .primary-button{max-width:320px}.footer{flex-direction:column;gap:8px;font-size:7px;padding:18px 0}.report-stats>div{padding:9px 7px}.report-stats strong{font-size:16px}.finish-banner{align-items:flex-start;flex-direction:column}.secondary-button{width:100%}}
 @media(max-width:390px){.top-status{max-width:105px}.page-heading h1{font-size:39px}.weekend-status{max-width:112px}.weekend-status div span{font-size:6px}.strategy-grid{grid-template-columns:1fr}.driver-strategy+.driver-strategy{border-left:0;border-top:1px solid var(--line)}.driver-strategy{padding:15px}.map-legend{gap:7px}.stat-cell>strong{font-size:20px}}
+
+
+/* Illustrated motorsport layer */
+.page-heading{position:relative;isolation:isolate;overflow:hidden;min-height:174px}
+.heading-copy{position:relative;z-index:2}
+.hero-art{position:absolute;z-index:1;left:37%;right:165px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.96;overflow:hidden}
+.hero-art svg{width:100%;height:auto;max-height:185px;overflow:visible}
+.hero-art-glow{position:absolute;width:65%;height:70%;left:18%;top:12%;background:radial-gradient(ellipse,#7b24231c 0%,transparent 70%);filter:blur(10px)}
+.hero-art-caption{position:absolute;right:16px;bottom:17px;display:flex;align-items:center;gap:8px;color:#777982;font:8px var(--mono);letter-spacing:1px;white-space:nowrap}
+.hero-art-caption span{color:#f04438;font-size:12px;font-weight:500}
+.hero-art-caption i{width:24px;height:1px;background:#f04438;display:inline-block}
+.hero-art-caption b{color:#c5c6cb;font-weight:500}
+.hero-speed-lines{opacity:.4}
+.weekend-status{position:relative;z-index:2;flex:0 0 auto}
+.stat-cell{position:relative;overflow:hidden}
+.stat-cell:after{content:"";position:absolute;right:-20px;top:-30px;width:82px;height:82px;border:1px solid #ffffff08;transform:rotate(35deg);pointer-events:none}
+.panel{box-shadow:0 8px 28px #0000000a}
+.race-panel .panel-heading:after{content:"";width:36px;height:2px;background:linear-gradient(90deg,var(--red),transparent);position:absolute;margin-top:55px}
+.circuit-wrap{position:relative}
+.circuit-wrap:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent);pointer-events:none}
+.circuit-wrap svg,.map-legend{position:relative;z-index:1}
+.driver-strategy{position:relative;overflow:hidden}
+.driver-strategy:before{content:"";position:absolute;right:-35px;top:22px;width:95px;height:55px;border:1px solid #ffffff08;transform:skew(-28deg);pointer-events:none}
+.driver-number{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:34px;background:linear-gradient(145deg,#422120,#211a1c);border-left:2px solid var(--red)}
+.standings-row.player-row{background:linear-gradient(90deg,#2b1d1d,#211b1d 72%,#1d1b1f)}
+.event-marker{border-radius:3px}
+@media(max-width:1100px){.hero-art{left:35%;right:145px;opacity:.65}.hero-art-caption{right:8px;font-size:7px}}
+@media(max-width:760px){.page-heading{min-height:148px;overflow:visible}.heading-copy{z-index:2}.hero-art{left:28%;right:-35px;top:8px;bottom:0;opacity:.26}.hero-art svg{max-height:145px;width:120%}.hero-art-caption{display:none}.weekend-status{z-index:3}.race-panel .panel-heading:after{margin-top:52px}}
+@media(max-width:390px){.hero-art{left:24%;right:-58px;opacity:.19}.page-heading{min-height:142px}}
