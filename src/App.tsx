@@ -142,32 +142,58 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
 
 
 function DriverPortrait({ driver, index }: { driver: { name: string; color: string }; index: number }) {
-  const skin = ["#d9a17d", "#e5b895", "#b97855", "#8d543e", "#e4b18c", "#f0c9a5", "#c58b68", "#edc3a0"][index % 8];
-  const hair = ["#392820", "#342c28", "#4a2d20", "#191a20", "#70462e", "#17191f", "#2a201b", "#8a6248"][index % 8];
-  const suit = driver.color;
-  const hairShape = index % 3 === 0 ? "M23 34 Q20 12 43 12 Q65 13 63 35 L57 28 Q47 32 34 26 L27 36Z" : index % 3 === 1 ? "M23 34 Q18 15 39 12 Q60 10 64 29 L60 38 L54 25 Q39 30 29 25Z" : "M23 34 Q22 12 43 12 Q61 13 64 31 L57 28 L53 20 Q41 27 28 25Z";
-  return <div className="driver-portrait" style={{ "--driver-accent": suit } as React.CSSProperties} aria-label={driver.name + " portrait"}>
-    <svg viewBox="0 0 88 94" role="img" aria-label={"Vector portrait of " + driver.name}>
-      <defs><linearGradient id={"portrait-bg-" + index} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={suit} stopOpacity=".38"/><stop offset="100%" stopColor="#11151d"/></linearGradient></defs>
-      <rect width="88" height="94" rx="7" fill={"url(#portrait-bg-" + index + ")"} />
-      <path d="M7 94 Q10 66 29 62 L59 62 Q79 69 82 94Z" fill="#171b23" />
-      <path d="M22 94 L27 68 L44 78 L61 68 L67 94Z" fill={suit} />
-      <path d="M34 57 L34 68 Q44 78 54 68 L54 57Z" fill={skin} />
-      <path d="M25 36 Q25 19 43 19 Q62 19 62 38 L59 52 Q54 64 44 65 Q32 62 28 51Z" fill={skin} />
-      <path d={hairShape} fill={hair} />
-      <path d="M28 40 Q35 35 40 40 M48 40 Q54 35 59 40" stroke={hair} strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M34 43h5 M49 43h5" stroke="#252329" strokeWidth="2.4" strokeLinecap="round"/>
-      <path d="M42 45 L40 51 L44 52" stroke="#a56e56" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
-      <path d="M37 56 Q44 60 51 55" stroke="#7d3f3c" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-      <path d="M28 68 L44 80 L60 68 L57 94 L31 94Z" fill={suit}/>
-      <path d="M40 79 L44 84 L48 79" fill="#f4f4f6"/>
-      <path d="M7 12h15M7 17h9M66 12h15M72 17h9" stroke="#fff" strokeOpacity=".24" strokeWidth="1"/>
-      <text x="44" y="89" fill="#fff" fillOpacity=".75" textAnchor="middle" fontSize="5" fontFamily="monospace" letterSpacing="1.2">DRIVER</text>
+  const skins = ["#d5a07e", "#e5b895", "#b97855", "#8d543e", "#e4b18c", "#f0c9a5", "#c58b68", "#edc3a0"];
+  const hairs = ["#30221d", "#342c28", "#4a2d20", "#191a20", "#70462e", "#17191f", "#2a201b", "#8a6248"];
+  const skin = skins[index % skins.length];
+  const hair = hairs[index % hairs.length];
+  const accent = driver.color;
+  const faces = [
+    { face: "M25 34 Q25 20 43 19 Q60 20 61 35 L58 49 Q53 62 43 64 Q32 61 28 50Z", hair: "M22 37 Q18 14 40 11 Q61 9 65 29 L62 40 56 27 Q43 30 31 24 L27 39Z", brow: "M31 38 Q36 35 40 38 M47 38 Q52 35 56 38", nose: "M43 42 L40 50 L44 52", mouth: "M37 56 Q43 59 50 55" },
+    { face: "M26 34 Q26 19 44 19 Q61 20 61 36 L57 51 Q51 62 43 63 Q33 61 29 51Z", hair: "M23 34 Q20 15 39 11 Q59 9 64 27 L60 35 55 24 Q42 29 29 26 L27 37Z", brow: "M31 38 L40 37 M47 37 L55 39", nose: "M43 42 L44 50 L47 51", mouth: "M37 56 Q44 58 50 55" },
+    { face: "M25 34 Q25 19 43 19 Q61 19 62 35 L58 49 Q53 63 43 65 Q31 61 28 49Z", hair: "M22 36 Q19 13 42 11 Q62 12 65 31 L61 37 57 25 Q42 30 29 26Z", brow: "M31 38 Q35 36 40 38 M47 38 Q52 36 56 39", nose: "M43 42 L40 51 L44 52", mouth: "M36 56 Q43 60 51 55" },
+    { face: "M26 34 Q26 20 43 19 Q60 19 61 35 L58 49 Q53 62 43 64 Q32 61 29 49Z", hair: "M23 35 Q20 14 42 12 Q62 12 64 30 L60 38 56 26 Q42 29 29 25Z", brow: "M31 38 L40 37 M47 37 L55 38", nose: "M43 42 L41 50 L45 52", mouth: "M37 56 Q44 58 50 56" },
+    { face: "M25 34 Q25 19 43 19 Q61 19 62 35 L58 50 Q53 63 43 64 Q32 61 28 50Z", hair: "M22 35 Q21 12 42 11 Q61 11 65 30 L61 37 57 25 Q43 29 29 25Z", brow: "M31 38 Q36 35 40 38 M47 38 Q52 35 56 38", nose: "M43 42 L40 51 L44 52", mouth: "M36 56 Q43 59 51 55" },
+    { face: "M25 34 Q25 19 43 19 Q61 19 61 35 L58 49 Q53 62 43 64 Q32 61 28 49Z", hair: "M22 35 Q18 13 40 11 Q62 10 65 30 L61 37 57 25 Q43 29 29 25Z", brow: "M31 38 L40 37 M47 37 L55 38", nose: "M43 42 L42 51 L45 52", mouth: "M37 56 Q44 59 50 55" },
+    { face: "M25 34 Q25 19 43 19 Q61 19 62 35 L58 49 Q53 63 43 64 Q32 61 28 49Z", hair: "M22 36 Q19 14 41 11 Q61 11 65 30 L61 37 56 25 Q42 30 29 25Z", brow: "M31 38 Q36 35 40 38 M47 38 Q52 35 56 38", nose: "M43 42 L40 51 L44 52", mouth: "M36 56 Q43 59 51 55" },
+    { face: "M25 34 Q25 19 43 19 Q61 19 62 35 L58 49 Q53 63 43 64 Q32 61 28 49Z", hair: "M22 35 Q19 13 41 11 Q61 11 65 30 L61 37 56 25 Q42 30 29 25Z", brow: "M31 38 L40 37 M47 37 L55 38", nose: "M43 42 L40 51 L44 52", mouth: "M36 56 Q43 59 51 55" }
+  ];
+  const face = faces[index % faces.length];
+  return <div className="driver-portrait" style={{ "--driver-accent": accent } as React.CSSProperties} aria-label={driver.name + " portrait"}>
+    <svg viewBox="0 0 88 94" role="img" aria-label={"Vector portrait of " + driver.name} focusable="false">
+      <defs>
+        <linearGradient id={"portrait-bg-" + index} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={accent} stopOpacity=".34"/><stop offset="62%" stopColor="#1b2029"/><stop offset="100%" stopColor="#0c0f14"/></linearGradient>
+        <linearGradient id={"portrait-skin-" + index} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={skin} stopOpacity=".82"/><stop offset="52%" stopColor={skin}/><stop offset="100%" stopColor="#704b3d" stopOpacity=".8"/></linearGradient>
+        <linearGradient id={"portrait-suit-" + index} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={accent}/><stop offset="100%" stopColor="#171a22"/></linearGradient>
+      </defs>
+      <rect width="88" height="94" fill={"url(#portrait-bg-" + index + ")"} />
+      <path d="M0 12H18M0 17H10M70 12H88M78 17H88M0 80H12M76 80H88" stroke="#dce1e8" strokeOpacity=".22" strokeWidth=".8"/>
+      <path d="M6 94 Q8 72 25 65 L35 61 H52 L63 65 Q80 72 82 94Z" fill="#10141b" stroke="#6b707a" strokeOpacity=".5" strokeWidth=".7"/>
+      <path d="M18 94 L24 72 L35 65 L44 76 L53 65 L64 72 L70 94Z" fill={"url(#portrait-suit-" + index + ")"} />
+      <path d="M34 57 L34 69 L44 77 L54 69 L54 57Z" fill={skin}/>
+      <path d="M35 62 L44 70 L53 62 L53 68 L44 77 L35 68Z" fill="#7a4e3d" opacity=".35"/>
+      <path d="M25 37 Q20 36 23 44 Q25 49 29 47 M61 37 Q66 36 63 44 Q61 49 57 47" fill={skin} stroke="#704b3d" strokeOpacity=".65" strokeWidth=".8"/>
+      <path d={face.face} fill={"url(#portrait-skin-" + index + ")"} stroke="#553c34" strokeOpacity=".5" strokeWidth=".7"/>
+      <path d="M29 47 Q32 55 43 58 Q53 55 57 46 L56 52 Q52 62 43 64 Q33 61 29 51Z" fill="#5f4036" opacity=".22"/>
+      <path d={face.hair} fill={hair} stroke="#0e1014" strokeWidth=".8" strokeLinejoin="round"/>
+      <path d="M29 26 Q37 18 48 20" fill="none" stroke="#fff" strokeOpacity=".13" strokeWidth="1.4" strokeLinecap="round"/>
+      <path d={face.brow} fill="none" stroke={hair} strokeWidth="2.1" strokeLinecap="round"/>
+      <path d="M32 42 Q36 40 40 42 M47 42 Q51 40 55 42" fill="none" stroke="#f0d5c2" strokeOpacity=".65" strokeWidth=".8"/>
+      <path d="M32 43 Q36 40 40 43 M47 43 Q51 40 55 43" fill="none" stroke="#25242a" strokeWidth="1.5" strokeLinecap="round"/>
+      <ellipse cx="36" cy="43" rx="1.1" ry="1.4" fill="#17191d"/><ellipse cx="51" cy="43" rx="1.1" ry="1.4" fill="#17191d"/>
+      <path d={face.nose} fill="none" stroke="#8c5b49" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M39 52 Q43 54 47 52" fill="none" stroke="#f1c6aa" strokeOpacity=".6" strokeWidth=".7"/>
+      <path d={face.mouth} fill="none" stroke="#6f3c39" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M31 48 Q35 51 39 49 M48 49 Q52 51 55 48" fill="none" stroke="#d78d78" strokeOpacity=".4" strokeWidth="1.2"/>
+      <path d="M26 71 L36 66 L44 77 L52 66 L62 71 L57 94 H31Z" fill={accent} opacity=".92"/>
+      <path d="M35 67 L44 77 L53 67 L49 65 H39Z" fill="#e5e8ee"/>
+      <path d="M42 78H46L47 94H41Z" fill="#11151d"/>
+      <path d="M25 77 L32 80 M63 77 L56 80" stroke="#fff" strokeOpacity=".34" strokeWidth="1.1"/>
+      <path d="M10 88H25M63 88H78" stroke="#fff" strokeOpacity=".16" strokeWidth=".8"/>
+      <text x="44" y="89" fill="#fff" fillOpacity=".78" textAnchor="middle" fontSize="5" fontFamily="monospace" letterSpacing="1.2">RL / {String(index + 1).padStart(2, "0")}</text>
     </svg>
     <span className="driver-portrait-number">{String(index + 1).padStart(2, "0")}</span>
   </div>;
 }
-
 function UpgradeIcon({ type }: { type: string | undefined }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return <svg className="upgrade-category-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
