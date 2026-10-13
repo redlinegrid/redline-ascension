@@ -54,9 +54,35 @@ export function draftUpgradeCards(state: RaceState): UpgradeCard[] {
   for (const card of pool) if (selected.length < 3 && !selected.some((item) => item.id === card.id)) selected.push(card);
   return selected;
 }
+export interface DriverProfile {
+  id: string;
+  name: string;
+  role: string;
+  pace: number;
+  racecraft: number;
+  tyreManagement: number;
+  consistency: number;
+  potential: number;
+  color: string;
+}
+export const DRIVER_MARKET: DriverProfile[] = [
+  { id: "alex-mercer", name: "Alex Mercer", role: "ALL-ROUNDER", pace: 86, racecraft: 82, tyreManagement: 79, consistency: 83, potential: 87, color: "#f04438" },
+  { id: "mika-tanaka", name: "Mika Tanaka", role: "TYRE SPECIALIST", pace: 82, racecraft: 80, tyreManagement: 91, consistency: 86, potential: 89, color: "#48a9a6" },
+  { id: "leo-varga", name: "Leo Varga", role: "QUALIFYING ACE", pace: 93, racecraft: 77, tyreManagement: 72, consistency: 78, potential: 90, color: "#e4b45c" },
+  { id: "amara-okafor", name: "Amara Okafor", role: "RACECRAFT EXPERT", pace: 83, racecraft: 94, tyreManagement: 84, consistency: 81, potential: 92, color: "#8b7cf6" },
+  { id: "ines-navarro", name: "Ines Navarro", role: "CONSISTENCY", pace: 81, racecraft: 82, tyreManagement: 88, consistency: 94, potential: 86, color: "#6d9dfc" },
+  { id: "kai-watanabe", name: "Kai Watanabe", role: "YOUNG PROSPECT", pace: 79, racecraft: 78, tyreManagement: 80, consistency: 76, potential: 97, color: "#f36b8b" },
+  { id: "rafael-costa", name: "Rafael Costa", role: "VETERAN", pace: 85, racecraft: 88, tyreManagement: 83, consistency: 90, potential: 81, color: "#5f9d63" },
+  { id: "chloe-martin", name: "Chloe Martin", role: "BALANCED PACKAGE", pace: 84, racecraft: 84, tyreManagement: 84, consistency: 84, potential: 88, color: "#ad8bf4" },
+];
 export interface CarState {
   id: string;
   driver: string;
+  driverPace: number;
+  driverRacecraft: number;
+  driverTyreManagement: number;
+  driverConsistency: number;
+  driverPotential: number;
   team: string;
   teamColor: string;
   playerCar: boolean;
@@ -106,21 +132,23 @@ function addEvent(state: RaceState, message: string, kind: RaceEvent["kind"] = "
   state.events.unshift({ id: ++state.eventSequence, lap: Math.min(state.lap, state.totalLaps), message, kind });
   state.events = state.events.slice(0, 14);
 }
-function makeCar(id: string, driver: string, team: string, teamColor: string, playerCar: boolean, progress: number, n: number): CarState {
+function makeCar(id: string, driver: string, team: string, teamColor: string, playerCar: boolean, progress: number, n: number, profile?: DriverProfile): CarState {
+  const fallbackStats = { pace: 76 + (n * 7 % 13), racecraft: 75 + (n * 5 % 15), tyreManagement: 74 + (n * 3 % 16), consistency: 75 + (n * 11 % 14), potential: 78 + (n * 9 % 18) };
+  const stats = profile ?? fallbackStats;
   return {
-    id, driver, team, teamColor, playerCar, progress, lapTime: 91.4 + n * 0.11,
+    id, driver, driverPace: stats.pace, driverRacecraft: stats.racecraft, driverTyreManagement: stats.tyreManagement, driverConsistency: stats.consistency, driverPotential: stats.potential, team, teamColor, playerCar, progress, lapTime: 91.4 + n * 0.11 - (stats.pace - 80) * 0.045,
     tyre: n % 3 === 0 ? "SOFT" : n % 3 === 1 ? "MEDIUM" : "HARD",
     nextTyre: n % 3 === 0 ? "MEDIUM" : "HARD",
     tyreWear: 0.04 + n * 0.012, fuel: 100, pace: "BALANCED", pitLap: playerCar ? 7 : 6 + n % 4,
     pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finishTime: null, finished: false,
   };
 }
-export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP"): RaceState {
+export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka"): RaceState {
   const safeTeamName = playerTeamName.trim().slice(0, 24) || "Redline GP";
   const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, teamPoints: {}, cars: [], events: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
-    { id: "rp-1", driver: "Alex Mercer", team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
-    { id: "rp-2", driver: "Mika Tanaka", team: safeTeamName, color: "#f04438", player: true, progress: 0 },
+    { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
+    { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },
     { id: "r-1", driver: "Luca Moretti", team: "Vortex Racing", color: "#48a9a6", player: false, progress: 0.018 },
     { id: "r-2", driver: "Noah Bennett", team: "Vortex Racing", color: "#48a9a6", player: false, progress: 0 },
     { id: "r-3", driver: "Sofia Laurent", team: "Apex Motorsport", color: "#8b7cf6", player: false, progress: 0.012 },
@@ -142,7 +170,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
     { id: "r-19", driver: "Rafael Costa", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0.008 },
     { id: "r-20", driver: "Chloe Martin", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0 }
   ];
-  state.cars = roster.map((entry, index) => makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index));
+  state.cars = roster.map((entry, index) => makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index, entry.player ? DRIVER_MARKET.find((driver) => driver.name === entry.driver) : undefined));
   state.cars.forEach((car) => { state.teamPoints![car.team] ??= 0; });
   addEvent(state, "Race control: formation complete. Twenty-two cars ready.");
   addEvent(state, "Engineer: monitor tyre life around the middle stint.");
@@ -171,14 +199,17 @@ export function stepRace(current: RaceState): RaceState {
     const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
     const synergyPaceBonus = modules.aero >= 2 && modules.power >= 2 ? 0.10 : 0;
     const upgradeBonus = car.playerCar ? modules.aero * 0.08 + modules.power * 0.12 + synergyPaceBonus : 0;
-    const noise = (random(state) - 0.5) * 0.85;
-    const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
+    const consistencyNoise = 1 + (80 - car.driverConsistency) * 0.012;
+    const noise = (random(state) - 0.5) * 0.85 * consistencyNoise;
+    const racecraftBonus = (car.driverRacecraft - 80) * 0.009;
+    const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
-    const wearReduction = car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1;
+    const driverTyreCare = Math.max(0.72, 1 - (car.driverTyreManagement - 80) * 0.004);
+    const wearReduction = (car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1) * driverTyreCare;
     const aeroTyreLoad = car.playerCar ? 1 + (state.upgradeModules?.aero ?? 0) * 0.025 : 1;
     const enduranceWearBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
     car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction * aeroTyreLoad * enduranceWearBonus);
