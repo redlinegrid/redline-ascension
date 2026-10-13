@@ -120,6 +120,9 @@ export interface RaceState {
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
   playerPrincipalName?: string;
+  circuitSeed?: number;
+  circuitName?: string;
+  circuitLengthFactor?: number;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -146,7 +149,11 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
 }
 export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka", playerPrincipalName = "Team Principal"): RaceState {
   const safeTeamName = playerTeamName.trim().slice(0, 24) || "Redline GP";
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", teamPoints: {}, cars: [], events: [] };
+  const circuitSeed = (seed ^ Math.imul(weekendNumber + 37, 2246822519)) >>> 0;
+  const circuitNames = ["Copperhead Ring", "Monsoon Park", "Granite Valley", "Nightfall Circuit", "Cobalt Coast", "Redwood Raceway", "Sundown Autodrome", "Ironclad Park", "Tempest Circuit", "Silver Basin", "Emberstone GP", "Highland Loop", "Mirage International", "Blackstone Raceway", "Aurora Park", "Thunder Ridge", "Mariner Circuit", "Crimson Dunes", "Summit Ring", "Neon Harbour"];
+  const circuitName = circuitNames[(circuitSeed >>> 8) % circuitNames.length];
+  const circuitLengthFactor = 0.94 + ((circuitSeed >>> 16) % 1200) / 10000;
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },
@@ -214,7 +221,7 @@ export function stepRace(current: RaceState): RaceState {
     const consistencyNoise = 1 + (80 - car.driverConsistency) * 0.012;
     const noise = (random(state) - 0.5) * 0.85 * consistencyNoise;
     const racecraftBonus = (car.driverRacecraft - 80) * 0.009;
-    const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
+    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
