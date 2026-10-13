@@ -47,7 +47,7 @@ function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
     <div className="strategy-label">PACE MODE</div>
     <div className="segmented">{(["CONSERVE", "BALANCED", "PUSH"] as Pace[]).map((pace) => <button key={pace} disabled={disabled} className={car.pace === pace ? "selected" : ""} onClick={() => onPace(pace)}>{pace}</button>)}</div>
     <div className="strategy-row">
-      <label>Next tyre<select disabled={disabled} value={car.tyre} onChange={(e) => onTyre(e.target.value as Tyre)}><option value="SOFT">Soft</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></label>
+      <label>Next tyre<select disabled={disabled} value={car.nextTyre} onChange={(e) => onTyre(e.target.value as Tyre)}><option value="SOFT">Soft</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></label>
       <label>Pit target<select disabled={disabled} value={car.pitLap} onChange={(e) => onPitLap(Number(e.target.value))}>{Array.from({ length: 12 }, (_, i) => i + 3).map((lap) => <option key={lap} value={lap}>Lap {lap}</option>)}</select></label>
     </div>
   </div>;
@@ -70,9 +70,8 @@ export default function App() {
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
   const cost = 650000 + race.upgradeLevel * 250000;
-  const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "tyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
+  const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0)); setShowResults(false); } };
-  const firstPlayer = order.findIndex((car) => car.playerCar) + 1;
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
 
   return <main className="app-shell">
@@ -98,7 +97,7 @@ export default function App() {
         </div><div className="standings-foot"><span><i className="dot red"/> REDLINE GP</span><span>POSITION UPDATES LIVE</span></div>
       </section>
       <section className="panel strategy-panel"><div className="panel-heading"><div><div className="section-kicker">PIT WALL</div><h2>Driver strategy</h2></div><span className="strategy-count">02 CARS</span></div>
-        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => <DriverStrategy key={car.id} car={car} status={race.status} onPace={(pace) => setStrategy(car, { pace })} onTyre={(tyre) => setStrategy(car, { tyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>)}</div>
+        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => <DriverStrategy key={car.id} car={car} status={race.status} onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>)}</div>
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. Consider conserving pace or adjusting the pit window." : "Tyre life is manageable. Watch degradation and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
