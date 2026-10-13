@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, ensureFullGrid, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
+import { buildSynergies, buyDevelopmentProject, CAMPAIGN_LENGTH, createRace, developmentProjectCost, draftUpgradeCards, ensureFullGrid, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre, type UpgradeType } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
 type BestRun = { points: number; position: number; seed: number };
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
+const DEVELOPMENT_PROJECTS: Array<{ type: UpgradeType; title: string; department: string; description: string; icon: string }> = [
+  { type: "aero", title: "Wind Tunnel Programme", department: "AERODYNAMICS", description: "Improve cornering pace. Higher aero levels increase tyre load.", icon: "↗" },
+  { type: "power", title: "Powertrain Dyno", department: "POWER UNIT", description: "Gain straight-line pace, with a corresponding increase in fuel use.", icon: "ϟ" },
+  { type: "suspension", title: "Simulator Correlation", department: "MECHANICAL GRIP", description: "Reduce tyre wear and build toward the endurance platform synergy.", icon: "⌁" },
+  { type: "reliability", title: "Reliability Programme", department: "RELIABILITY", description: "Reduce condition loss and build toward the endurance platform synergy.", icon: "◇" },
+];
 function loadRace(): RaceState {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -231,6 +237,30 @@ export default function App() {
         <div className="build-tradeoff"><strong>DEVELOPMENT TRADE-OFFS</strong><span>Aero increases tyre load · Power packages use more fuel</span></div>
         {buildSynergies(modules).length === 0 ? <div className="build-synergy-empty">No build synergy yet. Invest in two related departments to unlock a combined effect.</div> : buildSynergies(modules).map((synergy) => <div className="build-synergy" key={synergy}><strong>{synergy}</strong><span>{synergy === "AERO + POWER INTEGRATION" ? "Extra 0.10s pace per lap from a coordinated aero and power package." : "10% less tyre wear and component condition loss from an endurance-focused platform."}</span></div>)}
       </div>
+    </section>
+    <section className="panel development-panel" aria-label="Economy and team development">
+      <div className="panel-heading"><div><div className="section-kicker">FINANCE & DEVELOPMENT</div><h2>Build the team behind the car</h2></div><span className="development-budget">{money(race.cash)} AVAILABLE</span></div>
+      <div className="finance-strip">
+        <div><span>LAST PRIZE INCOME</span><strong>{race.lastRacePayout ? money(race.lastRacePayout) : "—"}</strong></div>
+        <div><span>OPERATING COSTS</span><strong>{race.lastOperatingCost ? "−" + money(race.lastOperatingCost) : "—"}</strong></div>
+        <div><span>RECOVERY SUPPORT</span><strong>{race.recoveryCount ? race.recoveryCount + " USE" + (race.recoveryCount === 1 ? "" : "S") : "NOT USED"}</strong></div>
+      </div>
+      {race.recoveryActive && <div className="recovery-objective"><span className="recovery-icon">!</span><div><strong>FINANCIAL RECOVERY ACTIVE</strong><p>Emergency funding has been issued. Finish in the top 10 with either car to clear the objective and earn RM350,000 in performance support.</p></div></div>}
+      <div className="development-grid">
+        {DEVELOPMENT_PROJECTS.map((project) => {
+          const level = modules[project.type] ?? 0;
+          const cost = developmentProjectCost(race, project.type);
+          const canPurchase = (race.status === "ready" || race.status === "finished") && level < 5 && race.cash >= cost;
+          return <article className="development-project" key={project.type}>
+            <div className="development-project-top"><span className="development-project-icon">{project.icon}</span><span className="development-level">LVL {level} / 05</span></div>
+            <span className="development-department">{project.department}</span>
+            <h3>{project.title}</h3>
+            <p>{project.description}</p>
+            <div className="development-project-bottom"><span>{level >= 5 ? "MAX LEVEL" : money(cost)}</span><button disabled={!canPurchase} onClick={() => setRace((current) => buyDevelopmentProject(current, project.type))}>{level >= 5 ? "MAXED" : race.cash < cost ? "FUNDS LOW" : "INVEST ↗"}</button></div>
+          </article>;
+        })}
+      </div>
+      <p className="development-footnote">Invest between sessions only. Project costs rise with each department level; every race also carries operating costs based on development depth.</p>
     </section>
     <div className="content-grid">
       <section className="panel race-panel">
