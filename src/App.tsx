@@ -17,7 +17,23 @@ function loadRace(): RaceState {
   return createRace();
 }
 
-const TRACK_POINTS = [
+function seededTrack(seed: number) {
+  let value = seed >>> 0;
+  const rand = () => { value = (Math.imul(value, 1664525) + 1013904223) >>> 0; return value / 4294967296; };
+  const count = 28 + Math.floor(rand() * 12);
+  const points: [number, number][] = [];
+  const rotation = rand() * Math.PI * 2;
+  for (let i = 0; i < count; i++) {
+    const angle = rotation + (i / count) * Math.PI * 2;
+    const wave = Math.sin(angle * (2 + Math.floor(rand() * 3)) + rand() * 2) * (7 + rand() * 12);
+    const radiusX = 103 + wave + rand() * 8;
+    const radiusY = 67 + wave * 0.62 + rand() * 7;
+    points.push([190 + Math.cos(angle) * radiusX, 110 + Math.sin(angle) * radiusY]);
+  }
+  return points;
+}
+
+const FALLBACK_TRACK_POINTS: [number, number][] = [
   [116, 174], [148, 174], [183, 174], [218, 174], [249, 174],
   [270, 172], [287, 166], [302, 156], [311, 144], [314, 132],
   [311, 122], [304, 115], [293, 111], [282, 109], [275, 103],
@@ -26,8 +42,7 @@ const TRACK_POINTS = [
   [218, 29], [191, 30], [166, 33], [146, 39], [132, 48],
   [124, 59], [123, 69], [129, 78], [143, 84], [157, 88],
   [161, 95], [155, 102], [140, 107], [122, 111], [104, 118],
-  [88, 128], [78, 140], [77, 151], [83, 160], [94, 167],
-  [106, 171]
+  [88, 128], [78, 140], [77, 151], [83, 160], [94, 167], [106, 171]
 ] as const;
 
 const TRACK_PATH = TRACK_POINTS.map(([x, y], index) =>
@@ -40,12 +55,14 @@ const TRACK_SEGMENTS = TRACK_POINTS.map((point, index) => {
 });
 const TRACK_LENGTH = TRACK_SEGMENTS.reduce((total, length) => total + length, 0);
 
-function trackPosition(progress: number) {
-  let distance = (((progress % 1) + 1) % 1) * TRACK_LENGTH;
-  for (let index = 0; index < TRACK_POINTS.length; index++) {
-    const a = TRACK_POINTS[index];
-    const b = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
-    const segmentLength = TRACK_SEGMENTS[index];
+function trackPosition(progress: number, points: readonly (readonly [number, number])[]) {
+  const segments = points.map((point, index) => Math.hypot(points[(index + 1) % points.length][0] - point[0], points[(index + 1) % points.length][1] - point[1]));
+  const totalLength = segments.reduce((total, length) => total + length, 0);
+  let distance = (((progress % 1) + 1) % 1) * totalLength;
+  for (let index = 0; index < points.length; index++) {
+    const a = points[index];
+    const b = points[(index + 1) % points.length];
+    const segmentLength = segments[index];
     if (distance <= segmentLength || index === TRACK_POINTS.length - 1) {
       const fraction = segmentLength === 0 ? 0 : distance / segmentLength;
       return {
@@ -55,14 +72,13 @@ function trackPosition(progress: number) {
     }
     distance -= segmentLength;
   }
-  return { x: TRACK_POINTS[0][0], y: TRACK_POINTS[0][1] };
+  return { x: points[0][0], y: points[0][1] };
 }
 
-function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; teamName: string }) {
-  const points = useMemo(() => cars.map((car) => ({
-    ...car,
-    ...trackPosition(car.progress),
-  })), [cars]);
+function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Copperhead Ring" }: { cars: CarState[]; lap: number; teamName: string; circuitSeed?: number; circuitName?: string }) {
+  const trackPoints = useMemo(() => seededTrack(circuitSeed), [circuitSeed]);
+  const trackPath = useMemo(() => trackPoints.map(([x, y], index) => (index === 0 ? "M" : "L") + x + " " + y).join(" ") + " Z", [trackPoints]);
+  const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints) })), [cars, trackPoints]);
   return <div className="circuit-wrap">
     <svg viewBox="0 0 380 220" role="img" aria-label="Schematic live circuit map showing each car on the track">
       <defs>
@@ -74,7 +90,7 @@ function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; te
           <feGaussianBlur stdDeviation="3"/>
         </filter>
       </defs>
-      <path d={TRACK_PATH} fill="none" stroke="#111216" strokeWidth="39" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={trackPath} fill="none" stroke="#111216" strokeWidth="39" strokeLinecap="round" strokeLinejoin="round"/>
       <path d={TRACK_PATH} fill="none" stroke="#cfd1d6" strokeWidth="32" strokeDasharray="5 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".82"/>
       <path d={TRACK_PATH} fill="none" stroke="url(#track-surface)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round"/>
       <path d={TRACK_PATH} fill="none" stroke="#777b84" strokeWidth="1.2" strokeDasharray="4 6" opacity=".85"/>
@@ -91,7 +107,7 @@ function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; te
       <g className="track-sector"><circle cx="143" cy="87" r="5"/><text x="143" y="89.5">2</text></g>
       <g className="track-sector"><circle cx="80" cy="151" r="5"/><text x="80" y="153.5">3</text></g>
       <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
-      <text x="190" y="121" textAnchor="middle" className="track-center-sub">KUALA LUMPUR GP</text>
+      <text x="190" y="121" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
       <text x="190" y="137" textAnchor="middle" className="track-center-sub">LIVE TRACKING</text>
       {points.map((car) => <g key={car.id}>
         {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".18" filter="url(#player-glow)"/>}
@@ -267,7 +283,7 @@ export default function App() {
       </div>
     </div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE PADDOCK</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}</div></header>
-    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM PRINCIPAL: {race.playerPrincipalName ?? "Team Principal"} <b>/</b> TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
+    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM PRINCIPAL: {race.playerPrincipalName ?? "Team Principal"} <b>/</b> TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>{(race.circuitName ?? "Copperhead Ring").toUpperCase()} · GENERATED CIRCUIT</span></div></div></section>
     <section className="stat-strip">
       <div className="stat-cell"><span>TEAM BUDGET</span><strong>{money(race.cash)}</strong><small>{race.upgradeLevel ? "PACKAGE LEVEL " + race.upgradeLevel : "INITIAL ALLOCATION"}</small></div>
       <div className="stat-cell"><span>CAR PERFORMANCE</span><strong>{Math.min(100, 82 + modules.aero * 2 + modules.power * 3 + modules.suspension + modules.reliability)}<small className="inline-unit"> / 100</small></strong><small>{race.upgradeLevel ? "DRAFTED SPEC" : "BASELINE SPEC"}</small></div>
@@ -284,7 +300,7 @@ export default function App() {
     <div className="content-grid">
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
-        <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName}/>
+        <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName} circuitSeed={race.circuitSeed ?? race.seed} circuitName={race.circuitName ?? "Copperhead Ring"}/>
         <div className="race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
         {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Twenty rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
