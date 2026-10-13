@@ -1,6 +1,15 @@
 export type Tyre = "SOFT" | "MEDIUM" | "HARD";
 export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished";
+export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
+export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
+export const UPGRADE_OPTIONS: Record<UpgradeType, { name: string; subtitle: string; description: string; cost: (level: number, owned: number) => number; effect: string }> = {
+  aero: { name: "Aerodynamics", subtitle: "DOWNFORCE PACKAGE", description: "Sharper cornering and more stable high-speed performance.", cost: (level, owned) => 650000 + level * 180000 + owned * 120000, effect: "−0.08s lap time per package" },
+  power: { name: "Power unit", subtitle: "POWER & DEPLOYMENT", description: "More drive out of slow corners and stronger straight-line pace.", cost: (level, owned) => 850000 + level * 200000 + owned * 150000, effect: "−0.12s lap time per package" },
+  suspension: { name: "Suspension", subtitle: "MECHANICAL GRIP", description: "Gentler tyre degradation helps both cars stay competitive for longer stints.", cost: (level, owned) => 550000 + level * 150000 + owned * 100000, effect: "−6% tyre wear per package" },
+  reliability: { name: "Reliability", subtitle: "DURABILITY & COOLING", description: "Protect component condition and reduce the pace lost as the car wears.", cost: (level, owned) => 500000 + level * 140000 + owned * 100000, effect: "−0.5% condition loss per package" },
+};
+
 
 export interface CarState {
   id: string;
@@ -61,7 +70,7 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
   };
 }
 export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1): RaceState {
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, weekendNumber, cars: [], events: [] };
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, cars: [], events: [] };
   state.cars = [
     makeCar("rp-1", "Alex Mercer", "Redline GP", "#f04438", true, 0.025, 0),
     makeCar("rp-2", "Mika Tanaka", "Redline GP", "#f04438", true, 0, 1),
@@ -91,7 +100,7 @@ export function stepRace(current: RaceState): RaceState {
     const tyrePenalty = car.tyreWear > 0.82 ? (car.tyreWear - 0.82) * 13 : car.tyreWear > 0.58 ? (car.tyreWear - 0.58) * 5 : 0;
     const fuelPenalty = car.fuel < 8 ? 2.4 : (100 - car.fuel) * 0.009;
     const reliabilityPenalty = (100 - car.condition) * 0.025;
-    const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.16 : 0;
+    const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };\n    const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.04 + modules.aero * 0.08 + modules.power * 0.12 : 0;
     const noise = (random(state) - 0.5) * 0.85;
     const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
     car.lastLap = lapSeconds;
@@ -99,9 +108,9 @@ export function stepRace(current: RaceState): RaceState {
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta);
+    const wearReduction = car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1;\n    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction);
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
-    car.condition = Math.max(62, car.condition - 0.002);
+    const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;\n    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection));
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
@@ -145,15 +154,20 @@ export function setDriverStrategy(state: RaceState, carId: string, patch: Partia
   addEvent(next, "Strategy updated for " + car.driver + ".");
   return next;
 }
-export function upgradeCar(state: RaceState): RaceState {
+export function upgradeCar(state: RaceState, upgradeType: UpgradeType = "aero"): RaceState {
   const next = structuredClone(state);
-  const cost = 650000 + next.upgradeLevel * 250000;
+  next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
+  const cost = UPGRADE_OPTIONS[upgradeType].cost(next.upgradeLevel, next.upgradeModules[upgradeType]);
   if (next.status !== "finished" || next.cash < cost) return state;
-  next.cash -= cost; next.upgradeLevel += 1; next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
+  next.cash -= cost;
+  next.upgradeLevel += 1;
+  next.upgradeModules[upgradeType] += 1;
+  next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
-  next.cars = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber).cars;
+  const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber);
+  next.cars = fresh.cars;
   next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.nextTyre = "HARD"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
-  addEvent(next, "Weekend " + next.weekendNumber + ": upgrade package " + next.upgradeLevel + " fitted.");
+  addEvent(next, "Weekend " + next.weekendNumber + ": " + UPGRADE_OPTIONS[upgradeType].name + " package fitted.");
   return next;
 }
 export function standings(state: RaceState): CarState[] { return [...state.cars].sort((a, b) => { if (a.finished && b.finished) return (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity); if (a.finished) return -1; if (b.finished) return 1; return b.progress - a.progress; }); }
