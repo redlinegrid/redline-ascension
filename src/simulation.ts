@@ -79,7 +79,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
 export function stepRace(current: RaceState): RaceState {
   if (current.status !== "running") return current;
   const state: RaceState = structuredClone(current);
-  state.elapsedSeconds += 1;
+  state.elapsedSeconds += 5; // Condensed race time: five simulated seconds per real-time tick.
   const oldOrder = [...state.cars].sort((a, b) => b.progress - a.progress);
   const oldPositions = new Map(oldOrder.map((car, index) => [car.id, index]));
   const oldLap = state.lap;
@@ -95,7 +95,7 @@ export function stepRace(current: RaceState): RaceState {
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
-    const progressDelta = 1 / lapSeconds;
+    const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
     car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_LIFE[car.tyre] * progressDelta);
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
