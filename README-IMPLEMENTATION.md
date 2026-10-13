@@ -34,19 +34,19 @@ This is an early playable foundation, not the full planned simulation. Race prog
 
 The stylesheet may load Google Fonts when online, with system fallbacks. Core gameplay does not depend on an external service.
 
+## GitHub Pages deployment
+
+The repository includes a GitHub Actions workflow that builds the Vite app and deploys `dist` to GitHub Pages whenever `main` or `feature/first-playable-prototype` receives a push. Vite is configured for the repository project URL path `/redline-paddock/`.
+
+1. Open the repository's **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Open the **Actions** tab and select **Deploy Redline Paddock to GitHub Pages**. If a run has not started automatically, use **Run workflow**.
+4. Wait for both build and deploy jobs to succeed. The expected URL is `https://redlinegrid.github.io/redline-paddock/`.
+
+GitHub Pages plan note: this repository is private. Publishing Pages from a private repository may require a GitHub plan that supports it. If Settings → Pages blocks the setup, do not change repository visibility without deciding whether the source code should be public; alternatively use a plan that supports Pages for private repositories.
+
 ## Engineering checks
 
 - Run `npm install` and `npm run build` in a Node environment.
 - Test pause/resume and reloading a saved race in the same browser.
 - Review pit-command behavior, race timing and prize payout calculations before extending the simulation.
-
-## Deploy to Vercel
-
-This project is configured for Vercel in `vercel.json` (Vite build, `dist` output, and SPA fallback).
-
-1. Sign in to [Vercel](https://vercel.com/) and choose **Add New → Project**.
-2. Import `redlinegrid/redline-paddock` from GitHub and authorize access to this repository if prompted.
-3. Select the `feature/first-playable-prototype` branch for a preview deployment. Vercel should detect Vite; confirm the build command is `npm run build` and output directory is `dist`.
-4. Click **Deploy**. When the build succeeds, Vercel will provide a shareable `.vercel.app` URL.
-
-The repository is private, so Vercel must have GitHub access. Vercel's Hobby plan may not allow deploying a private repository owned by a GitHub organization; if that restriction appears, use an eligible Vercel team/plan or deploy from a repository/account setup that your plan supports. The production URL is not available until a deployment actually succeeds.
