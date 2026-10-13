@@ -299,3 +299,39 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .initial-upgrade-footer>span{font:8px "IBM Plex Mono",monospace;letter-spacing:.08em;color:#858d9b}
 .initial-upgrade-footer .primary-button{white-space:nowrap;border-radius:7px;padding:14px 18px}
 @media(max-width:760px){.initial-upgrade-screen{padding:18px 14px}.initial-upgrade-topline{font-size:7px}.initial-upgrade-content{padding:28px 0}.initial-upgrade-intro{font-size:12px;margin-bottom:20px}.initial-rogue-grid{grid-template-columns:minmax(0,1fr);gap:10px}.initial-rogue-grid .rogue-card{min-height:0;padding:15px;display:grid;grid-template-columns:42px minmax(0,1fr);column-gap:12px}.initial-rogue-grid .rogue-card-top,.initial-rogue-grid .rogue-card-effect,.initial-rogue-grid .rogue-card-pick{grid-column:1/-1}.initial-rogue-grid .rogue-card-art{grid-column:1;grid-row:2/5;margin:0}.initial-rogue-grid .rogue-card-subtitle,.initial-rogue-grid .rogue-card strong,.initial-rogue-grid .rogue-card p{grid-column:2}.initial-rogue-grid .rogue-card p{margin:6px 0}.initial-upgrade-footer{align-items:stretch;flex-direction:column}.initial-upgrade-footer .primary-button{width:100%}}
+
+
+/* Pre-season driver market */
+.driver-market{width:min(100%,620px);margin-top:26px}
+.driver-market-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.market-eyebrow{font:600 8px "IBM Plex Mono",monospace;letter-spacing:.14em;color:var(--red)}
+.driver-market-heading h2{font:700 clamp(22px,3vw,30px)/1.1 "Chakra Petch",Inter,sans-serif;letter-spacing:-.035em;margin:8px 0 0}
+.market-seat-count{font:600 8px "IBM Plex Mono",monospace;letter-spacing:.08em;color:#b4bdcb;white-space:nowrap}
+.driver-market-copy{font-size:11px;line-height:1.65;color:var(--muted);margin:10px 0 13px}
+.driver-market-seats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.driver-market-seats>div{display:flex;flex-direction:column;gap:5px;padding:10px 12px;border:1px solid var(--line);border-left:2px solid var(--red);background:rgba(255,255,255,.035);min-width:0}
+.driver-market-seats small{font:600 8px "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--muted)}
+.driver-market-seats strong{font:600 13px "Chakra Petch",Inter,sans-serif;overflow-wrap:anywhere}
+.driver-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.market-driver-card{min-width:0;padding:12px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025);transition:border-color .15s,background .15s}
+.market-driver-card.market-driver-selected{border-color:rgba(255,42,24,.65);background:rgba(255,42,24,.055)}
+.market-driver-top{display:flex;justify-content:space-between;align-items:center}
+.market-driver-number{font:8px "IBM Plex Mono",monospace;color:var(--muted)}
+.market-driver-overall{display:flex;align-items:center;gap:4px;font:700 20px "Chakra Petch",Inter,sans-serif;color:#fff}
+.market-driver-overall small{font:7px "IBM Plex Mono",monospace;color:var(--muted)}
+.market-driver-card h3{font:700 16px "Chakra Petch",Inter,sans-serif;margin:5px 0 2px;overflow-wrap:anywhere}
+.market-driver-role{font:600 7px "IBM Plex Mono",monospace;letter-spacing:.07em;color:var(--red)}
+.market-driver-stats{display:flex;flex-direction:column;gap:7px;margin:13px 0}
+.market-stat{display:grid;grid-template-columns:72px minmax(0,1fr) 20px;gap:6px;align-items:center}
+.market-stat>span{font:7px "IBM Plex Mono",monospace;letter-spacing:.025em;color:var(--muted)}
+.market-stat>div{height:4px;background:#292c34;border-radius:4px;overflow:hidden}
+.market-stat>div>i{display:block;height:100%;background:linear-gradient(90deg,#8f302c,var(--red));border-radius:4px}
+.market-stat>b{font:600 9px "IBM Plex Mono",monospace;text-align:right;color:#d9dce4}
+.market-driver-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.market-driver-actions button{padding:8px 4px;border:1px solid var(--line);border-radius:4px;background:transparent;color:#bfc5d0;font:600 7px "IBM Plex Mono",monospace;letter-spacing:.02em;cursor:pointer}
+.market-driver-actions button:hover:not(:disabled){border-color:var(--red);color:#fff}
+.market-driver-actions button.selected-seat{background:var(--red);border-color:var(--red);color:#fff}
+.market-driver-actions button:disabled:not(.selected-seat){opacity:.3;cursor:not-allowed}
+.start-career-button{margin-top:16px}
+@media(max-width:850px){.driver-market{width:100%}.driver-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.driver-market-heading{align-items:flex-start;flex-direction:column;gap:7px}.driver-market-grid{grid-template-columns:minmax(0,1fr)}.market-driver-card{padding:13px}.market-stat{grid-template-columns:80px minmax(0,1fr) 22px}.driver-market-seats strong{font-size:12px}.driver-market-copy{font-size:10px}}
