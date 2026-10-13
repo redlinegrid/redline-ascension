@@ -99,7 +99,7 @@ export function stepRace(current: RaceState): RaceState {
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_WEAR_RATE[car.tyre] * progressDelta);
+    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta);
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
     car.condition = Math.max(62, car.condition - 0.002);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
