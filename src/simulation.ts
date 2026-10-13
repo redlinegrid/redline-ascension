@@ -144,7 +144,8 @@ export function stepRace(current: RaceState): RaceState {
     const tyrePenalty = car.tyreWear > 0.82 ? (car.tyreWear - 0.82) * 13 : car.tyreWear > 0.58 ? (car.tyreWear - 0.58) * 5 : 0;
     const fuelPenalty = car.fuel < 8 ? 2.4 : (100 - car.fuel) * 0.009;
     const reliabilityPenalty = (100 - car.condition) * 0.025;
-    const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };\n    const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.04 + modules.aero * 0.08 + modules.power * 0.12 : 0;
+    const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
+    const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.04 + modules.aero * 0.08 + modules.power * 0.12 : 0;
     const noise = (random(state) - 0.5) * 0.85;
     const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
     car.lastLap = lapSeconds;
@@ -152,9 +153,11 @@ export function stepRace(current: RaceState): RaceState {
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
-    const wearReduction = car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1;\n    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction);
+    const wearReduction = car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1;
+    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction);
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
-    const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;\n    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection));
+    const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;
+    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection));
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
