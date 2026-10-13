@@ -351,7 +351,7 @@ export default function App() {
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
-  const isInitialDraft = showInitialDraft && race.status === "ready" && race.upgradeLevel === 0 && race.weekendNumber === 1;
+  const isInitialDraft = false;
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
@@ -399,7 +399,7 @@ export default function App() {
       <div className="stat-cell"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small className="inline-unit"> / {race.totalLaps} LAPS</small></strong><small>{finishedCount}/22 CARS FINISHED</small></div>
       <div className="stat-cell"><span>YOUR BEST LAP</span><strong>{formatLapTime(bestLap)}</strong><small>SESSION TIMING</small></div>
     </section>
-    <section className="build-intel" aria-label="Engineering build profile">
+    {(race.status === "finished" || race.status === "gameover") && <><section className="build-intel" aria-label="Engineering build profile">
       <div className="build-intel-heading"><span>ENGINEERING PROFILE</span><b>{buildSynergies(modules).length === 1 ? "1 ACTIVE SYNERGY" : buildSynergies(modules).length + " ACTIVE SYNERGIES"}</b></div>
       <div className="build-intel-items">
         <div className="build-tradeoff"><strong>DEVELOPMENT TRADE-OFFS</strong><span>Aero increases tyre load · Power packages use more fuel</span></div>
@@ -421,7 +421,7 @@ export default function App() {
         })}
       </div>
       <div className="garage-progression-foot"><span>PERMANENT UNLOCKS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length}</span><span>RESEARCH IS SAVED LOCALLY ACROSS CAREERS</span></div>
-    </section>
+    </section></>}
     <div className="content-grid">
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
