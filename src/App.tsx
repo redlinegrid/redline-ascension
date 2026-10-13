@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { buildSynergies, createRace, draftUpgradeCards, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
+import { buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, ensureFullGrid, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
+const BEST_RUN_KEY = "redline-paddock-best-run-v1";
+type BestRun = { points: number; position: number; seed: number };
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
 function loadRace(): RaceState {
@@ -9,7 +11,7 @@ function loadRace(): RaceState {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
       const saved = JSON.parse(raw) as RaceState;
-      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length === 10) return { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 } };
+      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length >= 10) return ensureFullGrid({ ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 } });
     }
   } catch { /* Ignore a damaged local save and start a new career. */ }
   return createRace();
@@ -156,7 +158,7 @@ function HeroCarGraphic() {
 function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
   car: CarState; status: RaceState["status"]; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
 }) {
-  const disabled = status === "finished";
+  const disabled = status === "finished" || status === "gameover";
   return <div className="driver-strategy">
     <div className="driver-head"><span className="driver-number">{car.id === "rp-1" ? "07" : "22"}</span><div className="driver-ident"><strong>{car.driver}</strong><span>REDLINE GP · {car.id === "rp-1" ? "CAR 01" : "CAR 02"}</span></div><span className={"tyre-pill tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>
     <div className="driver-metrics">
@@ -174,6 +176,7 @@ function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
 
 export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
+  const [bestRun, setBestRun] = useState<BestRun | null>(() => { try { const raw = localStorage.getItem(BEST_RUN_KEY); return raw ? JSON.parse(raw) as BestRun : null; } catch { return null; } });
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
   const [showResults, setShowResults] = useState(false);
@@ -187,8 +190,19 @@ export default function App() {
     const id = window.setInterval(() => setRace((current) => stepRace(current)), Math.max(120, 1000 / speed));
     return () => window.clearInterval(id);
   }, [race.status, speed]);
+  useEffect(() => {
+    if (race.status !== "gameover") return;
+    const result: BestRun = { points: race.teamPoints?.["Redline GP"] ?? 0, position: redlineRank || 11, seed: race.seed };
+    if (!bestRun || result.points > bestRun.points || (result.points === bestRun.points && result.position < bestRun.position)) {
+      setBestRun(result);
+      try { localStorage.setItem(BEST_RUN_KEY, JSON.stringify(result)); } catch { /* Best-run records are optional if storage is full. */ }
+    }
+  }, [race.status, race.teamPoints, race.seed, redlineRank, bestRun]);
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
+  const redlinePoints = race.teamPoints?.["Redline GP"] ?? 0;
+  const teamRankings = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const redlineRank = teamRankings.findIndex(([team]) => team === "Redline GP") + 1;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
   const draftCards = useMemo(() => race.status === "finished" ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
@@ -198,11 +212,11 @@ export default function App() {
 
   return <main className="app-shell">
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><span className="brand-mark"><i/><i/><i/></span><span className="brand-text">REDLINE<span>PADDOCK</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}</div></header>
-    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM OPERATIONS <b>/</b> ROUND {String(race.weekendNumber).padStart(2, "0")}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
+    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
     <section className="stat-strip">
       <div className="stat-cell"><span>TEAM BUDGET</span><strong>{money(race.cash)}</strong><small>{race.upgradeLevel ? "PACKAGE LEVEL " + race.upgradeLevel : "INITIAL ALLOCATION"}</small></div>
       <div className="stat-cell"><span>CAR PERFORMANCE</span><strong>{Math.min(100, 82 + modules.aero * 2 + modules.power * 3 + modules.suspension + modules.reliability)}<small className="inline-unit"> / 100</small></strong><small>{race.upgradeLevel ? "DRAFTED SPEC" : "BASELINE SPEC"}</small></div>
-      <div className="stat-cell"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small className="inline-unit"> / {race.totalLaps} LAPS</small></strong><small>{finishedCount}/10 CARS FINISHED</small></div>
+      <div className="stat-cell"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small className="inline-unit"> / {race.totalLaps} LAPS</small></strong><small>{finishedCount}/22 CARS FINISHED</small></div>
       <div className="stat-cell"><span>YOUR BEST LAP</span><strong>{formatLapTime(bestLap)}</strong><small>SESSION TIMING</small></div>
     </section>
     <section className="build-intel" aria-label="Engineering build profile">
@@ -216,11 +230,11 @@ export default function App() {
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
         <CircuitMap cars={race.cars} lap={race.lap}/>
-        <div className="race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
-        {race.status === "finished" && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>Race complete.</h3><p>Prize income and classification are ready for review.</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
-        {showResults && race.status === "finished" && <RaceReport race={race}/>}
+        <div className="race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
+        {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Ten rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
+        {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
-      <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">10 CARS</span></div>
+      <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">22 CARS</span></div>
         <div className="standings-table"><div className="table-header"><span>POS</span><span>DRIVER / TEAM</span><span>GAP</span><span>TYRE</span></div>
           {order.map((car, index) => <div className={"standings-row " + (car.playerCar ? "player-row" : "")} key={car.id}><span className="position">{String(index + 1).padStart(2, "0")}</span><span className="driver-cell"><i style={{ background: car.teamColor }}/><span><strong>{car.driver}</strong><small>{car.team}</small></span>{car.playerCar && <b className="you-tag">YOU</b>}</span><span className="gap-cell">{index === 0 ? "LEADER" : car.finished && order[0].finished ? "+" + ((car.finishTime ?? 0) - (order[0].finishTime ?? 0)).toFixed(1) + "s" : "+" + Math.max(0, (order[0].progress - car.progress) * 91.4).toFixed(1) + "s"}</span><span className={"tyre-mini tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>)}
         </div><div className="standings-foot"><span><i className="dot red"/> REDLINE GP</span><span>POSITION UPDATES LIVE</span></div>
@@ -234,7 +248,7 @@ export default function App() {
         <div className="upgrade-copy">
           <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DRAFT</div>
           <h2>Three leads. One breakthrough.</h2>
-          <p>Your engineers have surfaced three opportunities from the weekend's data. Pick one to keep for the rest of your career. Offers are randomised each round, and rare breakthroughs can change your team's direction.</p>
+          <p>Your engineers have surfaced three opportunities from the weekend's data. Pick one to carry through the rest of this 10-round run. Offers are randomised each round, and rare breakthroughs can change your team's direction.</p>
           <div className="upgrade-meta"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>DEVELOPMENT PICKS <b>{race.upgradeLevel}</b></span><span>ROUND COMPLETED <b>{String(race.weekendNumber).padStart(2, "0")}</b></span></div>
           <div className="rogue-draft-grid">
             {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
@@ -247,7 +261,7 @@ export default function App() {
               <span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
             </button>)}
           </div>
-          <p className="rogue-rule-note">One pick per race · Permanent career effects · Synergies reward focused development; performance has trade-offs</p>
+          <p className="rogue-rule-note">One pick per race · Permanent for this run · Synergies reward focused development; performance has trade-offs</p>
         </div>
         <div className="upgrade-action rogue-selection">
           <div className="upgrade-symbol">✦</div>
