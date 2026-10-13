@@ -118,3 +118,29 @@
 .build-intel-items .build-tradeoff strong{color:#ff9b91}
 .build-intel-items .build-synergy-empty{justify-content:center;color:#858791;font-size:10px}
 @media(max-width:760px){.build-intel{padding:12px}.build-intel-items{grid-template-columns:1fr}.build-intel-heading{align-items:flex-start;flex-direction:column;gap:6px}}
+
+
+/* Mobile/tablet fix: keep the reward draft and selection panel readable */
+@media(max-width:1100px){
+  .upgrade-panel.roguelite-panel{grid-template-columns:minmax(0,1fr)}
+  .roguelite-panel .upgrade-copy{min-width:0;width:100%}
+  .rogue-draft-grid{width:100%;grid-template-columns:minmax(0,1fr)}
+  .rogue-card{width:100%;min-width:0;box-sizing:border-box}
+  .rogue-card>strong,.rogue-card>p,.rogue-card-subtitle,.rogue-card-effect,.rogue-card-pick{min-width:0;overflow-wrap:anywhere}
+  .rogue-selection{width:100%;min-width:0;box-sizing:border-box;border-left:0;border-top:1px solid #43302e}
+}
+@media(max-width:760px){
+  .upgrade-panel.roguelite-panel{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:14px}
+  .roguelite-panel .upgrade-copy{padding:0;overflow:hidden}
+  .rogue-draft-grid{gap:10px;margin-top:16px}
+  .rogue-card{grid-template-columns:38px minmax(0,1fr);column-gap:10px;padding:12px 10px}
+  .rogue-card-top{grid-column:1/-1}
+  .rogue-card-art{grid-column:1;grid-row:2/5;width:36px;height:36px;font-size:22px}
+  .rogue-card-subtitle,.rogue-card>strong,.rogue-card>p,.rogue-card-effect,.rogue-card-pick{grid-column:2}
+  .rogue-card>strong{font-size:16px;line-height:1.25}
+  .rogue-card>p{font-size:11px;line-height:1.5;margin:6px 0 8px}
+  .rogue-card-effect{font-size:9px;line-height:1.5}
+  .rogue-card-pick{font-size:8px}
+  .rogue-selection{padding:16px 0 0;margin-top:16px}
+  .rogue-rule-note{font-size:8px!important}
+}
