@@ -11,6 +11,7 @@ export interface CarState {
   progress: number;
   lapTime: number;
   tyre: Tyre;
+  nextTyre: Tyre;
   tyreWear: number;
   fuel: number;
   pace: Pace;
@@ -52,6 +53,7 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
   return {
     id, driver, team, teamColor, playerCar, progress, lapTime: 91.4 + n * 0.27,
     tyre: n % 3 === 0 ? "SOFT" : n % 3 === 1 ? "MEDIUM" : "HARD",
+    nextTyre: n % 3 === 0 ? "MEDIUM" : "HARD",
     tyreWear: 0.04 + n * 0.012, fuel: 100, pace: "BALANCED", pitLap: playerCar ? 7 : 6 + n % 4,
     pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finished: false,
   };
@@ -93,15 +95,16 @@ export function stepRace(current: RaceState): RaceState {
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
-    car.progress += 1 / lapSeconds;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_LIFE[car.tyre]);
-    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65));
+    const progressDelta = 1 / lapSeconds;
+    car.progress += progressDelta;
+    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_LIFE[car.tyre] * progressDelta);
+    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
     car.condition = Math.max(62, car.condition - 0.002);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
         car.pitDelay = 2; car.pitStops += 1; car.tyreWear = 0.02;
-        car.tyre = car.tyre === "SOFT" ? "MEDIUM" : car.tyre === "MEDIUM" ? "HARD" : "MEDIUM";
+        car.tyre = car.nextTyre;
         addEvent(state, car.playerCar ? car.driver + " pits for " + car.tyre.toLowerCase() + " tyres." : car.driver + " (" + car.team + ") pits.", "pit");
       }
       if (completedLap >= state.totalLaps) {
@@ -132,7 +135,7 @@ export function stepRace(current: RaceState): RaceState {
   }
   return state;
 }
-export function setDriverStrategy(state: RaceState, carId: string, patch: Partial<Pick<CarState, "pace" | "tyre" | "pitLap">>): RaceState {
+export function setDriverStrategy(state: RaceState, carId: string, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>): RaceState {
   const next = structuredClone(state);
   const car = next.cars.find((item) => item.id === carId);
   if (!car || !car.playerCar || next.status === "finished") return state;
@@ -147,7 +150,7 @@ export function upgradeCar(state: RaceState): RaceState {
   next.cash -= cost; next.upgradeLevel += 1; next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
   next.cars = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber).cars;
-  next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
+  next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.nextTyre = "HARD"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
   addEvent(next, "Weekend " + next.weekendNumber + ": upgrade package " + next.upgradeLevel + " fitted.");
   return next;
 }
