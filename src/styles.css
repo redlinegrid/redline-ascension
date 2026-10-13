@@ -85,7 +85,7 @@
 .rogue-card-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:5px}
 .rogue-card-index{font:7px var(--mono);color:#777982;letter-spacing:.5px}
 .rogue-card-top>b{font:7px var(--mono);letter-spacing:.8px;color:#a8aab1}
-.rogue-card-art{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:18px 0 14px;background:#2b2c32;border:1px solid #41424a;color:#f1a49d;font-size:26px}
+.rogue-card-art{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:18px 0 14px;background:#2b2c32;border:1px solid #41424a;color:#f1a49d}.upgrade-category-icon{display:block;width:30px;height:30px;flex:none;filter:drop-shadow(0 1px 4px currentColor)}
 .rogue-card-subtitle{font:7px var(--mono);letter-spacing:.9px;color:#a3a5ad;margin-bottom:6px}
 .rogue-card>strong{font:600 18px var(--display);line-height:1.15}
 .rogue-card>p{font-size:10px;line-height:1.55;color:#a4a6ad;margin:10px 0 14px}
