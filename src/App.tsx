@@ -69,9 +69,9 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
         </filter>
       </defs>
       <path d={trackPath} fill="none" stroke="#111216" strokeWidth="39" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={TRACK_PATH} fill="none" stroke="#cfd1d6" strokeWidth="32" strokeDasharray="5 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".82"/>
-      <path d={TRACK_PATH} fill="none" stroke="url(#track-surface)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={TRACK_PATH} fill="none" stroke="#777b84" strokeWidth="1.2" strokeDasharray="4 6" opacity=".85"/>
+      <path d={trackPath} fill="none" stroke="#cfd1d6" strokeWidth="32" strokeDasharray="5 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".82"/>
+      <path d={trackPath} fill="none" stroke="url(#track-surface)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={trackPath} fill="none" stroke="#777b84" strokeWidth="1.2" strokeDasharray="4 6" opacity=".85"/>
       <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#141519" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#45474e" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#92959d" strokeWidth=".8" strokeDasharray="3 4" opacity=".7"/>
