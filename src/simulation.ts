@@ -21,6 +21,7 @@ export interface CarState {
   condition: number;
   lastLap: number;
   bestLap: number;
+  finishTime: number | null;
   finished: boolean;
 }
 export interface RaceEvent { id: number; lap: number; message: string; kind: "info" | "pit" | "battle" | "warning" | "finish"; }
@@ -55,7 +56,7 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
     tyre: n % 3 === 0 ? "SOFT" : n % 3 === 1 ? "MEDIUM" : "HARD",
     nextTyre: n % 3 === 0 ? "MEDIUM" : "HARD",
     tyreWear: 0.04 + n * 0.012, fuel: 100, pace: "BALANCED", pitLap: playerCar ? 7 : 6 + n % 4,
-    pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finished: false,
+    pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finishTime: null, finished: false,
   };
 }
 export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1): RaceState {
@@ -108,7 +109,7 @@ export function stepRace(current: RaceState): RaceState {
         addEvent(state, car.playerCar ? car.driver + " pits for " + car.tyre.toLowerCase() + " tyres." : car.driver + " (" + car.team + ") pits.", "pit");
       }
       if (completedLap >= state.totalLaps) {
-        car.finished = true; car.progress = state.totalLaps;
+        car.finished = true; car.progress = state.totalLaps; car.finishTime = state.elapsedSeconds;
         addEvent(state, car.driver + " takes the chequered flag.", "finish");
       }
     }
@@ -127,7 +128,7 @@ export function stepRace(current: RaceState): RaceState {
   if (state.lap !== oldLap && state.lap <= state.totalLaps) addEvent(state, "Lap " + state.lap + " of " + state.totalLaps + " — " + leader.driver + " leads the field.");
   if (state.cars.every((car) => car.finished)) {
     state.status = "finished";
-    state.cars.sort((a, b) => b.progress - a.progress);
+    state.cars.sort((a, b) => (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity));
     const firstPlayer = state.cars.findIndex((car) => car.playerCar) + 1;
     const payout = firstPlayer === 1 ? 1100000 : firstPlayer <= 3 ? 750000 : firstPlayer <= 6 ? 520000 : 350000;
     state.cash += payout;
@@ -154,7 +155,7 @@ export function upgradeCar(state: RaceState): RaceState {
   addEvent(next, "Weekend " + next.weekendNumber + ": upgrade package " + next.upgradeLevel + " fitted.");
   return next;
 }
-export function standings(state: RaceState): CarState[] { return [...state.cars].sort((a, b) => b.progress - a.progress); }
+export function standings(state: RaceState): CarState[] { return [...state.cars].sort((a, b) => { if (a.finished && b.finished) return (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity); if (a.finished) return -1; if (b.finished) return 1; return b.progress - a.progress; }); }
 export function formatLapTime(seconds: number): string {
   if (!seconds || !Number.isFinite(seconds)) return "—";
   const minutes = Math.floor(seconds / 60);
