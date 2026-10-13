@@ -177,11 +177,22 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
   return state;
 }
 export function ensureFullGrid(saved: RaceState): RaceState {
-  if (saved.cars.length >= 22) return saved;
+  const migratedCars = saved.cars.map((car, index) => {
+    const profile = DRIVER_MARKET.find((driver) => driver.name === car.driver);
+    return {
+      ...car,
+      driverPace: car.driverPace ?? profile?.pace ?? 76 + (index * 7 % 13),
+      driverRacecraft: car.driverRacecraft ?? profile?.racecraft ?? 75 + (index * 5 % 15),
+      driverTyreManagement: car.driverTyreManagement ?? profile?.tyreManagement ?? 74 + (index * 3 % 16),
+      driverConsistency: car.driverConsistency ?? profile?.consistency ?? 75 + (index * 11 % 14),
+      driverPotential: car.driverPotential ?? profile?.potential ?? 78 + (index * 9 % 18),
+    };
+  });
+  if (migratedCars.length >= 22) return { ...saved, cars: migratedCars };
   const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber, saved.playerTeamName ?? saved.cars.find((car) => car.playerCar)?.team ?? "Redline GP", saved.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", saved.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka");
-  const existingIds = new Set(saved.cars.map((car) => car.id));
+  const existingIds = new Set(migratedCars.map((car) => car.id));
   const missing = fresh.cars.filter((car) => !existingIds.has(car.id));
-  return { ...saved, cars: [...saved.cars, ...missing], teamPoints: saved.teamPoints ?? {} };
+  return { ...saved, cars: [...migratedCars, ...missing], teamPoints: saved.teamPoints ?? {} };
 }
 export function stepRace(current: RaceState): RaceState {
   if (current.status !== "running") return current;
