@@ -58,7 +58,7 @@ function trackPosition(progress: number) {
   return { x: TRACK_POINTS[0][0], y: TRACK_POINTS[0][1] };
 }
 
-function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
+function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; teamName: string }) {
   const points = useMemo(() => cars.map((car) => ({
     ...car,
     ...trackPosition(car.progress),
@@ -100,7 +100,7 @@ function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
         {car.playerCar && <text x={car.x + 8} y={car.y - 7} className="track-car-label">{car.id === "rp-1" ? "07" : "22"}</text>}
       </g>)}
     </svg>
-    <div className="map-legend"><span><i className="dot red"/> REDLINE</span><span><i className="dot teal"/> VORTEX</span><span><i className="dot purple"/> APEX</span><span><i className="dot gold"/> NORTHSTAR</span><span><i className="dot blue"/> VELOCITY</span></div>
+    <div className="map-legend"><span><i className="dot red"/> {teamName.toUpperCase()}</span><span><i className="dot teal"/> VORTEX</span><span><i className="dot purple"/> APEX</span><span><i className="dot gold"/> NORTHSTAR</span><span><i className="dot blue"/> VELOCITY</span></div>
   </div>;
 }
 
@@ -155,8 +155,8 @@ function HeroCarGraphic() {
   </div>;
 }
 
-function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
-  car: CarState; status: RaceState["status"]; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
+function DriverStrategy({ car, status, teamName, onPace, onTyre, onPitLap }: {
+  car: CarState; status: RaceState["status"]; teamName: string; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
 }) {
   const disabled = status === "finished" || status === "gameover";
   return <div className="driver-strategy">
@@ -176,14 +176,18 @@ function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
 
 export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
+  const [hasSavedCareer] = useState(() => { try { return Boolean(localStorage.getItem(SAVE_KEY)); } catch { return false; } });
+  const [showStartScreen, setShowStartScreen] = useState(true);
+  const [teamNameDraft, setTeamNameDraft] = useState(() => { try { const raw = localStorage.getItem(SAVE_KEY); const saved = raw ? JSON.parse(raw) as RaceState : null; return saved?.playerTeamName ?? saved?.cars?.find((car) => car.playerCar)?.team ?? "Redline GP"; } catch { return "Redline GP"; } });
   const [bestRun, setBestRun] = useState<BestRun | null>(() => { try { const raw = localStorage.getItem(BEST_RUN_KEY); return raw ? JSON.parse(raw) as BestRun : null; } catch { return null; } });
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
   const [showResults, setShowResults] = useState(false);
   const [selectedDraftId, setSelectedDraftId] = useState("");
-  const redlinePoints = race.teamPoints?.["Redline GP"] ?? 0;
+  const playerTeamName = race.playerTeamName ?? race.cars.find((car) => car.playerCar)?.team ?? "Redline GP";
+  const redlinePoints = race.teamPoints?.[playerTeamName] ?? 0;
   const teamRankings = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  const redlineRank = teamRankings.findIndex(([team]) => team === "Redline GP") + 1;
+  const redlineRank = teamRankings.findIndex(([team]) => team === playerTeamName) + 1;
   useEffect(() => {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(race)); setSavedAt("SAVED LOCALLY · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })); }
     catch { setSavedAt("LOCAL STORAGE UNAVAILABLE"); }
@@ -195,7 +199,7 @@ export default function App() {
   }, [race.status, speed]);
   useEffect(() => {
     if (race.status !== "gameover") return;
-    const result: BestRun = { points: race.teamPoints?.["Redline GP"] ?? 0, position: redlineRank || 11, seed: race.seed };
+    const result: BestRun = { points: race.teamPoints?.[playerTeamName] ?? 0, position: redlineRank || 11, seed: race.seed };
     if (!bestRun || result.points > bestRun.points || (result.points === bestRun.points && result.position < bestRun.position)) {
       setBestRun(result);
       try { localStorage.setItem(BEST_RUN_KEY, JSON.stringify(result)); } catch { /* Best-run records are optional if storage is full. */ }
@@ -207,10 +211,12 @@ export default function App() {
   const draftCards = useMemo(() => race.status === "finished" ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
-  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0)); setShowResults(false); } };
+  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, playerTeamName)); setShowResults(false); setSelectedDraftId(""); } };
+  const startCustomCareer = () => { const name = teamNameDraft.trim().slice(0, 24); if (!name) return; setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, name)); setTeamNameDraft(name); setShowStartScreen(false); setShowResults(false); setSelectedDraftId(""); };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
 
   return <main className="app-shell">
+    {showStartScreen && <div className="start-screen" role="dialog" aria-modal="true" aria-labelledby="start-screen-title"><div className="start-screen-grid"/><div className="start-screen-content"><div className="start-screen-brand"><span className="brand-mark"><i/><i/><i/></span><span>REDLINE<span>PADDOCK</span></span></div><div className="start-screen-kicker">YOUR TEAM. YOUR LEGACY.</div><h1 id="start-screen-title">Build your <em>paddock.</em></h1><p className="start-screen-intro">Every great racing story starts with a name. Create your team and take on a 20-round championship.</p><label className="team-name-label" htmlFor="team-name-input">TEAM NAME <span>{teamNameDraft.trim().length}/24</span></label><input id="team-name-input" className="team-name-input" value={teamNameDraft} maxLength={24} placeholder="Enter your team name" onChange={(event) => setTeamNameDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && teamNameDraft.trim()) startCustomCareer(); }}/><div className="start-screen-preview"><span className="team-preview-swatch"/><div><small>YOUR CONSTRUCTOR</small><strong>{teamNameDraft.trim() || "YOUR TEAM NAME"}</strong></div><span className="team-preview-number">07 / 22</span></div><button className="primary-button start-career-button" disabled={!teamNameDraft.trim()} onClick={startCustomCareer}>CREATE TEAM & START SEASON <span>↗</span></button>{hasSavedCareer && <button className="continue-career-button" onClick={() => { setShowStartScreen(false); }}>CONTINUE EXISTING CAREER <span>→</span></button>}<p className="start-screen-footnote">20 ROUNDS · 22 DRIVERS · SINGLE-PLAYER MANAGEMENT</p></div><div className="start-screen-visual"><HeroCarGraphic/><div className="start-visual-caption"><span>01</span> CHASSIS R-01 <i/> RACE ENGINEERING DIVISION</div></div></div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><span className="brand-mark"><i/><i/><i/></span><span className="brand-text">REDLINE<span>PADDOCK</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}</div></header>
     <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
     <section className="stat-strip">
@@ -229,7 +235,7 @@ export default function App() {
     <div className="content-grid">
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
-        <CircuitMap cars={race.cars} lap={race.lap}/>
+        <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName}/>
         <div className="race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
         {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Twenty rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
@@ -237,10 +243,10 @@ export default function App() {
       <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">22 CARS</span></div>
         <div className="standings-table"><div className="table-header"><span>POS</span><span>DRIVER / TEAM</span><span>GAP</span><span>TYRE</span></div>
           {order.map((car, index) => <div className={"standings-row " + (car.playerCar ? "player-row" : "")} key={car.id}><span className="position">{String(index + 1).padStart(2, "0")}</span><span className="driver-cell"><i style={{ background: car.teamColor }}/><span><strong>{car.driver}</strong><small>{car.team}</small></span>{car.playerCar && <b className="you-tag">YOU</b>}</span><span className="gap-cell">{index === 0 ? "LEADER" : car.finished && order[0].finished ? "+" + ((car.finishTime ?? 0) - (order[0].finishTime ?? 0)).toFixed(1) + "s" : "+" + Math.max(0, (order[0].progress - car.progress) * 91.4).toFixed(1) + "s"}</span><span className={"tyre-mini tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>)}
-        </div><div className="standings-foot"><span><i className="dot red"/> REDLINE GP</span><span>POSITION UPDATES LIVE</span></div>
+        </div><div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
       </section>
       <section className="panel strategy-panel"><div className="panel-heading"><div><div className="section-kicker">PIT WALL</div><h2>Driver strategy</h2></div><span className="strategy-count">02 CARS</span></div>
-        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => <DriverStrategy key={car.id} car={car} status={race.status} onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>)}</div>
+        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => <DriverStrategy key={car.id} car={car} status={race.status} teamName={playerTeamName} onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>)}</div>
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. Consider conserving pace or adjusting the pit window." : "Tyre life is manageable. Watch degradation and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
@@ -288,8 +294,8 @@ export default function App() {
         <div><span>FINAL TEAM BUDGET</span><strong>{money(race.cash)}</strong></div>
       </div>
       <div className="gameover-lower">
-        <div><strong>CHAMPIONSHIP ORDER</strong>{teamRankings.map(([team, points], index) => <div className={"team-points-row " + (team === "Redline GP" ? "team-points-player" : "")} key={team}><span>{String(index + 1).padStart(2, "0")} · {team}</span><b>{points} PTS</b></div>)}</div>
-        <div className="gameover-best"><span>PERSONAL BEST · LOCAL RECORD</span><strong>{bestRun ? bestRun.points + " POINTS" : "FIRST RUN"}</strong><p>{bestRun ? "Best championship score: P" + bestRun.position + " team finish. This record survives a new run on this device." : "Finish a campaign to set your first personal-best record."}</p><button className="primary-button" onClick={() => { setRace(createRace(Date.now() >>> 0)); setShowResults(false); setSelectedDraftId(""); }}>START NEW RUN ↗</button></div>
+        <div><strong>CHAMPIONSHIP ORDER</strong>{teamRankings.map(([team, points], index) => <div className={"team-points-row " + (team === playerTeamName ? "team-points-player" : "")} key={team}><span>{String(index + 1).padStart(2, "0")} · {team}</span><b>{points} PTS</b></div>)}</div>
+        <div className="gameover-best"><span>PERSONAL BEST · LOCAL RECORD</span><strong>{bestRun ? bestRun.points + " POINTS" : "FIRST RUN"}</strong><p>{bestRun ? "Best championship score: P" + bestRun.position + " team finish. This record survives a new run on this device." : "Finish a campaign to set your first personal-best record."}</p><button className="primary-button" onClick={() => { setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, playerTeamName)); setShowResults(false); setSelectedDraftId(""); }}>START NEW RUN ↗</button></div>
       </div>
     </section>}
     <footer className="footer"><span>REDLINE PADDOCK · EARLY PLAYABLE BUILD</span><span>FICTIONAL SIMULATION · LOCAL SAVE ENABLED</span></footer>
