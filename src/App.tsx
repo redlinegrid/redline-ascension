@@ -178,6 +178,20 @@ export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
   const [hasSavedCareer] = useState(() => { try { return Boolean(localStorage.getItem(SAVE_KEY)); } catch { return false; } });
   const [showStartScreen, setShowStartScreen] = useState(true);
+  useEffect(() => {
+    if (!showStartScreen) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
+    const previousOverscroll = document.documentElement.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
+      document.documentElement.style.overscrollBehavior = previousOverscroll;
+    };
+  }, [showStartScreen]);
   const [teamNameDraft, setTeamNameDraft] = useState(() => { try { const raw = localStorage.getItem(SAVE_KEY); const saved = raw ? JSON.parse(raw) as RaceState : null; return saved?.playerTeamName ?? saved?.cars?.find((car) => car.playerCar)?.team ?? "Redline GP"; } catch { return "Redline GP"; } });
   const [bestRun, setBestRun] = useState<BestRun | null>(() => { try { const raw = localStorage.getItem(BEST_RUN_KEY); return raw ? JSON.parse(raw) as BestRun : null; } catch { return null; } });
   const [speed, setSpeed] = useState(1);
