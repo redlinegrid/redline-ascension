@@ -263,6 +263,24 @@ export function setDriverStrategy(state: RaceState, carId: string, patch: Partia
   addEvent(next, "Strategy updated for " + car.driver + ".");
   return next;
 }
+export function developmentProjectCost(state: RaceState, type: UpgradeType): number {
+  const level = (state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 })[type] ?? 0;
+  const base: Record<UpgradeType, number> = { aero: 650000, power: 700000, suspension: 550000, reliability: 500000 };
+  const step: Record<UpgradeType, number> = { aero: 300000, power: 325000, suspension: 250000, reliability: 225000 };
+  return base[type] + level * step[type];
+}
+export function buyDevelopmentProject(state: RaceState, type: UpgradeType): RaceState {
+  if (state.status !== "ready" && state.status !== "finished") return state;
+  const next = structuredClone(state);
+  next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
+  if (next.upgradeModules[type] >= 5) return state;
+  const cost = developmentProjectCost(next, type);
+  if (next.cash < cost) return state;
+  next.cash -= cost;
+  next.upgradeModules[type] += 1;
+  addEvent(next, "Engineering investment approved: " + type.toUpperCase() + " department upgraded to level " + next.upgradeModules[type] + " for RM" + Math.round(cost / 1000) + "k.", "info");
+  return next;
+}
 export function upgradeCar(state: RaceState, cardId: string): RaceState {
   if (state.status !== "finished") return state;
   const card = draftUpgradeCards(state).find((item) => item.id === cardId);
