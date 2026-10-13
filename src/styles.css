@@ -170,7 +170,7 @@
 
 
 /* Team creation start screen */
-.start-screen{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:100dvh;overflow:auto;background:radial-gradient(ellipse at 14% 90%,#38201f 0%,transparent 42%),#111215;color:#f4f4f6}
+.start-screen{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:100dvh;overflow:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at 14% 90%,#38201f 0%,transparent 42%),#111215;color:#f4f4f6}
 .start-screen-grid{position:absolute;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(90deg,#000,transparent 82%)}
 .start-screen-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;width:100%;max-width:720px;min-height:100dvh;padding:clamp(26px,6vw,84px);box-sizing:border-box}
 .start-screen-brand{display:flex;align-items:center;gap:13px;margin-bottom:clamp(40px,8vh,90px);font:700 24px var(--display);letter-spacing:-.8px}
