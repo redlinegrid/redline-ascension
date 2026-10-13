@@ -123,6 +123,9 @@ export interface RaceState {
   circuitSeed?: number;
   circuitName?: string;
   circuitLengthFactor?: number;
+  safetyCarTicks?: number;
+  safetyCarActive?: boolean;
+  incidentCount?: number;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -206,6 +209,9 @@ export function stepRace(current: RaceState): RaceState {
   if (current.status !== "running") return current;
   const state: RaceState = structuredClone(current);
   state.elapsedSeconds += 5; // Condensed race time: five simulated seconds per real-time tick.
+  state.safetyCarTicks = Math.max(0, state.safetyCarTicks ?? 0);
+  state.safetyCarActive = state.safetyCarTicks > 0;
+  if (state.safetyCarTicks > 0) { state.safetyCarTicks -= 1; if (state.safetyCarTicks === 0) { state.safetyCarActive = false; addEvent(state, "Race control: safety car in this lap. Racing resumes.", "warning"); } }
   const oldOrder = [...state.cars].sort((a, b) => b.progress - a.progress);
   const oldPositions = new Map(oldOrder.map((car, index) => [car.id, index]));
   const oldLap = state.lap;
@@ -221,7 +227,8 @@ export function stepRace(current: RaceState): RaceState {
     const consistencyNoise = 1 + (80 - car.driverConsistency) * 0.012;
     const noise = (random(state) - 0.5) * 0.85 * consistencyNoise;
     const racecraftBonus = (car.driverRacecraft - 80) * 0.009;
-    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
+    const safetyCarFactor = state.safetyCarActive ? 1.34 : 1;
+    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] * safetyCarFactor + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
@@ -231,9 +238,10 @@ export function stepRace(current: RaceState): RaceState {
     const wearReduction = (car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1) * driverTyreCare;
     const aeroTyreLoad = car.playerCar ? 1 + (state.upgradeModules?.aero ?? 0) * 0.025 : 1;
     const enduranceWearBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction * aeroTyreLoad * enduranceWearBonus);
+    const strategyWear = car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07;
+    car.tyreWear = Math.min(1, car.tyreWear + strategyWear * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction * aeroTyreLoad * enduranceWearBonus * (state.safetyCarActive ? 0.42 : 1));
     const powerFuelLoad = car.playerCar ? 1 + (state.upgradeModules?.power ?? 0) * 0.025 : 1;
-    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta * powerFuelLoad);
+    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta * powerFuelLoad * (state.safetyCarActive ? 0.5 : 1));
     const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;
     const enduranceConditionBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
     car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus);
@@ -257,6 +265,22 @@ export function stepRace(current: RaceState): RaceState {
     if (before !== undefined && after < before) {
       const passed = oldOrder[before - 1];
       if (passed && passed.id !== car.id && Math.abs(passed.progress - car.progress) < 0.08) addEvent(state, car.driver + " gains a position in traffic.", "battle");
+    }
+  }
+  // Incidents use the seeded race RNG and favour close traffic; severe incidents neutralise the field.
+  if (!state.safetyCarActive && (state.safetyCarTicks ?? 0) === 0 && random(state) < 0.018) {
+    const runningCars = order.filter((car) => !car.finished);
+    const candidate = runningCars.find((car, index) => index > 0 && Math.abs(car.progress - runningCars[index - 1].progress) < 0.055) ?? runningCars[Math.floor(random(state) * Math.max(1, runningCars.length))];
+    if (candidate) {
+      state.incidentCount = (state.incidentCount ?? 0) + 1;
+      if (random(state) < 0.34) {
+        state.safetyCarTicks = 3; state.safetyCarActive = true;
+        addEvent(state, "SAFETY CAR — " + candidate.driver + " has stopped off-line after an incident. The field is neutralised; tyre wear and fuel use are reduced.", "warning");
+      } else {
+        candidate.condition = Math.max(45, candidate.condition - 8);
+        candidate.progress = Math.max(0, candidate.progress - 0.025);
+        addEvent(state, "Incident: " + candidate.driver + " runs wide in traffic. Lost time and minor component damage.", "warning");
+      }
     }
   }
   const leader = order[0];
@@ -287,7 +311,9 @@ export function setDriverStrategy(state: RaceState, carId: string, patch: Partia
   const car = next.cars.find((item) => item.id === carId);
   if (!car || !car.playerCar || next.status === "finished") return state;
   Object.assign(car, patch);
-  addEvent(next, "Strategy updated for " + car.driver + ".");
+  if (patch.pace) addEvent(next, car.driver + " switches to " + patch.pace.toLowerCase() + " pace: " + (patch.pace === "PUSH" ? "more speed, higher tyre wear and fuel use." : patch.pace === "CONSERVE" ? "protecting tyres and fuel at the cost of lap time." : "balanced pace and resource use."));
+  else if (patch.nextTyre) addEvent(next, car.driver + " will fit " + patch.nextTyre.toLowerCase() + " tyres at the next stop.");
+  else if (patch.pitLap) addEvent(next, car.driver + " pit window moved to lap " + patch.pitLap + ".");
   return next;
 }
 export function applyStartingUpgrade(state: RaceState, cardId: string): RaceState {
