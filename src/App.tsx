@@ -20,17 +20,37 @@ function loadRace(): RaceState {
 function seededTrack(seed: number) {
   let value = seed >>> 0;
   const rand = () => { value = (Math.imul(value, 1664525) + 1013904223) >>> 0; return value / 4294967296; };
-  const count = 28 + Math.floor(rand() * 12);
-  const points: [number, number][] = [];
+  const count = 18 + Math.floor(rand() * 5);
   const rotation = rand() * Math.PI * 2;
+  const phaseA = rand() * Math.PI * 2;
+  const phaseB = rand() * Math.PI * 2;
+  const phaseC = rand() * Math.PI * 2;
+  const ampA = 0.10 + rand() * 0.07;
+  const ampB = 0.05 + rand() * 0.06;
+  const ampC = 0.025 + rand() * 0.035;
+  const points: [number, number][] = [];
   for (let i = 0; i < count; i++) {
     const angle = rotation + (i / count) * Math.PI * 2;
-    const wave = Math.sin(angle * (2 + Math.floor(rand() * 3)) + rand() * 2) * (7 + rand() * 12);
-    const radiusX = 103 + wave + rand() * 8;
-    const radiusY = 67 + wave * 0.62 + rand() * 7;
-    points.push([190 + Math.cos(angle) * radiusX, 110 + Math.sin(angle) * radiusY]);
+    const radius = 1
+      + Math.sin(angle * 2 + phaseA) * ampA
+      + Math.sin(angle * 3 + phaseB) * ampB
+      + Math.cos(angle * 5 + phaseC) * ampC;
+    const xRadius = 103 * radius;
+    const yRadius = 70 * radius + Math.sin(angle * 2 + phaseB) * 4;
+    points.push([190 + Math.cos(angle) * xRadius, 110 + Math.sin(angle) * yRadius]);
   }
   return points;
+}
+
+function smoothTrackPath(points: readonly (readonly [number, number])[]) {
+  const midpoint = (a: readonly [number, number], b: readonly [number, number]): [number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const first = midpoint(points[points.length - 1], points[0]);
+  let path = "M " + first[0] + " " + first[1];
+  for (let i = 0; i < points.length; i++) {
+    const next = midpoint(points[i], points[(i + 1) % points.length]);
+    path += " Q " + points[i][0] + " " + points[i][1] + " " + next[0] + " " + next[1];
+  }
+  return path + " Z";
 }
 
 function trackPosition(progress: number, points: readonly (readonly [number, number])[]) {
@@ -43,10 +63,7 @@ function trackPosition(progress: number, points: readonly (readonly [number, num
     const segmentLength = segments[index];
     if (distance <= segmentLength || index === points.length - 1) {
       const fraction = segmentLength === 0 ? 0 : distance / segmentLength;
-      return {
-        x: a[0] + (b[0] - a[0]) * fraction,
-        y: a[1] + (b[1] - a[1]) * fraction,
-      };
+      return { x: a[0] + (b[0] - a[0]) * fraction, y: a[1] + (b[1] - a[1]) * fraction };
     }
     distance -= segmentLength;
   }
@@ -55,49 +72,63 @@ function trackPosition(progress: number, points: readonly (readonly [number, num
 
 function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Copperhead Ring" }: { cars: CarState[]; lap: number; teamName: string; circuitSeed?: number; circuitName?: string }) {
   const trackPoints = useMemo(() => seededTrack(circuitSeed), [circuitSeed]);
-  const trackPath = useMemo(() => trackPoints.map(([x, y], index) => (index === 0 ? "M" : "L") + x + " " + y).join(" ") + " Z", [trackPoints]);
+  const trackPath = useMemo(() => smoothTrackPath(trackPoints), [trackPoints]);
   const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints) })), [cars, trackPoints]);
-  return <div className="circuit-wrap">
-    <svg viewBox="0 0 380 220" role="img" aria-label="Schematic live circuit map showing each car on the track">
+  const startFinish = trackPosition(0, trackPoints);
+  const sectorOne = trackPosition(1 / 3, trackPoints);
+  const sectorTwo = trackPosition(2 / 3, trackPoints);
+  return <div className="circuit-wrap circuit-theme">
+    <div className="circuit-hud"><span><i /> CIRCUIT TELEMETRY</span><b>SEED {circuitSeed.toString(16).toUpperCase().padStart(6, "0").slice(-6)}</b></div>
+    <svg viewBox="0 0 380 220" role="img" aria-label={"Live circuit map for " + circuitName}>
       <defs>
         <linearGradient id="track-surface" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#34363d"/>
-          <stop offset="100%" stopColor="#24262c"/>
+          <stop offset="0%" stopColor="#343943" />
+          <stop offset="50%" stopColor="#20242c" />
+          <stop offset="100%" stopColor="#2d3038" />
         </linearGradient>
+        <linearGradient id="track-curb" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#ff3024" />
+          <stop offset="50%" stopColor="#f2f3f5" />
+          <stop offset="100%" stopColor="#ff3024" />
+        </linearGradient>
+        <filter id="track-glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="4" />
+        </filter>
         <filter id="player-glow" x="-200%" y="-200%" width="400%" height="400%">
-          <feGaussianBlur stdDeviation="3"/>
+          <feGaussianBlur stdDeviation="3" />
         </filter>
       </defs>
-      <path d={trackPath} fill="none" stroke="#111216" strokeWidth="39" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={trackPath} fill="none" stroke="#cfd1d6" strokeWidth="32" strokeDasharray="5 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".82"/>
-      <path d={trackPath} fill="none" stroke="url(#track-surface)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={trackPath} fill="none" stroke="#777b84" strokeWidth="1.2" strokeDasharray="4 6" opacity=".85"/>
-      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#141519" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#45474e" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#92959d" strokeWidth=".8" strokeDasharray="3 4" opacity=".7"/>
-      <rect x="167" y="185" width="31" height="9" rx="1.5" fill="#24262c" stroke="#62656d" strokeWidth=".8"/>
-      <path d="M173 187 V192 M179 187 V192 M185 187 V192 M191 187 V192" stroke="#f04438" strokeWidth="1.3"/>
-      <text x="204" y="191" className="track-pit-label">PIT LANE</text>
-      <path d="M116 162 L116 186" stroke="#f5f5f5" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M111 162 L111 186 M121 162 L121 186" stroke="#f04438" strokeWidth="3" strokeLinecap="round"/>
-      <text x="129" y="158" className="track-marker-label">START / FINISH</text>
-      <g className="track-sector"><circle cx="295" cy="48" r="5"/><text x="295" y="50.5">1</text></g>
-      <g className="track-sector"><circle cx="143" cy="87" r="5"/><text x="143" y="89.5">2</text></g>
-      <g className="track-sector"><circle cx="80" cy="151" r="5"/><text x="80" y="153.5">3</text></g>
-      <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
-      <text x="190" y="121" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
-      <text x="190" y="137" textAnchor="middle" className="track-center-sub">LIVE TRACKING</text>
+      <path d={trackPath} fill="none" stroke="#ff3024" strokeWidth="38" opacity=".10" filter="url(#track-glow)" />
+      <path d={trackPath} fill="none" stroke="#080a0e" strokeWidth="38" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} fill="none" stroke="url(#track-curb)" strokeWidth="34" strokeDasharray="7 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".92" />
+      <path d={trackPath} fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} fill="none" stroke="#a7afbd" strokeWidth="1" strokeDasharray="3 5" opacity=".56" />
+      <path d={trackPath} fill="none" stroke="#ff4034" strokeWidth="1.5" strokeDasharray="16 1000" opacity=".9" />
+      <g transform={"translate(" + startFinish.x + " " + startFinish.y + ")"}>
+        <circle r="8" fill="#0a0c11" stroke="#f4f5f7" strokeWidth="1.5" />
+        <circle r="3" fill="#ff3024" />
+        <path d="M-12 -12h24" stroke="#ff3024" strokeWidth="2" />
+      </g>
+      <text x={startFinish.x + 12} y={startFinish.y - 12} className="track-marker-label">START / FINISH</text>
+      <g className="track-sector" transform={"translate(" + sectorOne.x + " " + sectorOne.y + ")"}><circle r="7" /><text y="2.5">S1</text></g>
+      <g className="track-sector" transform={"translate(" + sectorTwo.x + " " + sectorTwo.y + ")"}><circle r="7" /><text y="2.5">S2</text></g>
+      <g className="track-core">
+        <rect x="132" y="82" width="116" height="57" rx="5" />
+        <path d="M144 95h12m-12 4h6" />
+        <text x="190" y="108" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
+        <text x="190" y="121" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
+        <text x="190" y="132" textAnchor="middle" className="track-center-live">● LIVE TIMING</text>
+      </g>
       {points.map((car) => <g key={car.id}>
-        {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".18" filter="url(#player-glow)"/>}
-        {car.playerCar && <circle cx={car.x} cy={car.y} r="7" fill={car.teamColor} opacity=".22"/>}
-        <circle cx={car.x} cy={car.y} r={car.playerCar ? 4.4 : 3.1} fill={car.teamColor} stroke={car.playerCar ? "#fff" : "#17181b"} strokeWidth={car.playerCar ? 1.3 : .8}/>
+        {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".2" filter="url(#player-glow)" />}
+        {car.playerCar && <circle cx={car.x} cy={car.y} r="7" fill={car.teamColor} opacity=".24" />}
+        <circle cx={car.x} cy={car.y} r={car.playerCar ? 4.5 : 2.8} fill={car.teamColor} stroke={car.playerCar ? "#ffffff" : "#11141a"} strokeWidth={car.playerCar ? 1.3 : .8} />
         {car.playerCar && <text x={car.x + 8} y={car.y - 7} className="track-car-label">{car.id === "rp-1" ? "07" : "22"}</text>}
       </g>)}
     </svg>
-    <div className="map-legend"><span><i className="dot red"/> {teamName.toUpperCase()}</span><span><i className="dot teal"/> VORTEX</span><span><i className="dot purple"/> APEX</span><span><i className="dot gold"/> NORTHSTAR</span><span><i className="dot blue"/> VELOCITY</span></div>
+    <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span></div>
   </div>;
 }
-
 
 function UpgradeIcon({ type }: { type: string | undefined }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
