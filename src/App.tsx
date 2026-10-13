@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createRace, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
+import { createRace, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_OPTIONS, type CarState, type Pace, type RaceState, type Tyre, type UpgradeType } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
@@ -9,7 +9,7 @@ function loadRace(): RaceState {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
       const saved = JSON.parse(raw) as RaceState;
-      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length === 10) return saved;
+      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length === 10) return { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 } };
     }
   } catch { /* Ignore a damaged local save and start a new career. */ }
   return createRace();
@@ -176,7 +176,7 @@ export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
-  const [showResults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(false);\n  const [selectedUpgrade, setSelectedUpgrade] = useState<UpgradeType>("aero");
   useEffect(() => {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(race)); setSavedAt("SAVED LOCALLY · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })); }
     catch { setSavedAt("LOCAL STORAGE UNAVAILABLE"); }
@@ -188,7 +188,7 @@ export default function App() {
   }, [race.status, speed]);
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
-  const cost = 650000 + race.upgradeLevel * 250000;
+  const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };\n  const cost = UPGRADE_OPTIONS[selectedUpgrade].cost(race.upgradeLevel, modules[selectedUpgrade]);
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0)); setShowResults(false); } };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
@@ -220,7 +220,41 @@ export default function App() {
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. Consider conserving pace or adjusting the pit window." : "Tyre life is manageable. Watch degradation and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
-      {race.status === "finished" && <section className="panel upgrade-panel"><div className="upgrade-copy"><div className="section-kicker">ENGINEERING DEPARTMENT</div><h2>Bring the next package.</h2><p>Invest in a refined aerodynamic concept to improve pace at the next event. Upgrade effects are simplified for this prototype.</p><div className="upgrade-meta"><span>CURRENT LEVEL <b>{race.upgradeLevel}</b></span><span>PROJECT COST <b>{money(cost)}</b></span></div></div><div className="upgrade-action"><div className="upgrade-symbol">↗</div><strong>+0.16s</strong><span>ESTIMATED LAP PACE</span><button className="primary-button" disabled={race.cash < cost} onClick={() => { setRace((current) => upgradeCar(current)); setShowResults(false); }}>FIT UPGRADE · {money(cost)}</button><button className="text-button" onClick={resetCareer}>START NEW CAREER</button></div></section>}
+      {race.status === "finished" && <section className="panel upgrade-panel">
+        <div className="upgrade-copy">
+          <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
+          <h2>Where do we invest next?</h2>
+          <p>Choose a development package for the next weekend. Each option has a different cost and a lasting effect, so you can specialise the car instead of buying the same generic upgrade every time.</p>
+          <div className="upgrade-meta"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>PACKAGES FITTED <b>{race.upgradeLevel}</b></span></div>
+          <div className="upgrade-options">
+            {Object.entries(UPGRADE_OPTIONS).map(([key, option]) => {
+              const type = key as UpgradeType;
+              const owned = modules[type];
+              const packageCost = option.cost(race.upgradeLevel, owned);
+              return <button key={type} className={"upgrade-option " + (selectedUpgrade === type ? "upgrade-option-selected" : "")} onClick={() => setSelectedUpgrade(type)}>
+                <span className="upgrade-option-top"><i>{type === "aero" ? "↗" : type === "power" ? "ϟ" : type === "suspension" ? "⌁" : "◇"}</i><b>{owned ? "LEVEL " + owned : "NEW PACKAGE"}</b></span>
+                <strong>{option.name}</strong><small>{option.subtitle}</small><p>{option.description}</p>
+                <span className="upgrade-effect">{option.effect}</span>
+                <span className="upgrade-price">{money(packageCost)}</span>
+                {selectedUpgrade === type && <span className="upgrade-selected-mark">SELECTED ✓</span>}
+              </button>;
+            })}
+          </div>
+        </div>
+        <div className="upgrade-action">
+          <div className="upgrade-symbol">{selectedUpgrade === "aero" ? "↗" : selectedUpgrade === "power" ? "ϟ" : selectedUpgrade === "suspension" ? "⌁" : "◇"}</div>
+          <span className="selected-package-label">SELECTED DEVELOPMENT</span>
+          <strong>{UPGRADE_OPTIONS[selectedUpgrade].name}</strong>
+          <p className="selected-package-description">{UPGRADE_OPTIONS[selectedUpgrade].description}</p>
+          <div className="upgrade-summary-row"><span>PACKAGE EFFECT</span><b>{UPGRADE_OPTIONS[selectedUpgrade].effect}</b></div>
+          <div className="upgrade-summary-row"><span>INVESTMENT</span><b>{money(cost)}</b></div>
+          <div className="upgrade-summary-row"><span>REMAINING CASH</span><b>{money(race.cash - cost)}</b></div>
+          <button className="primary-button" disabled={race.cash < cost} onClick={() => { setRace((current) => upgradeCar(current, selectedUpgrade)); setShowResults(false); }}>COMMISSION & FIT PACKAGE ↗</button>
+          {race.cash < cost && <p className="upgrade-unaffordable">Not enough funds for this package. Choose a lower-cost option or race again to earn more.</p>}
+          <p className="upgrade-install-note">Installed between weekends · permanent development</p>
+          <button className="text-button" onClick={resetCareer}>START NEW CAREER</button>
+        </div>
+      </section>}
     </div>
     <footer className="footer"><span>REDLINE PADDOCK · EARLY PLAYABLE BUILD</span><span>FICTIONAL SIMULATION · LOCAL SAVE ENABLED</span></footer>
   </main>;
