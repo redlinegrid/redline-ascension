@@ -93,6 +93,10 @@ export interface RaceState {
   weekendNumber: number;
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
+  recoveryActive?: boolean;
+  recoveryCount?: number;
+  lastRacePayout?: number;
+  lastOperatingCost?: number;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -117,7 +121,7 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
 }
 export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP"): RaceState {
   const safeTeamName = playerTeamName.trim().slice(0, 24) || "Redline GP";
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, teamPoints: {}, cars: [], events: [] };
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, teamPoints: {}, recoveryActive: false, recoveryCount: 0, lastRacePayout: 0, lastOperatingCost: 0, cars: [], events: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: "Alex Mercer", team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: "Mika Tanaka", team: safeTeamName, color: "#f04438", player: true, progress: 0 },
@@ -215,9 +219,21 @@ export function stepRace(current: RaceState): RaceState {
   if (state.cars.every((car) => car.finished)) {
     state.status = "finished";
     state.cars.sort((a, b) => (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity));
-    const firstPlayer = state.cars.findIndex((car) => car.playerCar) + 1;
-    const payout = firstPlayer === 1 ? 1100000 : firstPlayer <= 3 ? 750000 : firstPlayer <= 6 ? 520000 : 350000;
-    state.cash += payout;
+    const playerPositions = state.cars.map((car, index) => car.playerCar ? index + 1 : 0).filter(Boolean);
+    const bestPlayerPosition = playerPositions.length ? Math.min(...playerPositions) : 22;
+    const payout = bestPlayerPosition === 1 ? 1100000 : bestPlayerPosition <= 3 ? 750000 : bestPlayerPosition <= 6 ? 520000 : 350000;
+    const modulesNow = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
+    const totalModules = modulesNow.aero + modulesNow.power + modulesNow.suspension + modulesNow.reliability;
+    const operatingCost = 180000 + Math.max(0, state.upgradeLevel) * 30000 + totalModules * 25000;
+    state.lastRacePayout = payout;
+    state.lastOperatingCost = operatingCost;
+    state.cash += payout - operatingCost;
+    addEvent(state, "Finance: " + (payout >= 1000000 ? "RM" + (payout / 1000000).toFixed(2) + "m" : "RM" + Math.round(payout / 1000) + "k") + " prize income, less RM" + Math.round(operatingCost / 1000) + "k operating costs.", "info");
+    if (state.recoveryActive && bestPlayerPosition <= 10) {
+      state.cash += 350000;
+      state.recoveryActive = false;
+      addEvent(state, "Recovery objective complete: top-10 finish secured. RM350,000 performance support released.", "finish");
+    }
     state.teamPoints ??= {};
     state.cars.forEach((car, index) => {
       const points = POINTS_BY_POSITION[index] ?? 0;
@@ -227,7 +243,14 @@ export function stepRace(current: RaceState): RaceState {
       state.status = "gameover";
       addEvent(state, "Campaign complete. Final championship points have been locked.", "finish");
     } else {
-      addEvent(state, "Race complete. Prize income added to the team budget.", "finish");
+      if (state.cash < 0) {
+        state.cash += 1000000;
+        state.recoveryActive = true;
+        state.recoveryCount = (state.recoveryCount ?? 0) + 1;
+        addEvent(state, "Emergency funding approved: RM1,000,000 added. Recovery objective: finish in the top 10 with either car.", "warning");
+      } else {
+        addEvent(state, "Race complete. Net prize income added to the team budget.", "finish");
+      }
     }
   }
   return state;
