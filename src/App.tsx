@@ -176,7 +176,8 @@ export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
-  const [showResults, setShowResults] = useState(false);\n  const [selectedUpgrade, setSelectedUpgrade] = useState<UpgradeType>("aero");
+  const [showResults, setShowResults] = useState(false);
+  const [selectedDraftId, setSelectedDraftId] = useState("");
   useEffect(() => {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(race)); setSavedAt("SAVED LOCALLY · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })); }
     catch { setSavedAt("LOCAL STORAGE UNAVAILABLE"); }
@@ -188,7 +189,9 @@ export default function App() {
   }, [race.status, speed]);
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
-  const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };\n  const cost = UPGRADE_OPTIONS[selectedUpgrade].cost(race.upgradeLevel, modules[selectedUpgrade]);
+  const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
+  const draftCards = useMemo(() => race.status === "finished" ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber]);
+  const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0)); setShowResults(false); } };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
