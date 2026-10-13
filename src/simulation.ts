@@ -119,6 +119,7 @@ export interface RaceState {
   weekendNumber: number;
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
+  playerPrincipalName?: string;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -143,9 +144,9 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
     pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finishTime: null, finished: false,
   };
 }
-export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka"): RaceState {
+export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka", playerPrincipalName = "Team Principal"): RaceState {
   const safeTeamName = playerTeamName.trim().slice(0, 24) || "Redline GP";
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, teamPoints: {}, cars: [], events: [] };
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", teamPoints: {}, cars: [], events: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },
@@ -189,7 +190,7 @@ export function ensureFullGrid(saved: RaceState): RaceState {
     };
   });
   if (migratedCars.length >= 22) return { ...saved, cars: migratedCars };
-  const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber, saved.playerTeamName ?? saved.cars.find((car) => car.playerCar)?.team ?? "Redline GP", saved.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", saved.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka");
+  const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber, saved.playerTeamName ?? saved.cars.find((car) => car.playerCar)?.team ?? "Redline GP", saved.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", saved.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka", saved.playerPrincipalName ?? "Team Principal");
   const existingIds = new Set(migratedCars.map((car) => car.id));
   const missing = fresh.cars.filter((car) => !existingIds.has(car.id));
   return { ...saved, cars: [...migratedCars, ...missing], teamPoints: saved.teamPoints ?? {} };
@@ -305,7 +306,7 @@ export function upgradeCar(state: RaceState, cardId: string): RaceState {
   next.upgradeLevel += 1;
   next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
-  const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber, next.playerTeamName ?? next.cars.find((car) => car.playerCar)?.team ?? "Redline GP", next.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", next.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka");
+  const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber, next.playerTeamName ?? next.cars.find((car) => car.playerCar)?.team ?? "Redline GP", next.cars.find((car) => car.id === "rp-1")?.driver ?? "Alex Mercer", next.cars.find((car) => car.id === "rp-2")?.driver ?? "Mika Tanaka", next.playerPrincipalName ?? "Team Principal");
   next.cars = fresh.cars;
   next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.nextTyre = "HARD"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
   addEvent(next, "Weekend " + (next.weekendNumber - 1) + ": drafted " + card.title + ". " + card.effect);
