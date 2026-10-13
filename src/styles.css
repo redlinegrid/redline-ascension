@@ -335,3 +335,125 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .start-career-button{margin-top:16px}
 @media(max-width:850px){.driver-market{width:100%}.driver-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.driver-market-heading{align-items:flex-start;flex-direction:column;gap:7px}.driver-market-grid{grid-template-columns:minmax(0,1fr)}.market-driver-card{padding:13px}.market-stat{grid-template-columns:80px minmax(0,1fr) 22px}.driver-market-seats strong{font-size:12px}.driver-market-copy{font-size:10px}}
+
+
+/* Start-screen layout repair: keep the brand and driver market inside the viewport */
+.start-screen{
+  align-items:stretch;
+  grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);
+  height:100vh;
+  height:100dvh;
+  min-height:0;
+  overflow:hidden;
+}
+.start-screen-content{
+  justify-content:flex-start;
+  align-self:stretch;
+  min-width:0;
+  min-height:0;
+  height:100vh;
+  height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:clamp(22px,3.2vw,48px) clamp(20px,4vw,56px) 30px;
+  scrollbar-width:thin;
+  scrollbar-color:#41434d transparent;
+}
+.start-screen-brand{
+  max-width:100%;
+  min-width:0;
+  gap:11px;
+  margin-bottom:clamp(22px,4vh,38px);
+}
+.start-screen-brand .brand-mark-svg{flex:0 0 auto;width:42px;height:42px}
+.start-brand-lockup{flex:1 1 auto;min-width:0;max-width:100%;overflow:hidden}
+.start-brand-lockup>b{
+  display:block;
+  max-width:100%;
+  font-size:clamp(17px,1.8vw,24px);
+  line-height:1.05;
+  letter-spacing:.005em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.start-brand-lockup>small{
+  display:block;
+  font-size:clamp(6px,.62vw,8px);
+  line-height:1.4;
+  letter-spacing:.09em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.start-screen-content h1{max-width:100%;font-size:clamp(38px,4.4vw,62px);overflow-wrap:anywhere}
+.start-screen-intro{max-width:100%;margin-bottom:22px}
+.start-screen-content .team-name-label,
+.start-screen-content .team-name-input,
+.start-screen-content .start-screen-preview,
+.start-screen-content .start-career-button,
+.start-screen-content .continue-career-button{max-width:100%}
+.driver-market{width:100%;max-width:620px;min-width:0;margin-top:24px}
+.driver-market-heading{align-items:flex-start;flex-wrap:wrap}
+.driver-market-heading>div{min-width:0}
+.driver-market-heading h2{overflow-wrap:anywhere}
+.market-seat-count{padding-top:4px}
+.driver-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.market-driver-card{min-width:0}
+.market-driver-card h3{overflow-wrap:anywhere}
+.market-stat{grid-template-columns:minmax(55px,72px) minmax(0,1fr) 18px}
+.market-stat>span{font-size:6.5px}
+.market-driver-actions button{min-width:0;overflow-wrap:anywhere}
+.start-career-button{flex:0 0 auto}
+.start-screen-footnote{padding-bottom:4px}
+.start-screen-visual{min-width:0;min-height:0;height:100vh;height:100dvh}
+@media(max-width:1000px){
+  .start-screen{grid-template-columns:minmax(0,1fr) minmax(260px,.7fr)}
+  .start-screen-content{padding:24px 26px 28px}
+  .start-screen-brand .brand-mark-svg{width:38px;height:38px}
+  .start-brand-lockup>b{font-size:clamp(17px,2.1vw,22px)}
+  .driver-market-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:760px){
+  .start-screen{display:block;overflow:hidden}
+  .start-screen-content{
+    width:100%;
+    max-width:none;
+    height:100vh;
+    height:100dvh;
+    min-height:0;
+    padding:22px 20px 28px;
+    justify-content:flex-start;
+  }
+  .start-screen-brand{margin-bottom:25px;gap:10px}
+  .start-screen-brand .brand-mark-svg{width:38px;height:38px}
+  .start-brand-lockup>b{font-size:clamp(18px,5vw,23px);white-space:normal}
+  .start-brand-lockup>small{font-size:7px;letter-spacing:.09em}
+  .start-screen-content h1{font-size:clamp(38px,10vw,54px);letter-spacing:-.04em;margin:13px 0}
+  .start-screen-intro{font-size:12px;line-height:1.65;margin-bottom:22px}
+  .driver-market{margin-top:23px}
+  .driver-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .market-driver-card{padding:11px}
+  .market-stat{grid-template-columns:66px minmax(0,1fr) 18px}
+}
+@media(max-width:430px){
+  .start-screen-content{padding:18px 16px 24px}
+  .start-screen-brand{margin-bottom:23px}
+  .start-screen-brand .brand-mark-svg{width:34px;height:34px}
+  .start-brand-lockup>b{font-size:clamp(17px,4.8vw,21px);letter-spacing:0}
+  .start-brand-lockup>small{font-size:6px;letter-spacing:.07em}
+  .start-screen-kicker{font-size:8px}
+  .start-screen-content h1{font-size:38px}
+  .team-name-input{width:100%;font-size:16px}
+  .start-screen-preview{width:100%;gap:8px;padding:11px}
+  .start-screen-preview strong{font-size:13px}
+  .driver-market-heading h2{font-size:23px}
+  .driver-market-seats>div{padding:9px}
+  .driver-market-seats strong{font-size:11px}
+  .driver-market-grid{grid-template-columns:minmax(0,1fr)}
+  .market-driver-card{padding:13px}
+  .market-stat{grid-template-columns:78px minmax(0,1fr) 20px}
+  .market-stat>span{font-size:7px}
+  .market-driver-actions button{font-size:8px;padding:9px 4px}
+  .start-career-button{font-size:9px;padding:14px 10px}
+  .start-screen-footnote{font-size:6px;letter-spacing:.04em}
+}
