@@ -181,6 +181,9 @@ export default function App() {
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
   const [showResults, setShowResults] = useState(false);
   const [selectedDraftId, setSelectedDraftId] = useState("");
+  const redlinePoints = race.teamPoints?.["Redline GP"] ?? 0;
+  const teamRankings = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const redlineRank = teamRankings.findIndex(([team]) => team === "Redline GP") + 1;
   useEffect(() => {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(race)); setSavedAt("SAVED LOCALLY · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })); }
     catch { setSavedAt("LOCAL STORAGE UNAVAILABLE"); }
@@ -200,9 +203,6 @@ export default function App() {
   }, [race.status, race.teamPoints, race.seed, redlineRank, bestRun]);
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
-  const redlinePoints = race.teamPoints?.["Redline GP"] ?? 0;
-  const teamRankings = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  const redlineRank = teamRankings.findIndex(([team]) => team === "Redline GP") + 1;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
   const draftCards = useMemo(() => race.status === "finished" ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
