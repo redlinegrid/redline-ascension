@@ -105,3 +105,16 @@
 .rogue-selection .primary-button{width:100%}
 @media(max-width:1100px){.rogue-draft-grid{grid-template-columns:1fr}.rogue-card{min-height:0;display:grid;grid-template-columns:42px minmax(0,1fr);column-gap:12px;padding:13px}.rogue-card:before{width:3px;height:100%;right:auto}.rogue-card-top{grid-column:1/-1}.rogue-card-art{grid-column:1;grid-row:2/5;margin:12px 0 0}.rogue-card-subtitle,.rogue-card>strong,.rogue-card>p,.rogue-card-effect,.rogue-card-pick{grid-column:2}.rogue-card-subtitle{margin-top:10px}.rogue-card>p{margin:7px 0}.rogue-card-effect{margin-top:4px}.rogue-card-pick{margin-top:10px}.upgrade-panel{grid-template-columns:minmax(0,1fr) 270px}}
 @media(max-width:760px){.rogue-draft-grid{grid-template-columns:1fr}.rogue-card{grid-template-columns:44px minmax(0,1fr);padding:13px 12px}.rogue-card-art{margin-top:12px}.rogue-card>strong{font-size:17px}.rogue-card>p{font-size:10px}.rogue-selection{padding:18px}.rogue-rule-note{line-height:1.6}}
+
+
+/* Engineering build synergies and deliberate upgrade trade-offs */
+.build-intel{margin:0 0 18px;padding:13px 16px;background:#17181c;border:1px solid #34353b}
+.build-intel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;font:8px var(--mono);letter-spacing:.8px;color:#8f9199}
+.build-intel-heading b{font-weight:500;color:#ff9b91}
+.build-intel-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:11px}
+.build-intel-items>div{display:flex;flex-direction:column;gap:5px;min-width:0;padding:10px;background:#202126;border:1px solid #34353b}
+.build-intel-items strong{font:8px var(--mono);letter-spacing:.5px;color:#d4a7ff}
+.build-intel-items span{font-size:10px;line-height:1.5;color:#a5a6ad}
+.build-intel-items .build-tradeoff strong{color:#ff9b91}
+.build-intel-items .build-synergy-empty{justify-content:center;color:#858791;font-size:10px}
+@media(max-width:760px){.build-intel{padding:12px}.build-intel-items{grid-template-columns:1fr}.build-intel-heading{align-items:flex-start;flex-direction:column;gap:6px}}
