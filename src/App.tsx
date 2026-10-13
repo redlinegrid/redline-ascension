@@ -105,7 +105,7 @@ function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; te
 }
 
 
-function UpgradeIcon({ type }: { type: string }) {
+function UpgradeIcon({ type }: { type: string | undefined }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return <svg className="upgrade-category-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
     {type === "aero" && <g {...common}><path d="M5 27 41 10 32 28 18 31 5 27Z"/><path d="m18 31-5 9 13-11"/><path d="M9 19 4 17M14 14 10 11M21 10 19 5"/></g>}
