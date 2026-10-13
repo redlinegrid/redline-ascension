@@ -39,3 +39,14 @@ The stylesheet may load Google Fonts when online, with system fallbacks. Core ga
 - Run `npm install` and `npm run build` in a Node environment.
 - Test pause/resume and reloading a saved race in the same browser.
 - Review pit-command behavior, race timing and prize payout calculations before extending the simulation.
+
+## Deploy to Vercel
+
+This project is configured for Vercel in `vercel.json` (Vite build, `dist` output, and SPA fallback).
+
+1. Sign in to [Vercel](https://vercel.com/) and choose **Add New → Project**.
+2. Import `redlinegrid/redline-paddock` from GitHub and authorize access to this repository if prompted.
+3. Select the `feature/first-playable-prototype` branch for a preview deployment. Vercel should detect Vite; confirm the build command is `npm run build` and output directory is `dist`.
+4. Click **Deploy**. When the build succeeds, Vercel will provide a shareable `.vercel.app` URL.
+
+The repository is private, so Vercel must have GitHub access. Vercel's Hobby plan may not allow deploying a private repository owned by a GitHub organization; if that restriction appears, use an eligible Vercel team/plan or deploy from a repository/account setup that your plan supports. The production URL is not available until a deployment actually succeeds.
