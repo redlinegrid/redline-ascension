@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createRace, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_OPTIONS, type CarState, type Pace, type RaceState, type Tyre, type UpgradeType } from "./simulation";
+import { createRace, draftUpgradeCards, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
@@ -220,38 +220,35 @@ export default function App() {
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. Consider conserving pace or adjusting the pit window." : "Tyre life is manageable. Watch degradation and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
-      {race.status === "finished" && <section className="panel upgrade-panel">
+      {race.status === "finished" && <section className="panel upgrade-panel roguelite-panel">
         <div className="upgrade-copy">
-          <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
-          <h2>Where do we invest next?</h2>
-          <p>Choose a development package for the next weekend. Each option has a different cost and a lasting effect, so you can specialise the car instead of buying the same generic upgrade every time.</p>
-          <div className="upgrade-meta"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>PACKAGES FITTED <b>{race.upgradeLevel}</b></span></div>
-          <div className="upgrade-options">
-            {Object.entries(UPGRADE_OPTIONS).map(([key, option]) => {
-              const type = key as UpgradeType;
-              const owned = modules[type];
-              const packageCost = option.cost(race.upgradeLevel, owned);
-              return <button key={type} className={"upgrade-option " + (selectedUpgrade === type ? "upgrade-option-selected" : "")} onClick={() => setSelectedUpgrade(type)}>
-                <span className="upgrade-option-top"><i>{type === "aero" ? "↗" : type === "power" ? "ϟ" : type === "suspension" ? "⌁" : "◇"}</i><b>{owned ? "LEVEL " + owned : "NEW PACKAGE"}</b></span>
-                <strong>{option.name}</strong><small>{option.subtitle}</small><p>{option.description}</p>
-                <span className="upgrade-effect">{option.effect}</span>
-                <span className="upgrade-price">{money(packageCost)}</span>
-                {selectedUpgrade === type && <span className="upgrade-selected-mark">SELECTED ✓</span>}
-              </button>;
-            })}
+          <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DRAFT</div>
+          <h2>Three leads. One breakthrough.</h2>
+          <p>Your engineers have surfaced three opportunities from the weekend's data. Pick one to keep for the rest of your career. Offers are randomised each round, and rare breakthroughs can change your team's direction.</p>
+          <div className="upgrade-meta"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>DEVELOPMENT PICKS <b>{race.upgradeLevel}</b></span><span>ROUND COMPLETED <b>{String(race.weekendNumber).padStart(2, "0")}</b></span></div>
+          <div className="rogue-draft-grid">
+            {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
+              <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
+              <span className="rogue-card-art">{card.upgradeType === "aero" ? "↗" : card.upgradeType === "power" ? "ϟ" : card.upgradeType === "suspension" ? "⌁" : card.upgradeType === "reliability" ? "◇" : "₥"}</span>
+              <span className="rogue-card-subtitle">{card.subtitle}</span>
+              <strong>{card.title}</strong>
+              <p>{card.description}</p>
+              <span className="rogue-card-effect">{card.effect}</span>
+              <span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
+            </button>)}
           </div>
+          <p className="rogue-rule-note">One pick per race · Permanent career effects · No purchase cost</p>
         </div>
-        <div className="upgrade-action">
-          <div className="upgrade-symbol">{selectedUpgrade === "aero" ? "↗" : selectedUpgrade === "power" ? "ϟ" : selectedUpgrade === "suspension" ? "⌁" : "◇"}</div>
-          <span className="selected-package-label">SELECTED DEVELOPMENT</span>
-          <strong>{UPGRADE_OPTIONS[selectedUpgrade].name}</strong>
-          <p className="selected-package-description">{UPGRADE_OPTIONS[selectedUpgrade].description}</p>
-          <div className="upgrade-summary-row"><span>PACKAGE EFFECT</span><b>{UPGRADE_OPTIONS[selectedUpgrade].effect}</b></div>
-          <div className="upgrade-summary-row"><span>INVESTMENT</span><b>{money(cost)}</b></div>
-          <div className="upgrade-summary-row"><span>REMAINING CASH</span><b>{money(race.cash - cost)}</b></div>
-          <button className="primary-button" disabled={race.cash < cost} onClick={() => { setRace((current) => upgradeCar(current, selectedUpgrade)); setShowResults(false); }}>COMMISSION & FIT PACKAGE ↗</button>
-          {race.cash < cost && <p className="upgrade-unaffordable">Not enough funds for this package. Choose a lower-cost option or race again to earn more.</p>}
-          <p className="upgrade-install-note">Installed between weekends · permanent development</p>
+        <div className="upgrade-action rogue-selection">
+          <div className="upgrade-symbol">✦</div>
+          <span className="selected-package-label">YOUR NEXT BREAKTHROUGH</span>
+          <strong>{selectedDraft?.title ?? "Choose a development card"}</strong>
+          <p className="selected-package-description">{selectedDraft?.description ?? "Select one of the three engineering offers."}</p>
+          {selectedDraft && <div className="upgrade-summary-row"><span>RARITY</span><b className={"rarity-text-" + selectedDraft.rarity.toLowerCase()}>{selectedDraft.rarity}</b></div>}
+          {selectedDraft && <div className="upgrade-summary-row"><span>REWARD</span><b>{selectedDraft.effect}</b></div>}
+          <div className="upgrade-summary-row"><span>CAREER DEVELOPMENT</span><b>{race.upgradeLevel} PICKS COMPLETED</b></div>
+          <button className="primary-button" disabled={!selectedDraft} onClick={() => { if (selectedDraft) { setRace((current) => upgradeCar(current, selectedDraft.id)); setShowResults(false); setSelectedDraftId(""); } }}>LOCK IN PICK & CONTINUE ↗</button>
+          <p className="upgrade-install-note">Your choice is permanent. Future races bring a fresh set of offers.</p>
           <button className="text-button" onClick={resetCareer}>START NEW CAREER</button>
         </div>
       </section>}
