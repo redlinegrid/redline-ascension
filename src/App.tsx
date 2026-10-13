@@ -277,6 +277,21 @@ export default function App() {
         </div>
       </section>}
     </div>
+    {race.status === "gameover" && <section className="panel gameover-panel">
+      <div className="gameover-kicker">REDLINE PADDOCK · RUN COMPLETE</div>
+      <h2>Chequered flag. <em>Game over.</em></h2>
+      <p className="gameover-intro">The ten-round campaign is complete. Your engineering draft is retired with this run; a fresh campaign starts from baseline specification.</p>
+      <div className="gameover-stats">
+        <div><span>TEAM CHAMPIONSHIP</span><strong>{redlineRank ? "P" + redlineRank : "—"} <small>/ 11</small></strong></div>
+        <div><span>REDLINE POINTS</span><strong>{redlinePoints}</strong></div>
+        <div><span>UPGRADES DRAFTED</span><strong>{race.upgradeLevel}</strong></div>
+        <div><span>FINAL TEAM BUDGET</span><strong>{money(race.cash)}</strong></div>
+      </div>
+      <div className="gameover-lower">
+        <div><strong>CHAMPIONSHIP ORDER</strong>{teamRankings.map(([team, points], index) => <div className={"team-points-row " + (team === "Redline GP" ? "team-points-player" : "")} key={team}><span>{String(index + 1).padStart(2, "0")} · {team}</span><b>{points} PTS</b></div>)}</div>
+        <div className="gameover-best"><span>PERSONAL BEST · LOCAL RECORD</span><strong>{bestRun ? bestRun.points + " POINTS" : "FIRST RUN"}</strong><p>{bestRun ? "Best championship score: P" + bestRun.position + " team finish. This record survives a new run on this device." : "Finish a campaign to set your first personal-best record."}</p><button className="primary-button" onClick={() => { setRace(createRace(Date.now() >>> 0)); setShowResults(false); setSelectedDraftId(""); }}>START NEW RUN ↗</button></div>
+      </div>
+    </section>}
     <footer className="footer"><span>REDLINE PADDOCK · EARLY PLAYABLE BUILD</span><span>FICTIONAL SIMULATION · LOCAL SAVE ENABLED</span></footer>
   </main>;
 }
