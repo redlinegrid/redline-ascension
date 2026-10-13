@@ -71,6 +71,57 @@ function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
   </div>;
 }
 
+
+function HeroCarGraphic() {
+  return <div className="hero-art" aria-hidden="true">
+    <div className="hero-art-glow" />
+    <svg viewBox="0 0 520 190" role="presentation">
+      <defs>
+        <linearGradient id="hero-body" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ff655b" />
+          <stop offset="55%" stopColor="#d82d29" />
+          <stop offset="100%" stopColor="#721c20" />
+        </linearGradient>
+        <linearGradient id="hero-carbon" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#41434a" />
+          <stop offset="100%" stopColor="#17181c" />
+        </linearGradient>
+        <filter id="hero-shadow" x="-30%" y="-50%" width="160%" height="200%">
+          <feGaussianBlur stdDeviation="8" />
+        </filter>
+      </defs>
+      <g className="hero-speed-lines" stroke="#a9abb4" strokeWidth="1">
+        <path d="M14 46 H147 M0 57 H117 M40 68 H132 M375 36 H503 M399 48 H520 M418 60 H487 M18 132 H113 M390 145 H500" />
+      </g>
+      <ellipse cx="272" cy="105" rx="172" ry="43" fill="#f04438" opacity=".18" filter="url(#hero-shadow)" />
+      <g transform="translate(40 6) rotate(-7 220 90)">
+        <path d="M54 90 L91 79 L145 78 L178 61 L252 53 L299 67 L353 72 L390 82 L390 103 L353 112 L299 118 L252 132 L178 125 L145 108 L91 108 Z" fill="url(#hero-carbon)" stroke="#777a83" strokeWidth="1.2"/>
+        <path d="M143 82 L182 65 L252 59 L284 71 L273 90 L181 93 Z" fill="url(#hero-body)"/>
+        <path d="M143 104 L182 121 L252 126 L284 114 L273 96 L181 94 Z" fill="#b32628"/>
+        <path d="M184 78 L238 72 L256 88 L184 90 Z" fill="#1b2028" stroke="#a8c7d9" strokeWidth="1"/>
+        <path d="M184 108 L238 115 L256 98 L184 96 Z" fill="#242a33" stroke="#a8c7d9" strokeWidth="1"/>
+        <path d="M264 78 L305 80 L324 87 L305 92 L264 92 Z" fill="#f2f2f3"/>
+        <path d="M264 106 L305 104 L324 97 L305 94 L264 94 Z" fill="#f2f2f3" opacity=".88"/>
+        <path d="M89 79 L119 69 L142 73 L136 84 L91 89 Z" fill="#2a2b31" stroke="#777a83"/>
+        <path d="M89 108 L119 118 L142 114 L136 103 L91 99 Z" fill="#2a2b31" stroke="#777a83"/>
+        <path d="M44 78 L83 78 L83 91 L42 92 Z M44 108 L83 108 L83 95 L42 94 Z" fill="#17181c" stroke="#858891"/>
+        <path d="M350 79 L393 74 L405 82 L403 91 L353 92 Z M350 109 L393 114 L405 106 L403 97 L353 95 Z" fill="#17181c" stroke="#858891"/>
+        <path d="M159 87 L179 87 L179 99 L159 99 Z" fill="#f7d65b"/>
+        <path d="M280 89 L335 89 L335 96 L280 96 Z" fill="#ffb2a9" opacity=".9"/>
+        <g fill="#090a0d" stroke="#5b5d64" strokeWidth="2">
+          <rect x="104" y="57" width="28" height="35" rx="5"/><rect x="104" y="97" width="28" height="35" rx="5"/>
+          <rect x="325" y="55" width="28" height="35" rx="5"/><rect x="325" y="99" width="28" height="35" rx="5"/>
+        </g>
+        <g stroke="#7c7f87" strokeWidth="1.2"><path d="M110 65 H126 M110 73 H126 M110 111 H126 M110 119 H126 M331 63 H347 M331 71 H347 M331 107 H347 M331 115 H347"/></g>
+        <path d="M173 92 L273 92 L286 95 L273 98 L173 98 Z" fill="#f04438"/>
+        <path d="M190 94 H256" stroke="#fff" strokeWidth="1.3" opacity=".9"/>
+      </g>
+      <text x="258" y="177" textAnchor="middle" fill="#777a83" fontSize="8" letterSpacing="4" fontFamily="monospace">REDLINE GP · CHASSIS R-01</text>
+    </svg>
+    <div className="hero-art-caption"><span>01</span><i /> AERODYNAMIC PACKAGE <b>MK.I</b></div>
+  </div>;
+}
+
 function DriverStrategy({ car, status, onPace, onTyre, onPitLap }: {
   car: CarState; status: RaceState["status"]; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
 }) {
@@ -113,7 +164,7 @@ export default function App() {
 
   return <main className="app-shell">
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><span className="brand-mark"><i/><i/><i/></span><span className="brand-text">REDLINE<span>PADDOCK</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}</div></header>
-    <section className="page-heading"><div><div className="eyebrow">TEAM OPERATIONS <b>/</b> ROUND {String(race.weekendNumber).padStart(2, "0")}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
+    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM OPERATIONS <b>/</b> ROUND {String(race.weekendNumber).padStart(2, "0")}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>KUALA LUMPUR INTERNATIONAL · FICTIONAL</span></div></div></section>
     <section className="stat-strip">
       <div className="stat-cell"><span>TEAM BUDGET</span><strong>{money(race.cash)}</strong><small>{race.upgradeLevel ? "PACKAGE LEVEL " + race.upgradeLevel : "INITIAL ALLOCATION"}</small></div>
       <div className="stat-cell"><span>CAR PERFORMANCE</span><strong>{82 + race.upgradeLevel * 3}<small className="inline-unit"> / 100</small></strong><small>{race.upgradeLevel ? "UPGRADED SPEC" : "BASELINE SPEC"}</small></div>
