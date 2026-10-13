@@ -494,3 +494,22 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .market-driver-nameplate h3{margin:0 0 5px;font-size:clamp(15px,1.25vw,19px);line-height:1.12;letter-spacing:-.025em}
 .market-driver-nameplate .market-driver-role{display:inline-block;margin:0;font-size:9px;letter-spacing:.1em}
 @media(max-width:430px){.market-driver-identity{gap:10px;margin:11px 0 14px}.driver-portrait{flex-basis:68px;width:68px;height:74px}.market-driver-nameplate h3{font-size:16px}}
+
+/* Persistent roguelite garage progression */
+.garage-progression-panel{margin:0 0 24px;padding:24px;min-width:0}
+.research-counter{font:600 11px var(--mono);letter-spacing:.08em;color:#ffb6ac;border:1px solid rgba(255,72,54,.3);background:rgba(255,42,24,.08);padding:9px 12px;border-radius:5px;white-space:nowrap}
+.garage-progression-intro{color:var(--muted);font-size:13px;line-height:1.65;max-width:760px;margin:0 0 18px}
+.garage-perk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.garage-perk-card{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:16px;border:1px solid var(--line);border-radius:7px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}
+.garage-perk-card.garage-perk-owned{border-color:rgba(91,190,153,.38);background:rgba(48,135,102,.07)}
+.garage-perk-top{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;font:10px var(--mono);letter-spacing:.07em;color:var(--muted)}
+.garage-perk-top b{color:#ff9184;font-weight:600;white-space:nowrap}
+.garage-perk-owned .garage-perk-top b{color:#72d5ad}
+.garage-perk-card h3{font:700 18px var(--display);margin:16px 0 7px}
+.garage-perk-card p{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 18px;flex:1}
+.garage-perk-button{width:100%;border:1px solid rgba(255,64,46,.5);background:rgba(255,42,24,.09);color:#ffb5ab;padding:11px 8px;border-radius:4px;font:600 10px var(--mono);letter-spacing:.035em;cursor:pointer}
+.garage-perk-button:hover:not(:disabled){background:rgba(255,42,24,.18)}
+.garage-perk-button:disabled{opacity:.48;cursor:not-allowed}
+.garage-perk-button.owned{border-color:rgba(91,190,153,.3);color:#72d5ad;background:rgba(48,135,102,.08);opacity:1}
+.garage-progression-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:13px;border-top:1px solid var(--line);font:10px var(--mono);letter-spacing:.055em;color:var(--muted)}
+@media(max-width:760px){.garage-progression-panel{padding:16px}.garage-perk-grid{grid-template-columns:1fr}.garage-perk-card{padding:14px}.garage-perk-card h3{margin-top:12px}.research-counter{font-size:9px;padding:8px}}
