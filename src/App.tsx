@@ -37,8 +37,6 @@ function seededTrack(seed: number) {
   const layout = layouts[Math.floor(rand() * layouts.length)];
   const scaleX = 284;
   const scaleY = 164;
-  const offsetX = 48;
-  const offsetY = 28;
   const rotation = (rand() - 0.5) * 0.14;
   const cos = Math.cos(rotation);
   const sin = Math.sin(rotation);
