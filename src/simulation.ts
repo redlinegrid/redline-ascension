@@ -141,6 +141,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
     { id: "r-20", driver: "Chloe Martin", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0 }
   ];
   state.cars = roster.map((entry, index) => makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index));
+  state.cars.forEach((car) => { state.teamPoints![car.team] ??= 0; });
   addEvent(state, "Race control: formation complete. Twenty-two cars ready.");
   addEvent(state, "Engineer: monitor tyre life around the middle stint.");
   return state;
