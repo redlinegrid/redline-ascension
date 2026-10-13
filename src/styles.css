@@ -460,3 +460,6 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Team principal identity on the career setup screen */
 .principal-name-label{margin-top:15px}.principal-preview-label{margin-top:9px!important}.principal-preview-name{font-size:13px!important;color:#f0a19b;letter-spacing:.2px;overflow-wrap:anywhere}.start-screen-preview>div{min-width:0}.start-screen-preview>div strong{overflow-wrap:anywhere}
+
+/* Procedural circuit seed identification */
+.circuit-wrap{position:relative}.circuit-wrap svg{overflow:visible}.track-center-sub{font-size:7px;letter-spacing:.7px}
