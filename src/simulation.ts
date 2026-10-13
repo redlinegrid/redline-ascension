@@ -3,6 +3,49 @@ export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished";
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
+export type UpgradeRarity = "COMMON" | "RARE" | "EPIC";
+export interface UpgradeCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  rarity: UpgradeRarity;
+  description: string;
+  effect: string;
+  upgradeType?: UpgradeType;
+  amount?: number;
+  cashBonus?: number;
+}
+const UPGRADE_CARD_POOL: UpgradeCard[] = [
+  { id: "front-wing", title: "Reprofiled Front Wing", subtitle: "AERO PACKAGE", rarity: "COMMON", description: "A cleaner front-wing profile gives the drivers more confidence through medium-speed corners.", effect: "Aerodynamics +1", upgradeType: "aero", amount: 1 },
+  { id: "floor-edge", title: "Revised Floor Edge", subtitle: "AERO PACKAGE", rarity: "RARE", description: "A more stable underfloor platform unlocks a bigger step in cornering performance.", effect: "Aerodynamics +2", upgradeType: "aero", amount: 2 },
+  { id: "active-flow", title: "Active Flow Concept", subtitle: "AERO PACKAGE", rarity: "EPIC", description: "A breakthrough airflow concept delivers an unusually large aerodynamic gain.", effect: "Aerodynamics +3", upgradeType: "aero", amount: 3 },
+  { id: "energy-map", title: "Aggressive Energy Map", subtitle: "POWER UNIT", rarity: "COMMON", description: "Revised deployment gives the car a stronger launch and better acceleration.", effect: "Power unit +1", upgradeType: "power", amount: 1 },
+  { id: "combustion", title: "Combustion Breakthrough", subtitle: "POWER UNIT", rarity: "RARE", description: "A promising combustion and deployment package adds a meaningful pace advantage.", effect: "Power unit +2", upgradeType: "power", amount: 2 },
+  { id: "hybrid-leap", title: "Hybrid System Leap", subtitle: "POWER UNIT", rarity: "EPIC", description: "A major hybrid deployment discovery creates a substantial performance step.", effect: "Power unit +3", upgradeType: "power", amount: 3 },
+  { id: "suspension-geometry", title: "Revised Suspension Geometry", subtitle: "MECHANICAL GRIP", rarity: "COMMON", description: "A revised kinematic setup helps keep the tyres in their working window.", effect: "Suspension +1", upgradeType: "suspension", amount: 1 },
+  { id: "tyre-whisperer", title: "Tyre Whisperer Programme", subtitle: "MECHANICAL GRIP", rarity: "RARE", description: "Long-run analysis reveals a setup that is kinder to the tyres over a stint.", effect: "Suspension +2", upgradeType: "suspension", amount: 2 },
+  { id: "compliance-test", title: "Endurance Test Rig", subtitle: "RELIABILITY", rarity: "COMMON", description: "More rigorous component testing catches weaknesses before they become race-day problems.", effect: "Reliability +1", upgradeType: "reliability", amount: 1 },
+  { id: "cooling-loop", title: "Advanced Cooling Loop", subtitle: "RELIABILITY", rarity: "RARE", description: "Improved thermal management protects the car through long, demanding race stints.", effect: "Reliability +2", upgradeType: "reliability", amount: 2 },
+  { id: "sponsor-windfall", title: "Sponsor Performance Bonus", subtitle: "COMMERCIAL WIN", rarity: "COMMON", description: "A sponsor rewards the team for completing the weekend and delivering useful exposure.", effect: "+RM250,000 team funds", cashBonus: 250000 },
+  { id: "technical-partner", title: "Technical Partner Windfall", subtitle: "COMMERCIAL WIN", rarity: "RARE", description: "A technical partner offers extra funding after seeing the team's development potential.", effect: "+RM450,000 team funds", cashBonus: 450000 },
+];
+export function draftUpgradeCards(state: RaceState): UpgradeCard[] {
+  const pool = [...UPGRADE_CARD_POOL];
+  let seed = (state.seed ^ Math.imul(state.weekendNumber + 17, 2654435761)) >>> 0;
+  const nextRandom = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(nextRandom() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const selected: UpgradeCard[] = [];
+  const categories = new Set<string>();
+  for (const card of pool) {
+    const category = card.upgradeType ?? "commercial";
+    if (selected.length < 3 && !categories.has(category)) { selected.push(card); categories.add(category); }
+  }
+  for (const card of pool) if (selected.length < 3 && !selected.some((item) => item.id === card.id)) selected.push(card);
+  return selected;
+}
 export const UPGRADE_OPTIONS: Record<UpgradeType, { name: string; subtitle: string; description: string; cost: (level: number, owned: number) => number; effect: string }> = {
   aero: { name: "Aerodynamics", subtitle: "DOWNFORCE PACKAGE", description: "Sharper cornering and more stable high-speed performance.", cost: (level, owned) => 650000 + level * 180000 + owned * 120000, effect: "−0.08s lap time per package" },
   power: { name: "Power unit", subtitle: "POWER & DEPLOYMENT", description: "More drive out of slow corners and stronger straight-line pace.", cost: (level, owned) => 850000 + level * 200000 + owned * 150000, effect: "−0.12s lap time per package" },
@@ -46,6 +89,7 @@ export interface RaceState {
   events: RaceEvent[];
   cash: number;
   upgradeLevel: number;
+  upgradeModules: UpgradeModules;
   weekendNumber: number;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
@@ -154,20 +198,21 @@ export function setDriverStrategy(state: RaceState, carId: string, patch: Partia
   addEvent(next, "Strategy updated for " + car.driver + ".");
   return next;
 }
-export function upgradeCar(state: RaceState, upgradeType: UpgradeType = "aero"): RaceState {
+export function upgradeCar(state: RaceState, cardId: string): RaceState {
+  if (state.status !== "finished") return state;
+  const card = draftUpgradeCards(state).find((item) => item.id === cardId);
+  if (!card) return state;
   const next = structuredClone(state);
   next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
-  const cost = UPGRADE_OPTIONS[upgradeType].cost(next.upgradeLevel, next.upgradeModules[upgradeType]);
-  if (next.status !== "finished" || next.cash < cost) return state;
-  next.cash -= cost;
+  if (card.upgradeType && card.amount) next.upgradeModules[card.upgradeType] += card.amount;
+  if (card.cashBonus) next.cash += card.cashBonus;
   next.upgradeLevel += 1;
-  next.upgradeModules[upgradeType] += 1;
   next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
   const fresh = createRace(next.seed, next.upgradeLevel, next.cash, next.weekendNumber);
   next.cars = fresh.cars;
   next.cars.forEach((car) => { car.condition = Math.max(72, car.condition - (car.playerCar ? 2.5 : 0)); if (car.playerCar) { car.tyre = "MEDIUM"; car.nextTyre = "HARD"; car.tyreWear = 0.02; car.fuel = 100; car.pitLap = 7; } });
-  addEvent(next, "Weekend " + next.weekendNumber + ": " + UPGRADE_OPTIONS[upgradeType].name + " package fitted.");
+  addEvent(next, "Weekend " + (next.weekendNumber - 1) + ": drafted " + card.title + ". " + card.effect);
   return next;
 }
 export function standings(state: RaceState): CarState[] { return [...state.cars].sort((a, b) => { if (a.finished && b.finished) return (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity); if (a.finished) return -1; if (b.finished) return 1; return b.progress - a.progress; }); }
