@@ -144,3 +144,26 @@
   .rogue-selection{padding:16px 0 0;margin-top:16px}
   .rogue-rule-note{font-size:8px!important}
 }
+
+/* Roguelite campaign finale and replay records */
+.gameover-panel{display:block;margin-top:22px;padding:clamp(18px,3vw,34px);border-color:#5a3433;background:radial-gradient(ellipse at 85% 0%,#3a2020 0%,#1b1b20 46%,#17181c 100%)}
+.gameover-kicker{font:8px var(--mono);letter-spacing:1.4px;color:#ff9188}
+.gameover-panel>h2{font:600 clamp(28px,4vw,44px) var(--display);letter-spacing:-1px;margin:10px 0}
+.gameover-panel>h2 em{font-style:normal;color:#ff746b}
+.gameover-intro{max-width:700px;color:#a8a9b0;font-size:12px;line-height:1.7;margin:0 0 24px}
+.gameover-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.gameover-stats>div{display:flex;flex-direction:column;gap:8px;min-width:0;padding:15px;background:#202126;border:1px solid #393a41}
+.gameover-stats span,.gameover-best>span{font:7px var(--mono);letter-spacing:.7px;color:#8d8f98}
+.gameover-stats strong{font:600 clamp(18px,2.3vw,27px) var(--display);overflow-wrap:anywhere}
+.gameover-stats strong small{font:9px var(--mono);font-weight:400;color:#858791}
+.gameover-lower{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(240px,.75fr);gap:18px;margin-top:20px}
+.gameover-lower>div{min-width:0;padding:16px;background:#191a1f;border:1px solid #35363d}
+.gameover-lower>div>strong{display:block;font:8px var(--mono);letter-spacing:.8px;margin-bottom:12px;color:#e4e4e8}
+.team-points-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #303138;font-size:10px;color:#a4a6ad}
+.team-points-row b{font:8px var(--mono);white-space:nowrap;color:#d4d5da}
+.team-points-player,.team-points-player b{color:#ff938a}
+.gameover-best{display:flex;flex-direction:column;align-items:flex-start}
+.gameover-best>strong{font:600 29px var(--display);margin-top:14px}
+.gameover-best>p{font-size:10px;line-height:1.6;color:#a2a4ad;margin:9px 0 18px}
+.gameover-best .primary-button{margin-top:auto;width:100%}
+@media(max-width:760px){.gameover-panel{padding:15px}.gameover-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gameover-stats>div{padding:11px}.gameover-lower{grid-template-columns:minmax(0,1fr);gap:10px}.gameover-lower>div{padding:12px}.gameover-panel>h2{font-size:30px}}
