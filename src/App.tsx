@@ -231,7 +231,7 @@ export default function App() {
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
         <CircuitMap cars={race.cars} lap={race.lap}/>
         <div className="race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
-        {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Ten rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
+        {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Twenty rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
       <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">22 CARS</span></div>
@@ -248,7 +248,7 @@ export default function App() {
         <div className="upgrade-copy">
           <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DRAFT</div>
           <h2>Three leads. One breakthrough.</h2>
-          <p>Your engineers have surfaced three opportunities from the weekend's data. Pick one to carry through the rest of this 10-round run. Offers are randomised each round, and rare breakthroughs can change your team's direction.</p>
+          <p>Your engineers have surfaced three opportunities from the weekend's data. Pick one to carry through the rest of this 20-round run. Offers are randomised each round, and rare breakthroughs can change your team's direction.</p>
           <div className="upgrade-meta"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>DEVELOPMENT PICKS <b>{race.upgradeLevel}</b></span><span>ROUND COMPLETED <b>{String(race.weekendNumber).padStart(2, "0")}</b></span></div>
           <div className="rogue-draft-grid">
             {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
@@ -280,7 +280,7 @@ export default function App() {
     {race.status === "gameover" && <section className="panel gameover-panel">
       <div className="gameover-kicker">REDLINE PADDOCK · RUN COMPLETE</div>
       <h2>Chequered flag. <em>Game over.</em></h2>
-      <p className="gameover-intro">The ten-round campaign is complete. Your engineering draft is retired with this run; a fresh campaign starts from baseline specification.</p>
+      <p className="gameover-intro">The 20-round campaign is complete. Your engineering draft is retired with this run; a fresh campaign starts from baseline specification.</p>
       <div className="gameover-stats">
         <div><span>TEAM CHAMPIONSHIP</span><strong>{redlineRank ? "P" + redlineRank : "—"} <small>/ 11</small></strong></div>
         <div><span>REDLINE POINTS</span><strong>{redlinePoints}</strong></div>
