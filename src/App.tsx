@@ -3,6 +3,22 @@ import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draf
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
+const GARAGE_META_KEY = "redline-paddock-garage-meta-v1";
+type GarageMeta = { research: number; unlocks: string[]; rewardedRuns: string[] };
+const EMPTY_GARAGE_META: GarageMeta = { research: 0, unlocks: [], rewardedRuns: [] };
+function loadGarageMeta(): GarageMeta {
+  try {
+    const raw = localStorage.getItem(GARAGE_META_KEY);
+    if (!raw) return EMPTY_GARAGE_META;
+    const parsed = JSON.parse(raw) as Partial<GarageMeta>;
+    return { research: Math.max(0, Number(parsed.research) || 0), unlocks: Array.isArray(parsed.unlocks) ? parsed.unlocks.filter((id): id is string => typeof id === "string") : [], rewardedRuns: Array.isArray(parsed.rewardedRuns) ? parsed.rewardedRuns.filter((id): id is string => typeof id === "string") : [] };
+  } catch { return EMPTY_GARAGE_META; }
+}
+const GARAGE_PERKS = [
+  { id: "aero-blueprint", title: "Aero Blueprint", category: "ENGINEERING", description: "Start each new career with +1 aerodynamics module.", cost: 3 },
+  { id: "power-mapping", title: "Power Mapping", category: "POWER UNIT", description: "Start each new career with +1 power module.", cost: 3 },
+  { id: "sponsor-network", title: "Sponsor Network", category: "COMMERCIAL", description: "Start each new career with RM500,000 extra funding.", cost: 4 },
+] as const;
 type BestRun = { points: number; position: number; seed: number };
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
@@ -295,6 +311,7 @@ export default function App() {
   const [selectedDriverOne, setSelectedDriverOne] = useState("Luca Moretti");
   const [selectedDriverTwo, setSelectedDriverTwo] = useState("Emil Novak");
   const [bestRun, setBestRun] = useState<BestRun | null>(() => { try { const raw = localStorage.getItem(BEST_RUN_KEY); return raw ? JSON.parse(raw) as BestRun : null; } catch { return null; } });
+  const [garageMeta, setGarageMeta] = useState<GarageMeta>(() => loadGarageMeta());
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
   const [showResults, setShowResults] = useState(false);
@@ -307,6 +324,17 @@ export default function App() {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(race)); setSavedAt("SAVED LOCALLY · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })); }
     catch { setSavedAt("LOCAL STORAGE UNAVAILABLE"); }
   }, [race]);
+  useEffect(() => {
+    try { localStorage.setItem(GARAGE_META_KEY, JSON.stringify(garageMeta)); } catch { /* Optional persistent storage. */ }
+  }, [garageMeta]);
+  useEffect(() => {
+    if (race.status !== "finished" && race.status !== "gameover") return;
+    const runId = race.seed + ":" + race.weekendNumber;
+    if (garageMeta.rewardedRuns.includes(runId)) return;
+    const playerPosition = standings(race).findIndex((car) => car.playerCar) + 1;
+    const earned = 1 + (playerPosition > 0 && playerPosition <= 3 ? 1 : 0);
+    setGarageMeta((current) => current.rewardedRuns.includes(runId) ? current : { ...current, research: current.research + earned, rewardedRuns: [...current.rewardedRuns, runId].slice(-500) });
+  }, [race.status, race.seed, race.weekendNumber, race.cars, garageMeta.rewardedRuns]);
   useEffect(() => {
     if (race.status !== "running") return;
     const id = window.setInterval(() => setRace((current) => stepRace(current)), Math.max(120, 1000 / speed));
@@ -327,8 +355,19 @@ export default function App() {
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
-  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, playerTeamName, selectedDriverOne, selectedDriverTwo, principalNameDraft)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
-  const startCustomCareer = () => { const name = teamNameDraft.trim().slice(0, 24); const principal = principalNameDraft.trim().slice(0, 32); if (!name || !principal || !selectedDriverOne || !selectedDriverTwo || selectedDriverOne === selectedDriverTwo) return; setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, name, selectedDriverOne, selectedDriverTwo, principal)); setTeamNameDraft(name); setPrincipalNameDraft(principal); setShowStartScreen(false); setShowInitialDraft(true); setShowResults(false); setSelectedDraftId(""); };
+  const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string) => {
+    const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal);
+    if (garageMeta.unlocks.includes("aero-blueprint")) fresh.upgradeModules.aero += 1;
+    if (garageMeta.unlocks.includes("power-mapping")) fresh.upgradeModules.power += 1;
+    if (garageMeta.unlocks.includes("sponsor-network")) fresh.cash += 500000;
+    return fresh;
+  };
+  const buyGaragePerk = (id: string, cost: number) => {
+    if (garageMeta.unlocks.includes(id) || garageMeta.research < cost) return;
+    setGarageMeta((current) => current.unlocks.includes(id) || current.research < cost ? current : { ...current, research: current.research - cost, unlocks: [...current.unlocks, id] });
+  };
+  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createMetaCareer(Date.now() >>> 0, playerTeamName, principalNameDraft, selectedDriverOne, selectedDriverTwo)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
+  const startCustomCareer = () => { const name = teamNameDraft.trim().slice(0, 24); const principal = principalNameDraft.trim().slice(0, 32); if (!name || !principal || !selectedDriverOne || !selectedDriverTwo || selectedDriverOne === selectedDriverTwo) return; setRace(createMetaCareer(Date.now() >>> 0, name, principal, selectedDriverOne, selectedDriverTwo)); setTeamNameDraft(name); setPrincipalNameDraft(principal); setShowStartScreen(false); setShowInitialDraft(true); setShowResults(false); setSelectedDraftId(""); };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
 
   return <main className="app-shell">
@@ -366,6 +405,22 @@ export default function App() {
         <div className="build-tradeoff"><strong>DEVELOPMENT TRADE-OFFS</strong><span>Aero increases tyre load · Power packages use more fuel</span></div>
         {buildSynergies(modules).length === 0 ? <div className="build-synergy-empty">No build synergy yet. Invest in two related departments to unlock a combined effect.</div> : buildSynergies(modules).map((synergy) => <div className="build-synergy" key={synergy}><strong>{synergy}</strong><span>{synergy === "AERO + POWER INTEGRATION" ? "Extra 0.10s pace per lap from a coordinated aero and power package." : "10% less tyre wear and component condition loss from an endurance-focused platform."}</span></div>)}
       </div>
+    </section>
+    <section className="panel garage-progression-panel">
+      <div className="panel-heading"><div><div className="section-kicker">BETWEEN-RUN PROGRESSION</div><h2>Development garage</h2></div><span className="research-counter">✦ {garageMeta.research} RESEARCH</span></div>
+      <p className="garage-progression-intro">Every completed Grand Prix earns 1 research point. Finish on the podium with either car to earn 1 bonus point. Spend research on permanent blueprints that carry into every new career.</p>
+      <div className="garage-perk-grid">
+        {GARAGE_PERKS.map((perk) => {
+          const owned = garageMeta.unlocks.includes(perk.id);
+          const affordable = garageMeta.research >= perk.cost;
+          return <article className={"garage-perk-card" + (owned ? " garage-perk-owned" : "")} key={perk.id}>
+            <div className="garage-perk-top"><span>{perk.category}</span><b>{owned ? "UNLOCKED" : perk.cost + " RP"}</b></div>
+            <h3>{perk.title}</h3><p>{perk.description}</p>
+            <button className={owned ? "garage-perk-button owned" : "garage-perk-button"} disabled={owned || !affordable} onClick={() => buyGaragePerk(perk.id, perk.cost)}>{owned ? "✓ PERMANENT BLUEPRINT" : affordable ? "UNLOCK BLUEPRINT ↗" : "NEED " + (perk.cost - garageMeta.research) + " MORE RP"}</button>
+          </article>;
+        })}
+      </div>
+      <div className="garage-progression-foot"><span>PERMANENT UNLOCKS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length}</span><span>RESEARCH IS SAVED LOCALLY ACROSS CAREERS</span></div>
     </section>
     <div className="content-grid">
       <section className="panel race-panel">
