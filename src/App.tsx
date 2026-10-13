@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createRace, draftUpgradeCards, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
+import { buildSynergies, createRace, draftUpgradeCards, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
@@ -205,6 +205,13 @@ export default function App() {
       <div className="stat-cell"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small className="inline-unit"> / {race.totalLaps} LAPS</small></strong><small>{finishedCount}/10 CARS FINISHED</small></div>
       <div className="stat-cell"><span>YOUR BEST LAP</span><strong>{formatLapTime(bestLap)}</strong><small>SESSION TIMING</small></div>
     </section>
+    <section className="build-intel" aria-label="Engineering build profile">
+      <div className="build-intel-heading"><span>ENGINEERING PROFILE</span><b>{buildSynergies(modules).length} ACTIVE SYNERGY{buildSynergies(modules).length === 1 ? "" : "IES"}</b></div>
+      <div className="build-intel-items">
+        <div className="build-tradeoff"><strong>DEVELOPMENT TRADE-OFFS</strong><span>Aero increases tyre load · Power packages use more fuel</span></div>
+        {buildSynergies(modules).length === 0 ? <div className="build-synergy-empty">No build synergy yet. Invest in two related departments to unlock a combined effect.</div> : buildSynergies(modules).map((synergy) => <div className="build-synergy" key={synergy}><strong>{synergy}</strong><span>{synergy === "AERO + POWER INTEGRATION" ? "Extra 0.10s pace per lap from a coordinated aero and power package." : "10% less tyre wear and component condition loss from an endurance-focused platform."}</span></div>)}
+      </div>
+    </section>
     <div className="content-grid">
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
@@ -240,7 +247,7 @@ export default function App() {
               <span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
             </button>)}
           </div>
-          <p className="rogue-rule-note">One pick per race · Permanent career effects · No purchase cost</p>
+          <p className="rogue-rule-note">One pick per race · Permanent career effects · Synergies reward focused development; performance has trade-offs</p>
         </div>
         <div className="upgrade-action rogue-selection">
           <div className="upgrade-symbol">✦</div>
