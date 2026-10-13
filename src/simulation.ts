@@ -3,6 +3,12 @@ export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished";
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
+export function buildSynergies(modules: UpgradeModules): string[] {
+  const active: string[] = [];
+  if (modules.aero >= 2 && modules.power >= 2) active.push("AERO + POWER INTEGRATION");
+  if (modules.suspension >= 2 && modules.reliability >= 2) active.push("ENDURANCE PLATFORM");
+  return active;
+}
 export type UpgradeRarity = "COMMON" | "RARE" | "EPIC";
 export interface UpgradeCard {
   id: string;
@@ -137,7 +143,8 @@ export function stepRace(current: RaceState): RaceState {
     const fuelPenalty = car.fuel < 8 ? 2.4 : (100 - car.fuel) * 0.009;
     const reliabilityPenalty = (100 - car.condition) * 0.025;
     const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
-    const upgradeBonus = car.playerCar ? modules.aero * 0.08 + modules.power * 0.12 : 0;
+    const synergyPaceBonus = modules.aero >= 2 && modules.power >= 2 ? 0.10 : 0;
+    const upgradeBonus = car.playerCar ? modules.aero * 0.08 + modules.power * 0.12 + synergyPaceBonus : 0;
     const noise = (random(state) - 0.5) * 0.85;
     const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
     car.lastLap = lapSeconds;
@@ -146,10 +153,14 @@ export function stepRace(current: RaceState): RaceState {
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
     const wearReduction = car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction);
-    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
+    const aeroTyreLoad = car.playerCar ? 1 + (state.upgradeModules?.aero ?? 0) * 0.025 : 1;
+    const enduranceWearBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
+    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07) * TYRE_WEAR_RATE[car.tyre] * progressDelta * wearReduction * aeroTyreLoad * enduranceWearBonus);
+    const powerFuelLoad = car.playerCar ? 1 + (state.upgradeModules?.power ?? 0) * 0.025 : 1;
+    car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta * powerFuelLoad);
     const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;
-    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection));
+    const enduranceConditionBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
+    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
