@@ -1,7 +1,7 @@
 export type Tyre = "SOFT" | "MEDIUM" | "HARD";
 export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished" | "gameover";
-export const CAMPAIGN_LENGTH = 10;
+export const CAMPAIGN_LENGTH = 20;
 export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
