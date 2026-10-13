@@ -143,38 +143,54 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
 
 function DriverPortrait({ driver, index }: { driver: { name: string; color: string }; index: number }) {
   const accent = driver.color;
-  const hairShapes = [
-    "M24 39 Q18 15 39 11 Q57 8 65 27 L61 39 L55 28 Q43 31 30 25 L27 40Z",
-    "M23 35 Q20 16 39 11 Q59 9 64 27 L61 38 L56 24 Q43 29 29 26 L27 38Z",
-    "M22 38 Q21 14 43 11 Q62 12 65 31 L60 38 L56 25 Q42 30 29 25Z",
-    "M24 36 Q21 15 40 12 Q59 10 64 28 L60 37 L55 25 Q42 28 29 25Z"
+  // Restrained editorial silhouettes: natural proportions, monochrome lighting and grain;
+  // no facial features, bright contour strokes, badge graphics or cartoon suit details.
+  const profiles = [
+    { head: "M31 26 C31 17 38 12 45 13 C55 14 60 22 59 31 L57 40 C56 47 52 53 46 56 L43 56 C36 53 32 47 31 40Z", hair: "M30 32 C27 22 31 13 40 10 C48 7 57 12 60 20 L60 31 L55 24 C49 26 40 24 35 20 L33 32Z" },
+    { head: "M32 27 C32 18 38 13 45 13 C54 13 59 21 58 31 L56 41 C54 48 50 53 45 55 C38 52 33 46 32 39Z", hair: "M31 31 C28 21 33 12 42 10 C51 8 58 15 59 24 L57 30 L53 22 C47 25 39 24 34 21Z" },
+    { head: "M31 27 C31 18 37 13 44 13 C53 13 59 20 58 30 L56 40 C54 48 50 53 44 56 C37 53 32 46 31 39Z", hair: "M30 30 C29 20 35 12 44 10 C53 10 59 17 59 27 L56 31 L53 22 C47 24 39 23 34 20Z" },
+    { head: "M32 27 C32 18 38 13 45 13 C54 13 59 21 58 31 L56 40 C54 48 50 53 45 55 C38 52 33 46 32 39Z", hair: "M31 30 C29 21 33 13 41 10 C50 8 58 15 59 24 L57 31 L53 22 C47 25 39 24 34 21Z" }
   ];
-  const hair = hairShapes[index % hairShapes.length];
+  const profile = profiles[index % profiles.length];
   return <div className="driver-portrait" style={{ "--driver-accent": accent } as React.CSSProperties} aria-label={driver.name + " portrait"}>
-    <svg viewBox="0 0 88 94" role="img" aria-label={"Silhouette portrait of " + driver.name} focusable="false">
+    <svg viewBox="0 0 88 94" role="img" aria-label={"Driver silhouette of " + driver.name} focusable="false">
       <defs>
-        <linearGradient id={"silhouette-bg-" + index} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={accent} stopOpacity=".25"/><stop offset="58%" stopColor="#171b23"/><stop offset="100%" stopColor="#090c11"/></linearGradient>
-        <linearGradient id={"silhouette-edge-" + index} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={accent}/><stop offset="100%" stopColor={accent} stopOpacity=".12"/></linearGradient>
+        <linearGradient id={"portrait-light-" + index} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#737780" stopOpacity=".48" />
+          <stop offset="44%" stopColor="#292c33" stopOpacity=".16" />
+          <stop offset="100%" stopColor="#080a0e" stopOpacity=".95" />
+        </linearGradient>
+        <linearGradient id={"portrait-rim-" + index} x1="0" y1="0" x2="1" y2=".2">
+          <stop offset="0%" stopColor="#b9bdc5" stopOpacity=".5" />
+          <stop offset="55%" stopColor="#626772" stopOpacity=".12" />
+          <stop offset="100%" stopColor="#080a0e" stopOpacity="0" />
+        </linearGradient>
+        <filter id={"portrait-grain-" + index}>
+          <feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed={index + 4} />
+          <feColorMatrix type="saturate" values="0" />
+          <feComponentTransfer><feFuncA type="table" tableValues="0 .11" /></feComponentTransfer>
+        </filter>
       </defs>
-      <rect width="88" height="94" fill={"url(#silhouette-bg-" + index + ")"} />
-      <path d="M0 13H17M0 18H9M71 13H88M79 18H88M0 82H12M76 82H88" stroke="#d9dee7" strokeOpacity=".24" strokeWidth=".8"/>
-      <path d="M8 94 Q10 72 25 66 L35 62 H53 L63 66 Q79 72 81 94Z" fill="#080b10" stroke="url(#silhouette-edge-" + index + ")" strokeWidth="1.2"/>
-      <path d="M24 94 L27 73 L36 66 L44 78 L52 66 L61 73 L65 94Z" fill={accent} opacity=".78"/>
-      <path d="M34 59 L34 69 L44 78 L54 69 L54 59Z" fill="#080b10"/>
-      <path d="M25 36 Q24 22 43 19 Q61 20 62 36 L58 51 Q53 63 43 65 Q32 62 28 51Z" fill="#05070b" stroke="url(#silhouette-edge-" + index + ")" strokeWidth="1.15"/>
-      <path d={hair} fill="#030509" stroke="url(#silhouette-edge-" + index + ")" strokeWidth="1.15" strokeLinejoin="round"/>
-      <path d="M29 27 Q38 18 49 21" fill="none" stroke="#fff" strokeOpacity=".1" strokeWidth="1.2" strokeLinecap="round"/>
-      <path d="M27 47 Q31 59 43 63 Q54 59 59 47" fill="none" stroke={accent} strokeOpacity=".22" strokeWidth="1"/>
-      <path d="M26 70 L36 66 L44 78 L52 66 L62 70 L57 94 H31Z" fill="#0b0e14"/>
-      <path d="M35 67 L44 78 L53 67 L49 65 H39Z" fill="#d7dbe2" opacity=".88"/>
-      <path d="M42 79H46L47 94H41Z" fill={accent}/>
-      <path d="M25 78 L32 81 M63 78 L56 81" stroke="#fff" strokeOpacity=".25" strokeWidth="1"/>
-      <path d="M10 88H25M63 88H78" stroke="#fff" strokeOpacity=".16" strokeWidth=".8"/>
-      <text x="44" y="89" fill="#fff" fillOpacity=".75" textAnchor="middle" fontSize="5" fontFamily="monospace" letterSpacing="1.2">RL / {String(index + 1).padStart(2, "0")}</text>
+      <rect width="88" height="94" fill="#111319" />
+      <rect width="88" height="94" fill={"url(#portrait-light-" + index + ")"} />
+      <path d="M4 94 C7 78 16 70 29 65 L36 61 L54 61 L62 66 C76 71 82 80 85 94Z" fill="#050609" />
+      <path d="M17 94 C20 79 29 71 37 69 L44 77 L51 69 C62 72 69 81 72 94Z" fill="#171a20" />
+      <path d="M34 54 L34 66 L44 75 L54 65 L54 53Z" fill="#07090d" />
+      <path d={profile.head} fill="#050609" />
+      <path d={profile.hair} fill="#030407" />
+      <path d="M31 32 C29 45 34 55 43 60 C49 58 55 51 57 40" fill="none" stroke="#858a94" strokeOpacity=".18" strokeWidth="1.4" />
+      <path d="M28 36 C27 48 31 57 38 62 L32 67 L23 70 C17 64 14 57 15 49Z" fill="#20232a" opacity=".55" />
+      <path d="M59 34 C64 47 60 58 53 63 L60 68 L68 72 C75 64 77 55 74 46Z" fill="#020306" opacity=".8" />
+      <path d="M11 94 C15 77 23 70 34 66 L44 77 L54 66 C66 70 75 78 78 94Z" fill="#07090d" />
+      <path d="M34 66 L44 77 L54 66 L51 64 L37 64Z" fill="#858a93" opacity=".45" />
+      <path d="M0 0 H88 V94 H0Z" fill={"url(#portrait-rim-" + index + ")"} />
+      <rect width="88" height="94" filter={"url(#portrait-grain-" + index + ")"} opacity=".24" />
+      <rect x=".5" y=".5" width="87" height="93" fill="none" stroke="#aeb3bd" strokeOpacity=".15" />
     </svg>
     <span className="driver-portrait-number">{String(index + 1).padStart(2, "0")}</span>
   </div>;
 }
+
 function UpgradeIcon({ type }: { type: string | undefined }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return <svg className="upgrade-category-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
