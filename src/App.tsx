@@ -15,20 +15,57 @@ function loadRace(): RaceState {
   return createRace();
 }
 
+const TRACK_POINTS = [
+  [94, 48], [126, 27], [174, 24], [229, 30], [272, 49],
+  [309, 68], [322, 96], [313, 127], [287, 151], [258, 164],
+  [244, 179], [250, 190], [224, 191], [193, 185], [165, 179],
+  [143, 160], [112, 166], [84, 177], [59, 171], [43, 151],
+  [39, 126], [49, 100], [61, 79], [76, 61]
+] as const;
+
+function trackPosition(progress: number) {
+  const normalized = ((progress % 1) + 1) % 1;
+  const scaled = normalized * TRACK_POINTS.length;
+  const index = Math.floor(scaled);
+  const fraction = scaled - index;
+  const a = TRACK_POINTS[index];
+  const b = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
+  return {
+    x: a[0] + (b[0] - a[0]) * fraction,
+    y: a[1] + (b[1] - a[1]) * fraction,
+  };
+}
+
 function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
-  const points = useMemo(() => cars.map((car, index) => {
-    const angle = (car.progress % 1) * Math.PI * 2;
-    return { ...car, x: 190 + Math.cos(angle) * 118 + (index % 2 ? 4 : -4), y: 110 + Math.sin(angle) * 63 + (index % 2 ? 3 : -3) };
-  }), [cars]);
+  const points = useMemo(() => cars.map((car) => ({
+    ...car,
+    ...trackPosition(car.progress),
+  })), [cars]);
   return <div className="circuit-wrap">
-    <svg viewBox="0 0 380 220" role="img" aria-label="Schematic live circuit map">
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#24252a" strokeWidth="30" strokeLinecap="round"/>
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#45474e" strokeWidth="22" strokeLinecap="round"/>
-      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#8b8d94" strokeWidth="1" strokeDasharray="5 6" opacity=".65"/>
-      <path d="M77 70 L93 57 M77 78 L99 60 M77 86 L105 63" stroke="#f5f5f5" strokeWidth="2" opacity=".7"/>
-      <text x="190" y="108" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
-      <text x="190" y="124" textAnchor="middle" className="track-center-sub">KUALA LUMPUR GP</text>
-      {points.map((car) => <g key={car.id}>{car.playerCar && <circle cx={car.x} cy={car.y} r="8" fill={car.teamColor} opacity=".22"/>}<circle cx={car.x} cy={car.y} r={car.playerCar ? 4.5 : 3.2} fill={car.teamColor} stroke={car.playerCar ? "#fff" : "#17181b"} strokeWidth={car.playerCar ? 1.3 : .7}/></g>)}
+    <svg viewBox="0 0 380 220" role="img" aria-label="Schematic live circuit map showing each car on the track">
+      <defs>
+        <linearGradient id="track-surface" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#34363d"/>
+          <stop offset="100%" stopColor="#24262c"/>
+        </linearGradient>
+        <filter id="player-glow" x="-200%" y="-200%" width="400%" height="400%">
+          <feGaussianBlur stdDeviation="3"/>
+        </filter>
+      </defs>
+      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#17181c" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M94 48 C126 18 229 26 272 49 C324 76 317 136 277 157 C243 175 251 192 203 187 C153 182 143 159 104 169 C54 181 37 132 55 93 C64 74 72 61 94 48 Z" fill="none" stroke="#737780" strokeWidth="1.2" strokeDasharray="4 6" opacity=".8"/>
+      <path d="M82 59 L98 73" stroke="#f5f5f5" strokeWidth="2.4" strokeLinecap="round"/>
+      <path d="M86 55 L102 69 M78 63 L94 77" stroke="#f04438" strokeWidth="2.4" strokeLinecap="round"/>
+      <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
+      <text x="190" y="121" textAnchor="middle" className="track-center-sub">KUALA LUMPUR GP</text>
+      <text x="190" y="137" textAnchor="middle" className="track-center-sub">LIVE TRACKING</text>
+      {points.map((car) => <g key={car.id}>
+        {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".18" filter="url(#player-glow)"/>}
+        {car.playerCar && <circle cx={car.x} cy={car.y} r="7" fill={car.teamColor} opacity=".22"/>}
+        <circle cx={car.x} cy={car.y} r={car.playerCar ? 4.4 : 3.1} fill={car.teamColor} stroke={car.playerCar ? "#fff" : "#17181b"} strokeWidth={car.playerCar ? 1.3 : .8}/>
+        {car.playerCar && <text x={car.x + 8} y={car.y - 7} className="track-car-label">{car.id === "rp-1" ? "07" : "22"}</text>}
+      </g>)}
     </svg>
     <div className="map-legend"><span><i className="dot red"/> REDLINE</span><span><i className="dot teal"/> VORTEX</span><span><i className="dot purple"/> APEX</span><span><i className="dot gold"/> NORTHSTAR</span><span><i className="dot blue"/> VELOCITY</span></div>
   </div>;
