@@ -46,14 +46,6 @@ export function draftUpgradeCards(state: RaceState): UpgradeCard[] {
   for (const card of pool) if (selected.length < 3 && !selected.some((item) => item.id === card.id)) selected.push(card);
   return selected;
 }
-export const UPGRADE_OPTIONS: Record<UpgradeType, { name: string; subtitle: string; description: string; cost: (level: number, owned: number) => number; effect: string }> = {
-  aero: { name: "Aerodynamics", subtitle: "DOWNFORCE PACKAGE", description: "Sharper cornering and more stable high-speed performance.", cost: (level, owned) => 650000 + level * 180000 + owned * 120000, effect: "−0.08s lap time per package" },
-  power: { name: "Power unit", subtitle: "POWER & DEPLOYMENT", description: "More drive out of slow corners and stronger straight-line pace.", cost: (level, owned) => 850000 + level * 200000 + owned * 150000, effect: "−0.12s lap time per package" },
-  suspension: { name: "Suspension", subtitle: "MECHANICAL GRIP", description: "Gentler tyre degradation helps both cars stay competitive for longer stints.", cost: (level, owned) => 550000 + level * 150000 + owned * 100000, effect: "−6% tyre wear per package" },
-  reliability: { name: "Reliability", subtitle: "DURABILITY & COOLING", description: "Protect component condition and reduce the pace lost as the car wears.", cost: (level, owned) => 500000 + level * 140000 + owned * 100000, effect: "−0.5% condition loss per package" },
-};
-
-
 export interface CarState {
   id: string;
   driver: string;
@@ -145,7 +137,7 @@ export function stepRace(current: RaceState): RaceState {
     const fuelPenalty = car.fuel < 8 ? 2.4 : (100 - car.fuel) * 0.009;
     const reliabilityPenalty = (100 - car.condition) * 0.025;
     const modules = state.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
-    const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.04 + modules.aero * 0.08 + modules.power * 0.12 : 0;
+    const upgradeBonus = car.playerCar ? modules.aero * 0.08 + modules.power * 0.12 : 0;
     const noise = (random(state) - 0.5) * 0.85;
     const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
     car.lastLap = lapSeconds;
