@@ -240,6 +240,18 @@ export function setDriverStrategy(state: RaceState, carId: string, patch: Partia
   addEvent(next, "Strategy updated for " + car.driver + ".");
   return next;
 }
+export function applyStartingUpgrade(state: RaceState, cardId: string): RaceState {
+  if (state.status !== "ready" || state.upgradeLevel !== 0 || state.weekendNumber !== 1) return state;
+  const card = draftUpgradeCards(state).find((item) => item.id === cardId);
+  if (!card) return state;
+  const next = structuredClone(state);
+  next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
+  if (card.upgradeType && card.amount) next.upgradeModules[card.upgradeType] += card.amount;
+  if (card.cashBonus) next.cash += card.cashBonus;
+  next.upgradeLevel = 1;
+  addEvent(next, "Pre-season development pick: " + card.title + ". " + card.effect);
+  return next;
+}
 export function upgradeCar(state: RaceState, cardId: string): RaceState {
   if (state.status !== "finished") return state;
   const card = draftUpgradeCards(state).find((item) => item.id === cardId);
