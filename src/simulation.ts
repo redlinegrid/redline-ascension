@@ -39,7 +39,8 @@ export interface RaceState {
   upgradeLevel: number;
   weekendNumber: number;
 }
-const TYRE_LIFE: Record<Tyre, number> = { SOFT: 0.95, MEDIUM: 1.2, HARD: 1.48 };
+const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
+const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
 const PACE_FACTOR: Record<Pace, number> = { CONSERVE: 1.018, BALANCED: 1, PUSH: 0.982 };
 
 function random(state: RaceState): number {
@@ -92,13 +93,13 @@ export function stepRace(current: RaceState): RaceState {
     const reliabilityPenalty = (100 - car.condition) * 0.025;
     const upgradeBonus = car.playerCar ? state.upgradeLevel * 0.16 : 0;
     const noise = (random(state) - 0.5) * 0.85;
-    const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_LIFE[car.tyre] / 1.2 + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
+    const lapSeconds = Math.max(85, car.lapTime * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
-    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_LIFE[car.tyre] * progressDelta);
+    car.tyreWear = Math.min(1, car.tyreWear + (car.pace === "PUSH" ? 0.014 : car.pace === "CONSERVE" ? 0.007 : 0.01) * TYRE_WEAR_RATE[car.tyre] * progressDelta);
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta);
     car.condition = Math.max(62, car.condition - 0.002);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
