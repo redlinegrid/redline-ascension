@@ -33,28 +33,6 @@ function seededTrack(seed: number) {
   return points;
 }
 
-const FALLBACK_TRACK_POINTS: [number, number][] = [
-  [116, 174], [148, 174], [183, 174], [218, 174], [249, 174],
-  [270, 172], [287, 166], [302, 156], [311, 144], [314, 132],
-  [311, 122], [304, 115], [293, 111], [282, 109], [275, 103],
-  [273, 94], [279, 85], [292, 78], [307, 71], [315, 61],
-  [313, 51], [304, 43], [289, 37], [270, 33], [245, 30],
-  [218, 29], [191, 30], [166, 33], [146, 39], [132, 48],
-  [124, 59], [123, 69], [129, 78], [143, 84], [157, 88],
-  [161, 95], [155, 102], [140, 107], [122, 111], [104, 118],
-  [88, 128], [78, 140], [77, 151], [83, 160], [94, 167], [106, 171]
-] as const;
-
-const TRACK_PATH = TRACK_POINTS.map(([x, y], index) =>
-  (index === 0 ? "M" : "L") + x + " " + y
-).join(" ") + " Z";
-
-const TRACK_SEGMENTS = TRACK_POINTS.map((point, index) => {
-  const next = TRACK_POINTS[(index + 1) % TRACK_POINTS.length];
-  return Math.hypot(next[0] - point[0], next[1] - point[1]);
-});
-const TRACK_LENGTH = TRACK_SEGMENTS.reduce((total, length) => total + length, 0);
-
 function trackPosition(progress: number, points: readonly (readonly [number, number])[]) {
   const segments = points.map((point, index) => Math.hypot(points[(index + 1) % points.length][0] - point[0], points[(index + 1) % points.length][1] - point[1]));
   const totalLength = segments.reduce((total, length) => total + length, 0);
@@ -63,7 +41,7 @@ function trackPosition(progress: number, points: readonly (readonly [number, num
     const a = points[index];
     const b = points[(index + 1) % points.length];
     const segmentLength = segments[index];
-    if (distance <= segmentLength || index === TRACK_POINTS.length - 1) {
+    if (distance <= segmentLength || index === points.length - 1) {
       const fraction = segmentLength === 0 ? 0 : distance / segmentLength;
       return {
         x: a[0] + (b[0] - a[0]) * fraction,
