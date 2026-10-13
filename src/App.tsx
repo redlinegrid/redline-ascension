@@ -72,12 +72,22 @@ function CircuitMap({ cars, lap }: { cars: CarState[]; lap: number }) {
           <feGaussianBlur stdDeviation="3"/>
         </filter>
       </defs>
-      <path d={TRACK_PATH} fill="none" stroke="#17181c" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={TRACK_PATH} fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d={TRACK_PATH} fill="none" stroke="#737780" strokeWidth="1.2" strokeDasharray="4 6" opacity=".8"/>
+      <path d={TRACK_PATH} fill="none" stroke="#111216" strokeWidth="39" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={TRACK_PATH} fill="none" stroke="#cfd1d6" strokeWidth="32" strokeDasharray="5 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".82"/>
+      <path d={TRACK_PATH} fill="none" stroke="url(#track-surface)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={TRACK_PATH} fill="none" stroke="#777b84" strokeWidth="1.2" strokeDasharray="4 6" opacity=".85"/>
+      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#141519" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#45474e" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M274 180 C259 193 239 198 215 198 L137 198 Q119 198 116 183" fill="none" stroke="#92959d" strokeWidth=".8" strokeDasharray="3 4" opacity=".7"/>
+      <rect x="167" y="185" width="31" height="9" rx="1.5" fill="#24262c" stroke="#62656d" strokeWidth=".8"/>
+      <path d="M173 187 V192 M179 187 V192 M185 187 V192 M191 187 V192" stroke="#f04438" strokeWidth="1.3"/>
+      <text x="204" y="191" className="track-pit-label">PIT LANE</text>
       <path d="M116 162 L116 186" stroke="#f5f5f5" strokeWidth="3" strokeLinecap="round"/>
       <path d="M111 162 L111 186 M121 162 L121 186" stroke="#f04438" strokeWidth="3" strokeLinecap="round"/>
       <text x="129" y="158" className="track-marker-label">START / FINISH</text>
+      <g className="track-sector"><circle cx="295" cy="48" r="5"/><text x="295" y="50.5">1</text></g>
+      <g className="track-sector"><circle cx="143" cy="87" r="5"/><text x="143" y="89.5">2</text></g>
+      <g className="track-sector"><circle cx="80" cy="151" r="5"/><text x="80" y="153.5">3</text></g>
       <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
       <text x="190" y="121" textAnchor="middle" className="track-center-sub">KUALA LUMPUR GP</text>
       <text x="190" y="137" textAnchor="middle" className="track-center-sub">LIVE TRACKING</text>
