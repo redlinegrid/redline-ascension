@@ -240,7 +240,7 @@ export default function App() {
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
-  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, playerTeamName)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
+  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, playerTeamName, selectedDriverOne, selectedDriverTwo)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
   const startCustomCareer = () => { const name = teamNameDraft.trim().slice(0, 24); if (!name || !selectedDriverOne || !selectedDriverTwo || selectedDriverOne === selectedDriverTwo) return; setRace(createRace(Date.now() >>> 0, 0, 2500000, 1, name, selectedDriverOne, selectedDriverTwo)); setTeamNameDraft(name); setShowStartScreen(false); setShowInitialDraft(true); setShowResults(false); setSelectedDraftId(""); };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
 
