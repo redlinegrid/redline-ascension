@@ -66,14 +66,14 @@ export interface DriverProfile {
   color: string;
 }
 export const DRIVER_MARKET: DriverProfile[] = [
-  { id: "alex-mercer", name: "Alex Mercer", role: "ALL-ROUNDER", pace: 86, racecraft: 82, tyreManagement: 79, consistency: 83, potential: 87, color: "#f04438" },
-  { id: "mika-tanaka", name: "Mika Tanaka", role: "TYRE SPECIALIST", pace: 82, racecraft: 80, tyreManagement: 91, consistency: 86, potential: 89, color: "#48a9a6" },
-  { id: "leo-varga", name: "Leo Varga", role: "QUALIFYING ACE", pace: 93, racecraft: 77, tyreManagement: 72, consistency: 78, potential: 90, color: "#e4b45c" },
-  { id: "amara-okafor", name: "Amara Okafor", role: "RACECRAFT EXPERT", pace: 83, racecraft: 94, tyreManagement: 84, consistency: 81, potential: 92, color: "#8b7cf6" },
-  { id: "ines-navarro", name: "Ines Navarro", role: "CONSISTENCY", pace: 81, racecraft: 82, tyreManagement: 88, consistency: 94, potential: 86, color: "#6d9dfc" },
-  { id: "kai-watanabe", name: "Kai Watanabe", role: "YOUNG PROSPECT", pace: 79, racecraft: 78, tyreManagement: 80, consistency: 76, potential: 97, color: "#f36b8b" },
+  { id: "alex-mercer", name: "Luca Moretti", role: "ALL-ROUNDER", pace: 86, racecraft: 82, tyreManagement: 79, consistency: 83, potential: 87, color: "#f04438" },
+  { id: "mika-tanaka", name: "Emil Novak", role: "TYRE SPECIALIST", pace: 82, racecraft: 80, tyreManagement: 91, consistency: 86, potential: 89, color: "#48a9a6" },
+  { id: "leo-varga", name: "Theo Laurent", role: "QUALIFYING ACE", pace: 93, racecraft: 77, tyreManagement: 72, consistency: 78, potential: 90, color: "#e4b45c" },
+  { id: "amara-okafor", name: "Mateo Silva", role: "RACECRAFT EXPERT", pace: 83, racecraft: 94, tyreManagement: 84, consistency: 81, potential: 92, color: "#8b7cf6" },
+  { id: "ines-navarro", name: "Soren Lind", role: "CONSISTENCY", pace: 81, racecraft: 82, tyreManagement: 88, consistency: 94, potential: 86, color: "#6d9dfc" },
+  { id: "kai-watanabe", name: "Kenji Arata", role: "YOUNG PROSPECT", pace: 79, racecraft: 78, tyreManagement: 80, consistency: 76, potential: 97, color: "#f36b8b" },
   { id: "rafael-costa", name: "Rafael Costa", role: "VETERAN", pace: 85, racecraft: 88, tyreManagement: 83, consistency: 90, potential: 81, color: "#5f9d63" },
-  { id: "chloe-martin", name: "Chloe Martin", role: "BALANCED PACKAGE", pace: 84, racecraft: 84, tyreManagement: 84, consistency: 84, potential: 88, color: "#ad8bf4" },
+  { id: "chloe-martin", name: "Adrian Keller", role: "BALANCED PACKAGE", pace: 84, racecraft: 84, tyreManagement: 84, consistency: 84, potential: 88, color: "#ad8bf4" },
 ];
 export interface CarState {
   id: string;
