@@ -105,6 +105,17 @@ function CircuitMap({ cars, lap, teamName }: { cars: CarState[]; lap: number; te
 }
 
 
+function UpgradeIcon({ type }: { type: string }) {
+  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return <svg className="upgrade-category-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    {type === "aero" && <g {...common}><path d="M5 27 41 10 32 28 18 31 5 27Z"/><path d="m18 31-5 9 13-11"/><path d="M9 19 4 17M14 14 10 11M21 10 19 5"/></g>}
+    {type === "power" && <g {...common}><path d="M13 11h22v5l3 3v16l-4 4H14l-4-4V19l3-3Z"/><path d="M18 11V7h12v4M17 21h14v9H17z"/><path d="M20 25h8M21 34v4M27 34v4M8 23H5M43 23h-3"/></g>}
+    {type === "suspension" && <g {...common}><path d="M12 8h24M12 40h24M24 8v5l-7 4 14 6-14 6 14 6-7 5v0"/><path d="M10 8v6M38 8v6M10 34v6M38 34v6"/></g>}
+    {type === "reliability" && <g {...common}><path d="M24 5 39 11v11c0 10-6 16-15 21C15 38 9 32 9 22V11Z"/><path d="m16 24 5 5 11-12"/></g>}
+    {type !== "aero" && type !== "power" && type !== "suspension" && type !== "reliability" && <g {...common}><ellipse cx="24" cy="13" rx="13" ry="5"/><path d="M11 13v7c0 3 6 5 13 5s13-2 13-5v-7M11 20v7c0 3 6 5 13 5 2 0 4-.2 6-.6M11 27v7c0 3 6 5 13 5 2 0 4-.2 6-.6"/><path d="m31 29 4 4 7-8"/></g>}
+  </svg>;
+}
+
 function HeroCarGraphic() {
   return <div className="hero-art" aria-hidden="true">
     <div className="hero-art-glow" />
@@ -242,7 +253,7 @@ export default function App() {
         <div className="rogue-draft-grid initial-rogue-grid">
           {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
             <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
-            <span className="rogue-card-art">{card.upgradeType === "aero" ? "↗" : card.upgradeType === "power" ? "ϟ" : card.upgradeType === "suspension" ? "⌁" : card.upgradeType === "reliability" ? "◇" : "₥"}</span>
+            <span className="rogue-card-art"><UpgradeIcon type={card.upgradeType}/></span>
             <span className="rogue-card-subtitle">{card.subtitle}</span>
             <strong>{card.title}</strong><p>{card.description}</p>
             <span className="rogue-card-effect">{card.effect}</span>
@@ -294,7 +305,7 @@ export default function App() {
           <div className="rogue-draft-grid">
             {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
               <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
-              <span className="rogue-card-art">{card.upgradeType === "aero" ? "↗" : card.upgradeType === "power" ? "ϟ" : card.upgradeType === "suspension" ? "⌁" : card.upgradeType === "reliability" ? "◇" : "₥"}</span>
+              <span className="rogue-card-art"><UpgradeIcon type={card.upgradeType}/></span>
               <span className="rogue-card-subtitle">{card.subtitle}</span>
               <strong>{card.title}</strong>
               <p>{card.description}</p>
