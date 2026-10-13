@@ -1,6 +1,8 @@
 export type Tyre = "SOFT" | "MEDIUM" | "HARD";
 export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
-export type RaceStatus = "ready" | "running" | "paused" | "finished";
+export type RaceStatus = "ready" | "running" | "paused" | "finished" | "gameover";
+export const CAMPAIGN_LENGTH = 10;
+export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
 export function buildSynergies(modules: UpgradeModules): string[] {
@@ -89,6 +91,7 @@ export interface RaceState {
   upgradeLevel: number;
   upgradeModules: UpgradeModules;
   weekendNumber: number;
+  teamPoints?: Record<string, number>;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -104,7 +107,7 @@ function addEvent(state: RaceState, message: string, kind: RaceEvent["kind"] = "
 }
 function makeCar(id: string, driver: string, team: string, teamColor: string, playerCar: boolean, progress: number, n: number): CarState {
   return {
-    id, driver, team, teamColor, playerCar, progress, lapTime: 91.4 + n * 0.27,
+    id, driver, team, teamColor, playerCar, progress, lapTime: 91.4 + n * 0.11,
     tyre: n % 3 === 0 ? "SOFT" : n % 3 === 1 ? "MEDIUM" : "HARD",
     nextTyre: n % 3 === 0 ? "MEDIUM" : "HARD",
     tyreWear: 0.04 + n * 0.012, fuel: 100, pace: "BALANCED", pitLap: playerCar ? 7 : 6 + n % 4,
@@ -112,22 +115,42 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
   };
 }
 export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1): RaceState {
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, cars: [], events: [] };
-  state.cars = [
-    makeCar("rp-1", "Alex Mercer", "Redline GP", "#f04438", true, 0.025, 0),
-    makeCar("rp-2", "Mika Tanaka", "Redline GP", "#f04438", true, 0, 1),
-    makeCar("r-1", "Luca Moretti", "Vortex Racing", "#48a9a6", false, 0.018, 2),
-    makeCar("r-2", "Noah Bennett", "Vortex Racing", "#48a9a6", false, 0, 3),
-    makeCar("r-3", "Sofia Laurent", "Apex Motorsport", "#8b7cf6", false, 0.012, 4),
-    makeCar("r-4", "Ethan Cole", "Apex Motorsport", "#8b7cf6", false, 0, 5),
-    makeCar("r-5", "Yuki Sato", "Northstar", "#e4b45c", false, 0.006, 6),
-    makeCar("r-6", "Oliver Reed", "Northstar", "#e4b45c", false, 0, 7),
-    makeCar("r-7", "Amara Okafor", "Velocity Works", "#6d9dfc", false, 0.003, 8),
-    makeCar("r-8", "Felix Weber", "Velocity Works", "#6d9dfc", false, 0, 9),
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, teamPoints: {}, cars: [], events: [] };
+  const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
+    { id: "rp-1", driver: "Alex Mercer", team: "Redline GP", color: "#f04438", player: true, progress: 0.025 },
+    { id: "rp-2", driver: "Mika Tanaka", team: "Redline GP", color: "#f04438", player: true, progress: 0 },
+    { id: "r-1", driver: "Luca Moretti", team: "Vortex Racing", color: "#48a9a6", player: false, progress: 0.018 },
+    { id: "r-2", driver: "Noah Bennett", team: "Vortex Racing", color: "#48a9a6", player: false, progress: 0 },
+    { id: "r-3", driver: "Sofia Laurent", team: "Apex Motorsport", color: "#8b7cf6", player: false, progress: 0.012 },
+    { id: "r-4", driver: "Ethan Cole", team: "Apex Motorsport", color: "#8b7cf6", player: false, progress: 0 },
+    { id: "r-5", driver: "Yuki Sato", team: "Northstar", color: "#e4b45c", player: false, progress: 0.006 },
+    { id: "r-6", driver: "Oliver Reed", team: "Northstar", color: "#e4b45c", player: false, progress: 0 },
+    { id: "r-7", driver: "Amara Okafor", team: "Velocity Works", color: "#6d9dfc", player: false, progress: 0.003 },
+    { id: "r-8", driver: "Felix Weber", team: "Velocity Works", color: "#6d9dfc", player: false, progress: 0 },
+    { id: "r-9", driver: "Mateo Silva", team: "Titan Autosport", color: "#e8793f", player: false, progress: 0.015 },
+    { id: "r-10", driver: "Isla Campbell", team: "Titan Autosport", color: "#e8793f", player: false, progress: 0 },
+    { id: "r-11", driver: "Kenji Watanabe", team: "Solaris Racing", color: "#e8d44d", player: false, progress: 0.009 },
+    { id: "r-12", driver: "Elena Rossi", team: "Solaris Racing", color: "#e8d44d", player: false, progress: 0 },
+    { id: "r-13", driver: "Theo Laurent", team: "Orion Motorsport", color: "#ad8bf4", player: false, progress: 0.021 },
+    { id: "r-14", driver: "Priya Nair", team: "Orion Motorsport", color: "#ad8bf4", player: false, progress: 0 },
+    { id: "r-15", driver: "Javier Costa", team: "Ember GP", color: "#f36b8b", player: false, progress: 0.011 },
+    { id: "r-16", driver: "Hana Suzuki", team: "Ember GP", color: "#f36b8b", player: false, progress: 0 },
+    { id: "r-17", driver: "Oscar Lindberg", team: "Summit Racing", color: "#d0d3dc", player: false, progress: 0.004 },
+    { id: "r-18", driver: "Zara Khan", team: "Summit Racing", color: "#d0d3dc", player: false, progress: 0 },
+    { id: "r-19", driver: "Rafael Costa", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0.008 },
+    { id: "r-20", driver: "Chloe Martin", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0 }
   ];
-  addEvent(state, "Race control: formation complete. Ten cars ready.");
+  state.cars = roster.map((entry, index) => makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index));
+  addEvent(state, "Race control: formation complete. Twenty-two cars ready.");
   addEvent(state, "Engineer: monitor tyre life around the middle stint.");
   return state;
+}
+export function ensureFullGrid(saved: RaceState): RaceState {
+  if (saved.cars.length >= 22) return saved;
+  const fresh = createRace(saved.seed, saved.upgradeLevel, saved.cash, saved.weekendNumber);
+  const existingIds = new Set(saved.cars.map((car) => car.id));
+  const missing = fresh.cars.filter((car) => !existingIds.has(car.id));
+  return { ...saved, cars: [...saved.cars, ...missing], teamPoints: saved.teamPoints ?? {} };
 }
 export function stepRace(current: RaceState): RaceState {
   if (current.status !== "running") return current;
@@ -192,7 +215,17 @@ export function stepRace(current: RaceState): RaceState {
     const firstPlayer = state.cars.findIndex((car) => car.playerCar) + 1;
     const payout = firstPlayer === 1 ? 1100000 : firstPlayer <= 3 ? 750000 : firstPlayer <= 6 ? 520000 : 350000;
     state.cash += payout;
-    addEvent(state, "Race complete. Prize income added to the team budget.", "finish");
+    state.teamPoints ??= {};
+    state.cars.forEach((car, index) => {
+      const points = POINTS_BY_POSITION[index] ?? 0;
+      state.teamPoints![car.team] = (state.teamPoints![car.team] ?? 0) + points;
+    });
+    if (state.weekendNumber >= CAMPAIGN_LENGTH) {
+      state.status = "gameover";
+      addEvent(state, "Campaign complete. Final championship points have been locked.", "finish");
+    } else {
+      addEvent(state, "Race complete. Prize income added to the team budget.", "finish");
+    }
   }
   return state;
 }
