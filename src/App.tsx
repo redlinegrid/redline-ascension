@@ -351,7 +351,7 @@ export default function App() {
   const order = useMemo(() => standings(race), [race]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
-  const isInitialDraft = false;
+  const isInitialDraft = showInitialDraft;
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
