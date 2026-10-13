@@ -463,3 +463,20 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Procedural circuit seed identification */
 .circuit-wrap{position:relative}.circuit-wrap svg{overflow:visible}.track-center-sub{font-size:7px;letter-spacing:.7px}
+
+
+/* Circuit telemetry theme: clean racing surface, technical HUD and readable markers */
+.circuit-theme{padding:10px 16px 12px;background:radial-gradient(ellipse at 50% 46%,rgba(255,48,36,.055),transparent 62%),linear-gradient(180deg,rgba(255,255,255,.012),transparent 65%)}
+.circuit-theme:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.34;background-image:linear-gradient(rgba(174,188,210,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(174,188,210,.055) 1px,transparent 1px);background-size:20px 20px;mask-image:radial-gradient(ellipse at center,#000 20%,transparent 82%)}
+.circuit-hud{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 0;color:#737e8f;font:600 7px var(--mono);letter-spacing:.13em}
+.circuit-hud>span{display:flex;align-items:center;gap:7px}.circuit-hud>span i{width:5px;height:5px;border-radius:50%;background:var(--red);box-shadow:0 0 9px #ff302477}.circuit-hud>b{font-weight:500;color:#9ca5b4}
+.circuit-theme svg{max-height:280px;overflow:visible}
+.track-marker-label{font:600 6px var(--mono);fill:#e5e8ef;letter-spacing:.55px;paint-order:stroke;stroke:#171b22;stroke-width:2.5px;stroke-linejoin:round}
+.track-sector circle{fill:#11151c;stroke:#8d97a8;stroke-width:1.2}.track-sector text{font:700 5.5px var(--mono);fill:#f5f6f8;text-anchor:middle}
+.track-core rect{fill:#10141b;fill-opacity:.94;stroke:#424b5a;stroke-width:.8}
+.track-core>path{stroke:#ff4034;stroke-width:1.2;fill:none}
+.track-center-label{font:700 10px var(--mono);fill:#f3f5f8;letter-spacing:1.5px}
+.track-center-sub{font:600 6px var(--mono);fill:#9aa5b6;letter-spacing:.8px}
+.track-center-live{font:600 5px var(--mono);fill:#ff7167;letter-spacing:.7px}
+.circuit-theme .map-legend{position:relative;z-index:2;margin-top:1px;padding-top:8px;border-top:1px solid rgba(220,228,240,.07);font-size:7px;letter-spacing:.35px;gap:12px}
+@media(max-width:760px){.circuit-theme{padding:8px 8px 10px}.circuit-theme svg{max-height:225px}.circuit-hud{font-size:6px}.track-marker-label{font-size:5.5px}.circuit-theme .map-legend{gap:8px;font-size:6.5px}}
