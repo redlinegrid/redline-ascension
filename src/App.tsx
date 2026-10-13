@@ -20,26 +20,38 @@ function loadRace(): RaceState {
 function seededTrack(seed: number) {
   let value = seed >>> 0;
   const rand = () => { value = (Math.imul(value, 1664525) + 1013904223) >>> 0; return value / 4294967296; };
-  const count = 18 + Math.floor(rand() * 5);
-  const rotation = rand() * Math.PI * 2;
-  const phaseA = rand() * Math.PI * 2;
-  const phaseB = rand() * Math.PI * 2;
-  const phaseC = rand() * Math.PI * 2;
-  const ampA = 0.10 + rand() * 0.07;
-  const ampB = 0.05 + rand() * 0.06;
-  const ampC = 0.025 + rand() * 0.035;
-  const points: [number, number][] = [];
-  for (let i = 0; i < count; i++) {
-    const angle = rotation + (i / count) * Math.PI * 2;
-    const radius = 1
-      + Math.sin(angle * 2 + phaseA) * ampA
-      + Math.sin(angle * 3 + phaseB) * ampB
-      + Math.cos(angle * 5 + phaseC) * ampC;
-    const xRadius = 103 * radius;
-    const yRadius = 70 * radius + Math.sin(angle * 2 + phaseB) * 4;
-    points.push([190 + Math.cos(angle) * xRadius, 110 + Math.sin(angle) * yRadius]);
-  }
-  return points;
+  // Original procedural layouts, shaped around real circuit archetypes rather than one oval formula.
+  // Coordinates are normalized to the map canvas; each seed picks a distinct family and subtly varies it.
+  const layouts: [number, number][][] = [
+    // Fast, flowing GP circuit: long straights, sweeping direction changes and a tight final section.
+    [[.16,.30],[.34,.22],[.49,.25],[.60,.34],[.72,.25],[.85,.29],[.91,.40],[.84,.49],[.72,.46],[.65,.54],[.78,.65],[.83,.77],[.75,.84],[.60,.81],[.54,.70],[.42,.69],[.35,.82],[.23,.85],[.13,.77],[.17,.65],[.27,.59],[.22,.49],[.12,.47],[.09,.38]],
+    // Street-style layout: narrow straights, square corners and a tight central hairpin.
+    [[.13,.24],[.39,.24],[.43,.31],[.43,.40],[.34,.43],[.31,.49],[.37,.54],[.63,.54],[.70,.49],[.70,.39],[.77,.34],[.88,.37],[.91,.47],[.86,.56],[.79,.59],[.78,.70],[.70,.77],[.53,.77],[.49,.69],[.49,.63],[.38,.63],[.29,.70],[.17,.69],[.11,.61],[.13,.50],[.20,.45],[.20,.36]],
+    // Technical S-curves and crossover-like middle section, inspired by classic driver circuits.
+    [[.12,.70],[.20,.79],[.34,.79],[.41,.70],[.35,.62],[.24,.60],[.19,.52],[.23,.43],[.35,.40],[.43,.46],[.49,.55],[.56,.55],[.62,.45],[.58,.34],[.49,.30],[.44,.23],[.51,.17],[.66,.18],[.77,.26],[.82,.38],[.78,.49],[.69,.56],[.72,.66],[.83,.71],[.86,.80],[.76,.86],[.60,.85],[.52,.77],[.43,.72]],
+    // Long back straight and deep hairpin: asymmetric, endurance-style silhouette.
+    [[.10,.34],[.28,.29],[.49,.29],[.72,.27],[.86,.30],[.91,.38],[.89,.48],[.82,.53],[.71,.51],[.66,.58],[.70,.68],[.82,.72],[.85,.81],[.77,.87],[.61,.85],[.51,.78],[.46,.67],[.38,.62],[.29,.66],[.25,.77],[.16,.81],[.09,.75],[.12,.64],[.20,.57],[.22,.48],[.14,.45]],
+    // Compact, angular park circuit with a sequence of linked corners.
+    [[.18,.25],[.34,.20],[.47,.25],[.53,.33],[.65,.28],[.78,.30],[.86,.39],[.82,.47],[.72,.48],[.67,.42],[.59,.47],[.60,.57],[.72,.60],[.83,.57],[.89,.65],[.84,.76],[.70,.81],[.61,.75],[.51,.70],[.42,.77],[.28,.81],[.17,.76],[.12,.66],[.19,.58],[.30,.56],[.34,.48],[.26,.43],[.14,.44],[.11,.34]]
+  ];
+  const layout = layouts[Math.floor(rand() * layouts.length)];
+  const scaleX = 284;
+  const scaleY = 164;
+  const offsetX = 48;
+  const offsetY = 28;
+  const rotation = (rand() - 0.5) * 0.14;
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return layout.map(([nx, ny]) => {
+    const x = (nx - 0.5) * scaleX;
+    const y = (ny - 0.5) * scaleY;
+    const jitterX = (rand() - 0.5) * 7;
+    const jitterY = (rand() - 0.5) * 7;
+    return [
+      Math.max(35, Math.min(345, 190 + x * cos - y * sin + jitterX)),
+      Math.max(22, Math.min(198, 110 + x * sin + y * cos + jitterY))
+    ] as [number, number];
+  });
 }
 
 function smoothTrackPath(points: readonly (readonly [number, number])[]) {
