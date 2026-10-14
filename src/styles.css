@@ -636,3 +636,37 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .circuit-theme .map-legend { padding-top:3px; color:#8f96a3; }
 .circuit-theme .circuit-hud { color:#8c94a3; }
 .circuit-theme .circuit-hud>span i { background:#ff2a18; box-shadow:0 0 7px #ff2a1840; }
+
+
+/* Current career build: always-visible installed upgrade ledger. */
+.current-upgrades-panel { margin:0 0 22px; padding:20px; min-width:0; background:linear-gradient(135deg,rgba(255,255,255,.025),rgba(255,255,255,.008)); }
+.upgrade-count-badge { border:1px solid #343a46; border-radius:4px; padding:7px 9px; color:#b6becb; font:600 9px var(--mono); letter-spacing:.08em; white-space:nowrap; }
+.upgrade-module-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:4px 0 18px; }
+.upgrade-module-meter { display:flex; align-items:center; gap:10px; min-width:0; padding:12px; border:1px solid #282d37; border-radius:5px; background:#0c0f14; }
+.upgrade-module-icon,.installed-upgrade-icon { display:grid; place-items:center; flex:0 0 auto; width:34px; height:34px; border:1px solid #454c59; border-radius:5px; color:#e7eaf0; font:700 13px var(--mono); }
+.module-aero,.type-aero { color:#83b7ff; border-color:#315782; background:#142238; }
+.module-power,.type-power { color:#ff9d91; border-color:#71372f; background:#291613; }
+.module-suspension,.type-suspension { color:#a9e2c5; border-color:#31634d; background:#10241a; }
+.module-reliability,.type-reliability { color:#e2c2ff; border-color:#5a3c75; background:#20142b; }
+.type-commercial { color:#f1d27a; border-color:#74602b; background:#28210e; }
+.upgrade-module-meter>div { flex:1; min-width:0; }
+.upgrade-module-meter small { display:block; overflow:hidden; color:#8992a1; font:600 8px var(--mono); letter-spacing:.045em; text-overflow:ellipsis; white-space:nowrap; }
+.upgrade-module-meter strong { display:block; margin:5px 0 7px; color:#f1f3f7; font:700 12px var(--mono); }
+.upgrade-module-track { height:3px; overflow:hidden; background:#272c35; border-radius:3px; }
+.upgrade-module-track i { display:block; height:100%; background:#ff453a; transition:width .2s ease; }
+.installed-upgrade-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.installed-upgrade-item { display:flex; align-items:center; gap:11px; min-width:0; padding:11px; border:1px solid #292e38; border-radius:5px; background:rgba(255,255,255,.015); }
+.installed-upgrade-copy { flex:1; min-width:0; }
+.installed-upgrade-copy>div { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.installed-upgrade-copy>div>span { color:#858e9d; font:600 8px var(--mono); letter-spacing:.055em; }
+.installed-upgrade-copy>strong { display:block; overflow:hidden; margin:5px 0 4px; color:#eef0f4; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.installed-upgrade-copy>small { display:block; color:#a4adbb; font-size:10px; }
+.rarity-label { font:700 8px var(--mono); letter-spacing:.04em; }
+.rarity-text-common { color:#b3bbc8; }.rarity-text-rare { color:#77b8ff; }.rarity-text-epic { color:#c99aff; }
+.upgrade-empty-state { display:flex; align-items:center; gap:12px; padding:14px; border:1px dashed #343a46; border-radius:5px; color:#a2aab7; }
+.upgrade-empty-state>span { display:grid; place-items:center; width:30px; height:30px; border:1px solid #343a46; border-radius:4px; color:#ff786b; font-size:20px; }
+.upgrade-empty-state strong { color:#e6e9ef; font-size:12px; }
+.upgrade-empty-state p { margin:5px 0 0; color:#8d96a5; font-size:10px; line-height:1.5; }
+.current-upgrades-foot { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #282d37; color:#818b9a; font:600 8px var(--mono); letter-spacing:.06em; }
+@media(max-width:760px) { .current-upgrades-panel { padding:14px; }.upgrade-module-strip { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }.upgrade-module-meter { padding:9px; gap:8px; }.upgrade-module-icon { width:29px; height:29px; }.installed-upgrade-list { grid-template-columns:1fr; }.installed-upgrade-copy>strong { white-space:normal; } }
+@media(max-width:380px) { .upgrade-module-meter { align-items:flex-start; flex-direction:column; }.upgrade-module-meter small { white-space:normal; } }
