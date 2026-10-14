@@ -355,6 +355,96 @@ function StartScreenCarGraphic({ primary, secondary }: { primary: string; second
   </div>;
 }
 
+function PitWallGraphic() {
+  return <div className="hero-art pitwall-art" aria-hidden="true">
+    <div className="hero-art-glow" />
+    <svg viewBox="0 0 760 250" role="presentation" focusable="false">
+      <defs>
+        <linearGradient id="pitwall-room" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#252a33"/><stop offset="100%" stopColor="#11141a"/>
+        </linearGradient>
+        <linearGradient id="pitwall-screen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#1d3440"/><stop offset="100%" stopColor="#101a24"/>
+        </linearGradient>
+        <linearGradient id="pitwall-glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1d2731" stopOpacity=".28"/><stop offset="100%" stopColor="#090c12" stopOpacity=".88"/>
+        </linearGradient>
+        <filter id="pitwall-soft-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      {/* Pitbox glass wall and overhead structure */}
+      <path d="M22 26H738V181H22Z" fill="url(#pitwall-room)" stroke="#59616d" strokeOpacity=".7"/>
+      <path d="M22 26H738V43H22Z" fill="#303742"/>
+      <path d="M35 31H725M35 38H725" stroke="#79818d" strokeOpacity=".35"/>
+      <path d="M30 48H730V176H30Z" fill="url(#pitwall-glass)" stroke="#4a5665" strokeOpacity=".6"/>
+      <path d="M270 48V176M515 48V176" stroke="#687381" strokeOpacity=".38" strokeWidth="2"/>
+      <path d="M39 53L205 53L170 170H39Z M283 53H501L485 170H283Z M528 53H720V170H548Z" fill="#a5b8c9" opacity=".025"/>
+      {/* Wall-mounted telemetry displays */}
+      <g stroke="#667381" strokeWidth="1.2">
+        <rect x="47" y="60" width="130" height="63" rx="2" fill="#0a1018"/>
+        <rect x="190" y="60" width="65" height="63" rx="2" fill="#0a1018"/>
+        <rect x="288" y="60" width="115" height="63" rx="2" fill="#0a1018"/>
+        <rect x="415" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
+        <rect x="535" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
+        <rect x="628" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
+      </g>
+      <g fill="#aeb9c8" fontFamily="monospace" fontSize="6" letterSpacing=".8">
+        <text x="55" y="70">LIVE TELEMETRY</text><text x="198" y="70">TYRE STATUS</text>
+        <text x="296" y="70">CAR 01 · DATA</text><text x="423" y="70">SECTOR TIMES</text>
+        <text x="543" y="70">STRATEGY</text><text x="636" y="70">WEATHER</text>
+      </g>
+      <g fill="none" strokeWidth="1.6">
+        <path d="M55 107L68 100L80 104L94 86L107 95L122 88L137 96L151 81L167 88" stroke="#5cb9e8"/>
+        <path d="M55 114L76 111L90 116L106 105L124 109L145 101L167 106" stroke="#d5a84f"/>
+        <path d="M297 105L312 98L325 103L341 84L354 91L370 80L394 91" stroke="#65c9a2"/>
+        <path d="M424 92H488M424 101H476M424 110H482" stroke="#667b91"/>
+        <path d="M544 86H603M544 96H590M544 106H600" stroke="#667b91"/>
+      </g>
+      <g fill="#e4b45c">
+        <circle cx="203" cy="86" r="4"/><circle cx="218" cy="86" r="4" fill="#e5e7eb"/><circle cx="233" cy="86" r="4" fill="#e5e7eb"/>
+      </g>
+      <g fill="#66c89c"><rect x="544" y="113" width="15" height="3"/><rect x="563" y="113" width="15" height="3" opacity=".65"/><rect x="582" y="113" width="15" height="3" opacity=".35"/></g>
+      <g fill="#d5a84f"><rect x="637" y="83" width="13" height="5"/><rect x="653" y="83" width="13" height="5"/><rect x="669" y="83" width="13" height="5" opacity=".5"/></g>
+      <path d="M38 137H721V174H38Z" fill="#0b0e13" opacity=".65"/>
+      <path d="M38 137H721" stroke="#ff352a" strokeOpacity=".6"/>
+      {/* Pitwall desk and consoles */}
+      <path d="M20 180L740 180L760 210L0 210Z" fill="#252b34" stroke="#59616d"/>
+      <path d="M20 181H740" stroke="#ff352a" strokeWidth="2" opacity=".8"/>
+      <path d="M0 211H760V228H0Z" fill="#11141a"/>
+      <g stroke="#697382" strokeWidth="1">
+        <path d="M45 188H180L194 204H32Z" fill="#080b10"/>
+        <path d="M213 188H345L358 204H200Z" fill="#080b10"/>
+        <path d="M384 188H510L523 204H370Z" fill="#080b10"/>
+        <path d="M549 188H688L704 204H535Z" fill="#080b10"/>
+      </g>
+      <g fill="#5db8e6">
+        <rect x="53" y="192" width="5" height="3"/><rect x="63" y="192" width="5" height="3"/><rect x="73" y="192" width="5" height="3"/>
+        <rect x="221" y="192" width="5" height="3"/><rect x="231" y="192" width="5" height="3"/><rect x="241" y="192" width="5" height="3"/>
+        <rect x="393" y="192" width="5" height="3"/><rect x="403" y="192" width="5" height="3"/><rect x="413" y="192" width="5" height="3"/>
+      </g>
+      <g fill="#d6d9df" opacity=".9">
+        {/* Engineers viewed from behind */}
+        <path d="M80 161Q81 147 94 147Q107 147 108 161L113 181H75Z" fill="#3b4553"/>
+        <circle cx="94" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
+        <path d="M288 161Q289 147 302 147Q315 147 316 161L322 181H282Z" fill="#3b4553"/>
+        <circle cx="302" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
+        <path d="M463 161Q464 147 477 147Q490 147 491 161L497 181H457Z" fill="#3b4553"/>
+        <circle cx="477" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
+        <path d="M645 161Q646 147 659 147Q672 147 673 161L679 181H639Z" fill="#3b4553"/>
+        <circle cx="659" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
+      </g>
+      <g fill="none" stroke="#aab3c1" strokeOpacity=".4" strokeWidth="1">
+        <path d="M94 154L88 166M302 154L296 166M477 154L471 166M659 154L653 166"/>
+      </g>
+      {/* Ambient pit-lane light and engineering-room framing */}
+      <path d="M22 26H738" stroke="#ff352a" strokeWidth="2" opacity=".75"/>
+      <path d="M26 229H734" stroke="#7a8493" strokeOpacity=".35"/>
+      <text x="28" y="244" fill="#8c96a5" fontFamily="monospace" fontSize="7" letterSpacing="2">REDLINE RACE OPERATIONS · PIT WALL</text>
+      <text x="731" y="244" textAnchor="end" fill="#c5cad2" fontFamily="monospace" fontSize="7" letterSpacing="1.5">LIVE DATA / 01</text>
+    </svg>
+    <div className="hero-art-caption"><span>LIVE</span><i /> PIT WALL OPERATIONS <b>RACE CONTROL</b></div>
+  </div>;
+}
+
 function HeroCarGraphic() {
   return <div className="hero-art" aria-hidden="true">
     <div className="hero-art-glow" />
@@ -628,7 +718,7 @@ export default function App() {
       </div>
     </div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE PADDOCK</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}<button className="save-transfer-trigger" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>SAVE / TRANSFER</button></div></header>
-    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM PRINCIPAL: {race.playerPrincipalName ?? "Team Principal"} <b>/</b> TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><HeroCarGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>{(race.circuitName ?? "Copperhead Ring").toUpperCase()} · GENERATED CIRCUIT</span></div></div></section>
+    <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM PRINCIPAL: {race.playerPrincipalName ?? "Team Principal"} <b>/</b> TEAM OPERATIONS <b>/</b> ROUND {String(Math.min(race.weekendNumber, CAMPAIGN_LENGTH)).padStart(2, "0")} / {CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><PitWallGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>{(race.circuitName ?? "Copperhead Ring").toUpperCase()} · GENERATED CIRCUIT</span></div></div></section>
     <section className="stat-strip">
       <div className="stat-cell"><span>TEAM BUDGET</span><strong>{money(race.cash)}</strong><small>{race.upgradeLevel ? "PACKAGE LEVEL " + race.upgradeLevel : "INITIAL ALLOCATION"}</small></div>
       <div className="stat-cell"><span>CAR PERFORMANCE</span><strong>{Math.min(100, 82 + modules.aero * 2 + modules.power * 3 + modules.suspension + modules.reliability)}<small className="inline-unit"> / 100</small></strong><small>{race.upgradeLevel ? "DRAFTED SPEC" : "BASELINE SPEC"}</small></div>
