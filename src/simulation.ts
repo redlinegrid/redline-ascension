@@ -5,8 +5,9 @@ export type GameMode = "championship" | "endless";
 export const CAMPAIGN_LENGTH = 20;
 export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
+export type RunTrait = "tyre-saver" | "pit-crew" | "risk-reward" | "sponsor-network" | "reliability-first";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
-export interface InstalledUpgrade { id: string; title: string; subtitle: string; rarity: UpgradeRarity; effect: string; upgradeType?: UpgradeType; amount?: number; cashBonus?: number; }
+export interface InstalledUpgrade { id: string; title: string; subtitle: string; rarity: UpgradeRarity; effect: string; upgradeType?: UpgradeType; amount?: number; cashBonus?: number; trait?: RunTrait; }
 export function buildSynergies(modules: UpgradeModules): string[] {
   const active: string[] = [];
   if (modules.aero >= 2 && modules.power >= 2) active.push("AERO + POWER INTEGRATION");
@@ -24,6 +25,8 @@ export interface UpgradeCard {
   upgradeType?: UpgradeType;
   amount?: number;
   cashBonus?: number;
+  trait?: RunTrait;
+  buildPath?: string;
 }
 const UPGRADE_CARD_POOL: UpgradeCard[] = [
   { id: "front-wing", title: "Reprofiled Front Wing", subtitle: "AERO PACKAGE", rarity: "COMMON", description: "A cleaner front-wing profile gives the drivers more confidence through medium-speed corners.", effect: "Aerodynamics +1", upgradeType: "aero", amount: 1 },
@@ -50,7 +53,7 @@ export function draftUpgradeCards(state: RaceState): UpgradeCard[] {
   const selected: UpgradeCard[] = [];
   const categories = new Set<string>();
   for (const card of pool) {
-    const category = card.upgradeType ?? "commercial";
+    const category = card.buildPath ?? card.upgradeType ?? "commercial";
     if (selected.length < 3 && !categories.has(category)) { selected.push(card); categories.add(category); }
   }
   for (const card of pool) if (selected.length < 3 && !selected.some((item) => item.id === card.id)) selected.push(card);
@@ -123,6 +126,7 @@ export interface RaceState {
   upgradeLevel: number;
   upgradeModules: UpgradeModules;
   installedUpgrades?: InstalledUpgrade[];
+  buildTraits?: RunTrait[];
   weekendNumber: number;
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
@@ -174,7 +178,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
   const circuitNames = ["Copperhead Ring", "Monsoon Park", "Granite Valley", "Nightfall Circuit", "Cobalt Coast", "Redwood Raceway", "Sundown Autodrome", "Ironclad Park", "Tempest Circuit", "Silver Basin", "Emberstone GP", "Highland Loop", "Mirage International", "Blackstone Raceway", "Aurora Park", "Thunder Ridge", "Mariner Circuit", "Crimson Dunes", "Summit Ring", "Neon Harbour"];
   const circuitName = circuitNames[(circuitSeed >>> 8) % circuitNames.length];
   const circuitLengthFactor = 0.94 + ((circuitSeed >>> 16) % 1200) / 10000;
-  const state: RaceState = { version: 1, mode, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [], teamMorale: 62, teamReputation: 45, pendingPaddockEvent: null, paddockEventRound: 0, resolvedPaddockEvents: [], driverContracts: [] };
+  const state: RaceState = { version: 1, mode, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, buildTraits: [], weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [], teamMorale: 62, teamReputation: 45, pendingPaddockEvent: null, paddockEventRound: 0, resolvedPaddockEvents: [], driverContracts: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },
