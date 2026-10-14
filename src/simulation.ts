@@ -255,14 +255,17 @@ export function stepRace(current: RaceState): RaceState {
     const noise = (random(state) - 0.5) * 0.85 * consistencyNoise;
     const racecraftBonus = (car.driverRacecraft - 80) * 0.009;
     const safetyCarFactor = state.safetyCarActive ? 1.34 : 1;
-    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] * safetyCarFactor + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
+    const traits = state.buildTraits ?? [];
+    const traitPaceFactor = car.playerCar ? (traits.includes("risk-reward") ? 0.985 : 1) * (traits.includes("reliability-first") ? 1.003 : 1) : 1;
+    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] * safetyCarFactor * traitPaceFactor + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
     const driverTyreCare = Math.max(0.72, 1 - (car.driverTyreManagement - 80) * 0.004);
-    const wearReduction = (car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1) * driverTyreCare;
+    const traitWearFactor = car.playerCar ? ((state.buildTraits ?? []).includes("tyre-saver") ? 0.85 : 1) * ((state.buildTraits ?? []).includes("risk-reward") ? 1.18 : 1) * ((state.buildTraits ?? []).includes("reliability-first") ? 0.72 : 1) : 1;
+    const wearReduction = (car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1) * driverTyreCare * traitWearFactor;
     const aeroTyreLoad = car.playerCar ? 1 + (state.upgradeModules?.aero ?? 0) * 0.025 : 1;
     const enduranceWearBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
     const strategyWear = car.pace === "PUSH" ? 0.095 : car.pace === "CONSERVE" ? 0.05 : 0.07;
@@ -271,11 +274,12 @@ export function stepRace(current: RaceState): RaceState {
     car.fuel = Math.max(0, car.fuel - (car.pace === "PUSH" ? 0.78 : car.pace === "CONSERVE" ? 0.53 : 0.65) * progressDelta * powerFuelLoad * (state.safetyCarActive ? 0.5 : 1));
     const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;
     const enduranceConditionBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
-    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus);
+    const traitConditionFactor = car.playerCar ? ((state.buildTraits ?? []).includes("risk-reward") ? 1.8 : 1) * ((state.buildTraits ?? []).includes("reliability-first") ? 0.65 : 1) : 1;
+    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus * traitConditionFactor);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
-        car.pitDelay = 2; car.pitStops += 1; car.tyreWear = 0.02;
+        car.pitDelay = car.playerCar && (state.buildTraits ?? []).includes("pit-crew") ? 1 : 2; car.pitStops += 1; car.tyreWear = 0.02;
         car.tyre = car.nextTyre;
         addEvent(state, car.playerCar ? car.driver + " pits for " + car.tyre.toLowerCase() + " tyres." : car.driver + " (" + car.team + ") pits.", "pit");
       }
@@ -304,7 +308,8 @@ export function stepRace(current: RaceState): RaceState {
         state.safetyCarTicks = 3; state.safetyCarActive = true;
         addEvent(state, "SAFETY CAR — " + candidate.driver + " has stopped off-line after an incident. The field is neutralised; tyre wear and fuel use are reduced.", "warning");
       } else {
-        candidate.condition = Math.max(45, candidate.condition - 8);
+        const incidentDamage = candidate.playerCar && (state.buildTraits ?? []).includes("reliability-first") ? 4 : candidate.playerCar && (state.buildTraits ?? []).includes("risk-reward") ? 12 : 8;
+        candidate.condition = Math.max(45, candidate.condition - incidentDamage);
         candidate.progress = Math.max(0, candidate.progress - 0.025);
         addEvent(state, "Incident: " + candidate.driver + " runs wide in traffic. Lost time and minor component damage.", "warning");
       }
@@ -318,7 +323,9 @@ export function stepRace(current: RaceState): RaceState {
     state.cars.sort((a, b) => (a.finishTime ?? Infinity) - (b.finishTime ?? Infinity));
     const firstPlayer = state.cars.findIndex((car) => car.playerCar) + 1;
     const payout = firstPlayer === 1 ? 1100000 : firstPlayer <= 3 ? 750000 : firstPlayer <= 6 ? 520000 : 350000;
-    state.cash += payout;
+    const sponsorBonus = (state.buildTraits ?? []).includes("sponsor-network") ? 120000 : 0;
+    state.cash += payout + sponsorBonus;
+    if (sponsorBonus) addEvent(state, "Commercial build pays off: sponsor network adds RM120,000 to the race return.", "info");
     state.teamPoints ??= {};
     state.cars.forEach((car, index) => {
       const points = POINTS_BY_POSITION[index] ?? 0;
