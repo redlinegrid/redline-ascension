@@ -310,6 +310,49 @@ export function stepRace(current: RaceState): RaceState {
   }
   return state;
 }
+export interface StrategyAdvice {
+  headline: string;
+  reason: string;
+  action: Pace | "PIT";
+  actionLabel: string;
+}
+
+/** Produces a live, explainable engineer recommendation from the current race state. */
+export function getStrategyAdvice(state: RaceState, carId: string): StrategyAdvice | null {
+  if (state.status !== "running") return null;
+  const car = state.cars.find((item) => item.id === carId && item.playerCar);
+  if (!car || car.finished) return null;
+  const remainingLaps = Math.max(0, state.totalLaps - car.progress);
+  const ahead = state.cars
+    .filter((item) => !item.finished && item.id !== car.id && item.progress > car.progress)
+    .sort((a, b) => a.progress - b.progress)[0];
+  const gapAhead = ahead ? ahead.progress - car.progress : Infinity;
+  const canPit = car.pitStops === 0 && remainingLaps > 1.2;
+
+  if (canPit && state.safetyCarActive && car.tyreWear >= 0.3) {
+    return { headline: "Use the safety-car window", reason: "The field is neutralised, so this is a lower-loss opportunity to change tyres before green-flag running resumes.", action: "PIT", actionLabel: "PIT NEXT LAP" };
+  }
+  if (canPit && car.tyreWear >= 0.8) {
+    return { headline: "Tyres are past their peak", reason: "Heavy wear is costing lap time. A stop is likely to recover more pace than extending this stint.", action: "PIT", actionLabel: "PIT NEXT LAP" };
+  }
+  if (car.fuel <= 14) {
+    return { headline: "Protect the fuel margin", reason: "Fuel is running low. Conserve pace reduces consumption and lowers the risk of losing time late in the race.", action: "CONSERVE", actionLabel: "CONSERVE FUEL" };
+  }
+  if (car.tyreWear >= 0.64) {
+    return { headline: "Manage the tyre drop-off", reason: "Tyre wear is entering the steep degradation range. Conserve pace can keep the stint competitive for longer.", action: "CONSERVE", actionLabel: "SAVE THE TYRES" };
+  }
+  if (gapAhead < 0.035 && car.fuel > 22 && car.tyreWear < 0.62 && car.pace !== "PUSH") {
+    return { headline: "Attack the car ahead", reason: "The gap is small enough to pressure the rival. Push pace may create an overtaking chance, at the cost of extra tyre wear and fuel.", action: "PUSH", actionLabel: "ATTACK" };
+  }
+  if (car.pace === "PUSH" && (car.tyreWear >= 0.42 || car.fuel < 32)) {
+    return { headline: "Reset to sustainable pace", reason: "The current push is consuming a meaningful resource margin. Balanced running protects the stint without fully giving up pace.", action: "BALANCED", actionLabel: "BALANCE PACE" };
+  }
+  if (remainingLaps > 2 && car.tyreWear < 0.25 && car.fuel > 55 && car.pace !== "PUSH") {
+    return { headline: "There is room to push", reason: "Tyre life and fuel are healthy. A short push phase could gain time before the next strategy decision.", action: "PUSH", actionLabel: "PUSH FOR PACE" };
+  }
+  return { headline: "Hold a balanced stint", reason: "Current tyre and fuel levels do not justify a more aggressive call. Reassess as traffic, wear and fuel margins change.", action: "BALANCED", actionLabel: "SET BALANCED" };
+}
+
 export function setDriverStrategy(state: RaceState, carId: string, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>): RaceState {
   const next = structuredClone(state);
   const car = next.cars.find((item) => item.id === carId);
