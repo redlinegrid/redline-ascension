@@ -312,6 +312,8 @@ export default function App() {
   const [hasSavedCareer] = useState(() => { try { return Boolean(localStorage.getItem(SAVE_KEY)); } catch { return false; } });
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [showInitialDraft, setShowInitialDraft] = useState(false);
+  const [showIntermission, setShowIntermission] = useState(() => { try { return loadRace().status === "finished"; } catch { return false; } });
+  const [intermissionUpgradeInstalled, setIntermissionUpgradeInstalled] = useState(false);
   useEffect(() => {
     if (!showStartScreen) return;
     const previousBodyOverflow = document.body.style.overflow;
@@ -348,6 +350,10 @@ export default function App() {
     try { localStorage.setItem(GARAGE_META_KEY, JSON.stringify(garageMeta)); } catch { /* Optional persistent storage. */ }
   }, [garageMeta]);
   useEffect(() => {
+    if (race.status === "finished" && !showInitialDraft) setShowIntermission(true);
+    if (race.status !== "finished") { setShowIntermission(false); setIntermissionUpgradeInstalled(false); }
+  }, [race.status, showInitialDraft]);
+  useEffect(() => {
     if (race.status !== "finished" && race.status !== "gameover") return;
     const runId = race.seed + ":" + race.weekendNumber;
     if (garageMeta.rewardedRuns.includes(runId)) return;
@@ -382,6 +388,18 @@ export default function App() {
     if (garageMeta.unlocks.includes("sponsor-network")) fresh.cash += 500000;
     return fresh;
   };
+  const startNextRace = () => {
+    if (!intermissionUpgradeInstalled || race.status !== "finished") return;
+    const playerCars = race.cars.filter((car) => car.playerCar);
+    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, race.cash, race.weekendNumber + 1, playerTeamName, playerCars[0]?.driver ?? "Alex Mercer", playerCars[1]?.driver ?? "Mika Tanaka", race.playerPrincipalName ?? "Team Principal");
+    next.upgradeModules = { ...(race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }) };
+    next.teamPoints = { ...(race.teamPoints ?? {}) };
+    setRace(next);
+    setShowIntermission(false);
+    setIntermissionUpgradeInstalled(false);
+    setShowResults(false);
+    setSelectedDraftId("");
+  };
   const buyGaragePerk = (id: string, cost: number) => {
     if (garageMeta.unlocks.includes(id) || garageMeta.research < cost) return;
     setGarageMeta((current) => current.unlocks.includes(id) || current.research < cost ? current : { ...current, research: current.research - cost, unlocks: [...current.unlocks, id] });
@@ -409,6 +427,35 @@ export default function App() {
           </button>)}
         </div>
         <div className="initial-upgrade-footer"><span>YOUR FIRST PICK IS PERMANENT · 19 MORE DEVELOPMENT PICKS AVAILABLE</span><button className="primary-button" disabled={!selectedDraft} onClick={() => { if (!selectedDraft) return; setRace((current) => applyStartingUpgrade(current, selectedDraft.id)); setShowInitialDraft(false); setSelectedDraftId(""); }}>INSTALL STARTING UPGRADE ↗</button></div>
+      </div>
+    </div>}
+    {showIntermission && race.status === "finished" && <div className="career-intermission-screen" role="dialog" aria-modal="true" aria-labelledby="intermission-title">
+      <div className="career-intermission-topline"><span>REDLINE PADDOCK <i/> BETWEEN RACES</span><span>ROUND {String(race.weekendNumber).padStart(2, "0")} COMPLETE</span></div>
+      <div className="career-intermission-content">
+        <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
+        <h1 id="intermission-title">Build your <em>next advantage.</em></h1>
+        <p className="career-intermission-intro">Review the weekend, choose one upgrade for this career, then visit the garage before heading to the next circuit.</p>
+        <div className="intermission-summary"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>DEVELOPMENT PICKS <b>{race.upgradeLevel}</b></span><span>RESEARCH BANK <b>✦ {garageMeta.research} RP</b></span></div>
+        <div className="intermission-section-heading"><div><span>STEP 01</span><h2>Choose your next upgrade</h2></div><small>ONE PICK · THIS CAREER</small></div>
+        <div className="rogue-draft-grid intermission-upgrade-grid">
+          {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => { setSelectedDraftId(card.id); setIntermissionUpgradeInstalled(false); }}>
+            <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
+            <span className="rogue-card-art"><UpgradeIcon type={card.upgradeType}/></span><span className="rogue-card-subtitle">{card.subtitle}</span><strong>{card.title}</strong><p>{card.description}</p><span className="rogue-card-effect">{card.effect}</span><span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
+          </button>)}
+        </div>
+        <div className="intermission-action-row">
+          <div><span className="section-kicker">SELECTED DEVELOPMENT</span><strong>{selectedDraft?.title ?? "Choose one offer above"}</strong><p>{intermissionUpgradeInstalled ? "Upgrade installed. You can now continue to the garage and next race." : "Lock in your choice before moving to the garage."}</p></div>
+          <button className="primary-button" disabled={!selectedDraft || intermissionUpgradeInstalled} onClick={() => { if (!selectedDraft) return; setRace((current) => upgradeCar(current, selectedDraft.id)); setIntermissionUpgradeInstalled(true); setShowResults(false); }}> {intermissionUpgradeInstalled ? "UPGRADE INSTALLED ✓" : "INSTALL UPGRADE ↗"}</button>
+        </div>
+        <div className="intermission-section-heading garage-intermission-heading"><div><span>STEP 02</span><h2>Development garage</h2></div><span className="research-counter">✦ {garageMeta.research} RESEARCH</span></div>
+        <p className="garage-progression-intro">Spend research on permanent blueprints that carry into future careers. Completed races earn 1 RP, with a podium bonus of 1 RP.</p>
+        <div className="garage-perk-grid">
+          {GARAGE_PERKS.map((perk) => { const owned = garageMeta.unlocks.includes(perk.id); const affordable = garageMeta.research >= perk.cost; return <article className={"garage-perk-card" + (owned ? " garage-perk-owned" : "")} key={perk.id}>
+            <div className="garage-perk-top"><span>{perk.category}</span><b>{owned ? "UNLOCKED" : perk.cost + " RP"}</b></div><h3>{perk.title}</h3><p>{perk.description}</p>
+            <button className={owned ? "garage-perk-button owned" : "garage-perk-button"} disabled={owned || !affordable} onClick={() => buyGaragePerk(perk.id, perk.cost)}>{owned ? "✓ PERMANENT BLUEPRINT" : affordable ? "UNLOCK BLUEPRINT ↗" : "NEED " + (perk.cost - garageMeta.research) + " MORE RP"}</button>
+          </article>; })}
+        </div>
+        <div className="intermission-bottom-row"><span>PERMANENT BLUEPRINTS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length} · SAVED LOCALLY</span><button className="primary-button" disabled={!intermissionUpgradeInstalled} onClick={startNextRace}>NEXT RACE ↗</button></div>
       </div>
     </div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE PADDOCK</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}</div></header>
