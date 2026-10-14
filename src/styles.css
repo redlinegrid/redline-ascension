@@ -938,30 +938,6 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 }
 
 
-/* Mobile panel alignment: all cards share the same full-width column, including telemetry and timing tower. */
-@media(max-width:760px){
-  .content-grid .panel,
-  .content-grid .race-control-alert{
-    box-sizing:border-box;
-    width:100%;
-    max-width:100%;
-    min-width:0;
-    margin-inline:0;
-    align-self:stretch;
-  }
-  .content-grid .race-panel,
-  .content-grid .standings-panel{
-    flex:1 1 auto;
-  }
-  .content-grid .standings-table{
-    width:100%;
-    max-width:100%;
-    min-width:0;
-    overflow-x:auto;
-  }
-}
-
-
 /* Micro-interaction pass: crisp tactile feedback without changing game logic. */
 :where(button, select, textarea, a){
   -webkit-tap-highlight-color:transparent;
@@ -1037,4 +1013,40 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     animation-iteration-count:1!important;
     transition-duration:.01ms!important;
   }
+}
+
+
+/* Mobile card sizing: keep every operations panel on the same outer column. */
+@media (max-width: 760px) {
+  .content-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .content-grid .content-column { display: contents; }
+  .content-grid .panel,
+  .content-grid .race-control-alert {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto;
+    align-self: stretch;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .content-grid .standings-panel { overflow: hidden; }
+  .content-grid .standings-table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .content-grid .standings-row,
+  .content-grid .table-header { min-width: 340px; }
 }
