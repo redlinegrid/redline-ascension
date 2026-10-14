@@ -146,43 +146,28 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
     <div className="circuit-hud"><span><i /> CIRCUIT TELEMETRY</span><b>SEED {circuitSeed.toString(16).toUpperCase().padStart(6, "0").slice(-6)}</b></div>
     <svg viewBox="0 0 380 220" role="img" aria-label={"Live circuit map for " + circuitName}>
       <defs>
-        <linearGradient id="track-surface" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#343943" />
-          <stop offset="50%" stopColor="#20242c" />
-          <stop offset="100%" stopColor="#2d3038" />
-        </linearGradient>
-        <linearGradient id="track-curb" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#ff3024" />
-          <stop offset="50%" stopColor="#f2f3f5" />
-          <stop offset="100%" stopColor="#ff3024" />
-        </linearGradient>
-        <filter id="track-glow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="4" />
-        </filter>
         <filter id="player-glow" x="-200%" y="-200%" width="400%" height="400%">
-          <feGaussianBlur stdDeviation="3" />
+          <feGaussianBlur stdDeviation="2.5" />
         </filter>
       </defs>
-      <path d={trackPath} fill="none" stroke="#ff3024" strokeWidth="38" opacity=".10" filter="url(#track-glow)" />
-      <path d={trackPath} fill="none" stroke="#080a0e" strokeWidth="38" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={trackPath} fill="none" stroke="url(#track-curb)" strokeWidth="34" strokeDasharray="7 5" strokeLinecap="butt" strokeLinejoin="round" opacity=".92" />
-      <path d={trackPath} fill="none" stroke="url(#track-surface)" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={trackPath} fill="none" stroke="#a7afbd" strokeWidth="1" strokeDasharray="3 5" opacity=".56" />
-      <path d={trackPath} fill="none" stroke="#ff4034" strokeWidth="1.5" strokeDasharray="16 1000" opacity=".9" />
+      {/* Redline Grid-inspired circuit treatment: clean white outline on black, with restrained sector colours. */}
+      <path d={trackPath} fill="none" stroke="#000000" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} fill="none" stroke="#f0f2f6" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#ff453a" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="0" strokeLinecap="butt" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-100" strokeLinecap="butt" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-200" strokeLinecap="butt" />
       <g transform={"translate(" + startFinish.x + " " + startFinish.y + ")"}>
-        <circle r="8" fill="#0a0c11" stroke="#f4f5f7" strokeWidth="1.5" />
-        <circle r="3" fill="#ff3024" />
-        <path d="M-12 -12h24" stroke="#ff3024" strokeWidth="2" />
+        <circle r="7" fill="#050609" stroke="#f4f5f7" strokeWidth="1.4" />
+        <path d="M-5 -5h10v10h-10z" fill="#f4f5f7" />
+        <path d="M-5 -5h5v5h-5zM0 0h5v5H0z" fill="#050609" />
       </g>
       <text x={startFinish.x + 12} y={startFinish.y - 12} className="track-marker-label">START / FINISH</text>
-      <g className="track-sector" transform={"translate(" + sectorOne.x + " " + sectorOne.y + ")"}><circle r="7" /><text y="2.5">S1</text></g>
-      <g className="track-sector" transform={"translate(" + sectorTwo.x + " " + sectorTwo.y + ")"}><circle r="7" /><text y="2.5">S2</text></g>
+      <g className="track-sector sector-one" transform={"translate(" + sectorOne.x + " " + sectorOne.y + ")"}><circle r="7" /><text y="2.5">S1</text></g>
+      <g className="track-sector sector-two" transform={"translate(" + sectorTwo.x + " " + sectorTwo.y + ")"}><circle r="7" /><text y="2.5">S2</text></g>
       <g className="track-core">
-        <rect x="132" y="82" width="116" height="57" rx="5" />
-        <path d="M144 95h12m-12 4h6" />
-        <text x="190" y="108" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
-        <text x="190" y="121" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
-        <text x="190" y="132" textAnchor="middle" className="track-center-live">● LIVE TIMING</text>
+        <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
+        <text x="190" y="118" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
+        <text x="190" y="131" textAnchor="middle" className="track-center-live">● LIVE TIMING</text>
       </g>
       {points.map((car) => <g key={car.id}>
         {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".2" filter="url(#player-glow)" />}
