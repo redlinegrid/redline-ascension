@@ -887,3 +887,15 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .content-grid .event-panel{order:5}
   .content-grid .upgrade-panel{order:6}
 }
+
+
+/* Pit wall: show Driver 1 and Driver 2 side by side on desktop. */
+@media(min-width:1101px){
+  .strategy-panel .strategy-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .strategy-panel .driver-strategy{padding:14px 12px;}
+  .strategy-panel .driver-strategy+.driver-strategy{border-left:1px solid var(--line);border-top:0;}
+  .strategy-panel .driver-head{gap:8px;}
+  .strategy-panel .driver-number{min-width:30px;height:30px;font-size:18px;}
+  .strategy-panel .driver-metrics{grid-template-columns:minmax(0,1fr);gap:10px;margin:12px 0;}
+  .strategy-panel .strategy-row{grid-template-columns:minmax(0,1fr);}
+}
