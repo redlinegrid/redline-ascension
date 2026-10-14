@@ -1,6 +1,7 @@
 export type Tyre = "SOFT" | "MEDIUM" | "HARD";
 export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished" | "gameover";
+export type GameMode = "championship" | "endless";
 export const CAMPAIGN_LENGTH = 20;
 export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
@@ -109,6 +110,7 @@ export interface PaddockEvent { id: string; category: "FIA PROTEST" | "PADDOCK P
 export interface DriverContract { id: string; driverName: string; salaryPerRace: number; expiresAtRound: number; renewed: boolean; loyalty: number; }
 export interface RaceState {
   version: 1;
+  mode?: GameMode;
   status: RaceStatus;
   lap: number;
   totalLaps: number;
@@ -166,13 +168,13 @@ function makeCar(id: string, driver: string, team: string, teamColor: string, pl
     pitStops: 0, pitDelay: 0, condition: 100, lastLap: 0, bestLap: 0, finishTime: null, finished: false,
   };
 }
-export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka", playerPrincipalName = "Team Principal"): RaceState {
+export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weekendNumber = 1, playerTeamName = "Redline GP", firstDriverName = "Alex Mercer", secondDriverName = "Mika Tanaka", playerPrincipalName = "Team Principal", mode: GameMode = "championship"): RaceState {
   const safeTeamName = playerTeamName.trim().slice(0, 24) || "Redline GP";
   const circuitSeed = (seed ^ Math.imul(weekendNumber + 37, 2246822519)) >>> 0;
   const circuitNames = ["Copperhead Ring", "Monsoon Park", "Granite Valley", "Nightfall Circuit", "Cobalt Coast", "Redwood Raceway", "Sundown Autodrome", "Ironclad Park", "Tempest Circuit", "Silver Basin", "Emberstone GP", "Highland Loop", "Mirage International", "Blackstone Raceway", "Aurora Park", "Thunder Ridge", "Mariner Circuit", "Crimson Dunes", "Summit Ring", "Neon Harbour"];
   const circuitName = circuitNames[(circuitSeed >>> 8) % circuitNames.length];
   const circuitLengthFactor = 0.94 + ((circuitSeed >>> 16) % 1200) / 10000;
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [], teamMorale: 62, teamReputation: 45, pendingPaddockEvent: null, paddockEventRound: 0, resolvedPaddockEvents: [], driverContracts: [] };
+  const state: RaceState = { version: 1, mode, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [], teamMorale: 62, teamReputation: 45, pendingPaddockEvent: null, paddockEventRound: 0, resolvedPaddockEvents: [], driverContracts: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },
@@ -313,7 +315,7 @@ export function stepRace(current: RaceState): RaceState {
       const points = POINTS_BY_POSITION[index] ?? 0;
       state.teamPoints![car.team] = (state.teamPoints![car.team] ?? 0) + points;
     });
-    if (state.weekendNumber >= CAMPAIGN_LENGTH) {
+    if ((state.mode ?? "championship") === "championship" && state.weekendNumber >= CAMPAIGN_LENGTH) {
       state.status = "gameover";
       addEvent(state, "Campaign complete. Final championship points have been locked.", "finish");
     } else {
