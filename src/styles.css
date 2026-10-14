@@ -517,3 +517,43 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Dynamic strategy and race-control alerts */
 .race-control-alert{display:flex;gap:12px;align-items:flex-start;margin:0 0 18px;padding:14px 16px;border:1px solid rgba(255,174,77,.35);background:rgba(255,174,77,.07);border-radius:8px}.race-control-alert>span{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid currentColor;border-radius:4px;font:700 10px var(--mono);color:#ffb36a}.race-control-alert strong{font:700 10px var(--mono);letter-spacing:.1em;color:#ffd19c}.race-control-alert p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.6}.safety-car-alert{border-color:rgba(255,210,76,.55);background:linear-gradient(100deg,rgba(255,194,45,.12),rgba(255,255,255,.015))}.safety-car-alert>span{color:#ffcf4d}.safety-car-alert strong{color:#ffdf76}
+
+
+/* Dedicated between-race upgrade and garage phase */
+.career-intermission-screen {
+  position: fixed; inset: 0; z-index: 120; overflow-y: auto; overscroll-behavior: contain;
+  background: #090b10; color: #f3f4f6; padding: 20px clamp(16px, 4vw, 56px) 36px;
+}
+.career-intermission-topline { display:flex; justify-content:space-between; gap:16px; align-items:center; border-bottom:1px solid #2b3039; padding:4px 0 16px; color:#a6acb8; font-size:11px; letter-spacing:.13em; font-weight:800; }
+.career-intermission-topline i { display:inline-block; width:5px; height:5px; background:#ff3024; border-radius:50%; margin:0 8px 2px; }
+.career-intermission-content { max-width:1180px; margin:30px auto 0; }
+.career-intermission-content > .section-kicker { color:#ff655b; font-size:11px; letter-spacing:.16em; font-weight:800; }
+.career-intermission-content > h1 { margin:10px 0; font-size:clamp(32px,5vw,56px); line-height:1.04; letter-spacing:-.045em; }
+.career-intermission-content > h1 em { color:#ff4b40; font-style:normal; }
+.career-intermission-intro { max-width:680px; color:#aeb4c0; line-height:1.65; margin:0 0 22px; }
+.intermission-summary { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0 32px; }
+.intermission-summary span { background:#12151c; border:1px solid #292e38; border-radius:8px; padding:12px 15px; color:#a9afbb; font-size:10px; letter-spacing:.08em; }
+.intermission-summary b { display:block; color:#f5f6f8; font-size:14px; margin-top:5px; letter-spacing:0; }
+.intermission-section-heading { display:flex; align-items:end; justify-content:space-between; gap:14px; margin:28px 0 14px; }
+.intermission-section-heading span, .intermission-section-heading small { color:#ff655b; font-size:10px; letter-spacing:.13em; font-weight:800; }
+.intermission-section-heading h2 { margin:4px 0 0; font-size:22px; }
+.intermission-section-heading small { color:#89919e; }
+.intermission-upgrade-grid { margin-top:0; }
+.intermission-action-row { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px; margin-top:14px; border:1px solid #303641; border-radius:10px; background:#11141b; }
+.intermission-action-row > div { display:grid; gap:5px; }
+.intermission-action-row .section-kicker { color:#89919e; font-size:10px; letter-spacing:.1em; }
+.intermission-action-row strong { font-size:17px; }
+.intermission-action-row p { color:#aeb4c0; font-size:12px; margin:0; }
+.garage-intermission-heading { margin-top:34px; }
+.career-intermission-content .garage-progression-intro { color:#aeb4c0; font-size:13px; line-height:1.6; }
+.intermission-bottom-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:22px; margin-top:22px; border-top:1px solid #2b3039; }
+.intermission-bottom-row > span { color:#89919e; font-size:10px; letter-spacing:.1em; }
+.intermission-bottom-row .primary-button, .intermission-action-row .primary-button { flex-shrink:0; }
+@media (max-width:700px) {
+  .career-intermission-screen { padding:14px 14px 28px; }
+  .career-intermission-topline { font-size:9px; letter-spacing:.07em; }
+  .career-intermission-content { margin-top:22px; }
+  .intermission-section-heading { align-items:start; flex-direction:column; }
+  .intermission-action-row, .intermission-bottom-row { align-items:stretch; flex-direction:column; }
+  .intermission-action-row .primary-button, .intermission-bottom-row .primary-button { width:100%; }
+}
