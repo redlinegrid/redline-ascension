@@ -120,6 +120,8 @@ export interface RaceState {
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
   playerPrincipalName?: string;
+  playerTeamColor?: string;
+  playerTeamSecondaryColor?: string;
   circuitSeed?: number;
   circuitName?: string;
   circuitLengthFactor?: number;
