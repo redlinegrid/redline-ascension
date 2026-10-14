@@ -1112,3 +1112,17 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     max-height: 112px;
   }
 }
+
+
+/* Keep all Race Control summary figures balanced on mobile, including team budget. */
+@media (max-width: 760px) {
+  .stat-strip .stat-cell > strong {
+    font-size: 22px;
+    line-height: 1.1;
+  }
+}
+@media (max-width: 390px) {
+  .stat-strip .stat-cell > strong {
+    font-size: 18px;
+  }
+}
