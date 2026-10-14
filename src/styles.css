@@ -1221,3 +1221,10 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .start-screen-content[data-onboarding-step="mode"] .start-screen-utility-actions{margin-top:12px}
 .start-screen-content[data-onboarding-step="team"] .start-screen-utility-actions{display:none}
 @media(max-width:600px){.onboarding-step-footer{align-items:stretch;flex-direction:column}.onboarding-step-footer>div{display:grid;grid-template-columns:1fr}.onboarding-step-footer .primary-button,.onboarding-step-footer .secondary-button{width:100%;justify-content:center}.onboarding-step-indicator{gap:8px}.onboarding-step-indicator span{font-size:8px}}
+
+
+/* Keep save/continue utilities on the first screen, not inside setup steps. */
+.start-screen-content[data-onboarding-step="team"] .continue-career-button,
+.start-screen-content[data-onboarding-step="team"] .start-save-transfer,
+.start-screen-content[data-onboarding-step="drivers"] .continue-career-button,
+.start-screen-content[data-onboarding-step="drivers"] .start-save-transfer{display:none!important}
