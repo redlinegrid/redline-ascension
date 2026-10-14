@@ -363,7 +363,11 @@ export default function App() {
   const [garageMeta, setGarageMeta] = useState<GarageMeta>(() => loadGarageMeta());
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
-  const [showResults, setShowResults] = useState(false);\n  const [showSaveTransfer, setShowSaveTransfer] = useState(false);\n  const [saveCode, setSaveCode] = useState("");\n  const [importCode, setImportCode] = useState("");\n  const [saveTransferMessage, setSaveTransferMessage] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [showSaveTransfer, setShowSaveTransfer] = useState(false);
+  const [saveCode, setSaveCode] = useState("");
+  const [importCode, setImportCode] = useState("");
+  const [saveTransferMessage, setSaveTransferMessage] = useState("");
   const [selectedDraftId, setSelectedDraftId] = useState("");
   const playerTeamName = race.playerTeamName ?? race.cars.find((car) => car.playerCar)?.team ?? "Redline GP";
   const redlinePoints = race.teamPoints?.[playerTeamName] ?? 0;
