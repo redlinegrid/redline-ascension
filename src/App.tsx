@@ -71,7 +71,7 @@ function applyGarageBonuses<T extends RaceState>(state: T, meta: GarageMeta, new
     upgradeModules: modules,
     permanentPerks: Object.fromEntries(GARAGE_PERKS.map((perk) => [perk.id, level(perk.id)])),
     teamMorale: Math.min(100, (state.teamMorale ?? 62) + (newCareer ? level("staff-training") * 2 : 0)),
-    driverContracts: (state.driverContracts ?? []).map((contract) => ({ ...contract, salaryPerRace: Math.max(20000, Math.round(contract.salaryPerRace * (1 - level("contract-negotiation") * 0.03))) })),
+    driverContracts: newCareer ? (state.driverContracts ?? []).map((contract) => ({ ...contract, salaryPerRace: Math.max(20000, Math.round(contract.salaryPerRace * (1 - level("contract-negotiation") * 0.03))) })) : state.driverContracts,
   };
 }
 type BestRun = { points: number; position: number; seed: number };
@@ -684,15 +684,15 @@ export default function App() {
     if (contracts.some((contract) => contract.expiresAtRound <= race.weekendNumber)) return;
     const drivers = contracts.length >= 2 ? contracts.map((contract) => contract.driverName) : [playerCars[0]?.driver ?? "Luca Moretti", playerCars[1]?.driver ?? "Emil Novak"];
     const payroll = contracts.reduce((sum, contract) => sum + contract.salaryPerRace, 0);
-    const operatingCost = 215000 + payroll + 65000;
-    const sponsorIncome = Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800);
+    const operatingCost = Math.round((215000 + payroll + 65000) * Math.max(0.65, 1 - garageLevel(garageMeta, "repair-efficiency") * 0.015 - garageLevel(garageMeta, "factory-workflow") * 0.01 - garageLevel(garageMeta, "budget-management") * 0.015));
+    const sponsorIncome = Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800 + garageLevel(garageMeta, "sponsor-network") * 20000);
     if (race.cash + sponsorIncome < operatingCost) {
       setRace((current) => ({ ...current, status: "gameover", endReason: "bankruptcy", pendingPaddockEvent: null, lastOperatingCost: operatingCost, lastSponsorIncome: sponsorIncome }));
       setShowIntermission(false);
       return;
     }
     const nextCash = race.cash + sponsorIncome - operatingCost;
-    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "sponsor-network") * 20000 + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
+    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
     next.teamMorale = race.teamMorale ?? 62;
