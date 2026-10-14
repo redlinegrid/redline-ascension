@@ -280,7 +280,7 @@ export function stepRace(current: RaceState): RaceState {
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
-        car.pitDelay = car.playerCar && (state.buildTraits ?? []).includes("pit-crew") ? 1 : 2; car.pitStops += 1; car.tyreWear = 0.02;
+        car.pitDelay = car.playerCar && ((state.buildTraits ?? []).includes("pit-crew") || (state.permanentPerks?.["pit-crew-training"] ?? 0) > 0) ? 1 : 2; car.pitStops += 1; car.tyreWear = 0.02;
         car.tyre = car.nextTyre;
         addEvent(state, car.playerCar ? car.driver + " pits for " + car.tyre.toLowerCase() + " tyres." : car.driver + " (" + car.team + ") pits.", "pit");
       }
