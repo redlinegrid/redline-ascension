@@ -1075,3 +1075,40 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @media (max-width: 390px) {
   .strategy-panel .pitwall-art > svg { max-height: 112px; }
 }
+
+
+/* Fix the actual Race Control page-header artwork on narrow screens. */
+@media (max-width: 760px) {
+  .page-heading {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .page-heading > .pitwall-art {
+    left: 24%;
+    right: 0;
+    width: auto;
+    max-width: 76%;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .page-heading > .pitwall-art > svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 132px;
+    transform: none;
+    object-fit: contain;
+  }
+}
+@media (max-width: 390px) {
+  .page-heading > .pitwall-art {
+    left: 27%;
+    right: 0;
+    max-width: 73%;
+  }
+  .page-heading > .pitwall-art > svg {
+    max-height: 112px;
+  }
+}
