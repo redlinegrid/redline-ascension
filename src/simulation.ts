@@ -104,6 +104,9 @@ export interface CarState {
   finished: boolean;
 }
 export interface RaceEvent { id: number; lap: number; message: string; kind: "info" | "pit" | "battle" | "warning" | "finish"; }
+export interface PaddockChoice { id: string; label: string; description: string; cashDelta: number; moraleDelta: number; reputationDelta: number; }
+export interface PaddockEvent { id: string; category: "FIA PROTEST" | "PADDOCK POLITICS" | "TEAM DRAMA" | "COMMERCIAL"; title: string; source: string; story: string; choices: PaddockChoice[]; }
+export interface DriverContract { id: string; driverName: string; salaryPerRace: number; expiresAtRound: number; renewed: boolean; loyalty: number; }
 export interface RaceState {
   version: 1;
   status: RaceStatus;
@@ -130,6 +133,15 @@ export interface RaceState {
   safetyCarTicks?: number;
   safetyCarActive?: boolean;
   incidentCount?: number;
+  teamMorale?: number;
+  teamReputation?: number;
+  pendingPaddockEvent?: PaddockEvent | null;
+  paddockEventRound?: number;
+  resolvedPaddockEvents?: string[];
+  driverContracts?: DriverContract[];
+  endReason?: "bankruptcy" | "championship";
+  lastOperatingCost?: number;
+  lastSponsorIncome?: number;
 }
 const TYRE_PACE_FACTOR: Record<Tyre, number> = { SOFT: 0.985, MEDIUM: 1, HARD: 1.018 };
 const TYRE_WEAR_RATE: Record<Tyre, number> = { SOFT: 1.4, MEDIUM: 1, HARD: 0.72 };
@@ -160,7 +172,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
   const circuitNames = ["Copperhead Ring", "Monsoon Park", "Granite Valley", "Nightfall Circuit", "Cobalt Coast", "Redwood Raceway", "Sundown Autodrome", "Ironclad Park", "Tempest Circuit", "Silver Basin", "Emberstone GP", "Highland Loop", "Mirage International", "Blackstone Raceway", "Aurora Park", "Thunder Ridge", "Mariner Circuit", "Crimson Dunes", "Summit Ring", "Neon Harbour"];
   const circuitName = circuitNames[(circuitSeed >>> 8) % circuitNames.length];
   const circuitLengthFactor = 0.94 + ((circuitSeed >>> 16) % 1200) / 10000;
-  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [] };
+  const state: RaceState = { version: 1, status: "ready", lap: 1, totalLaps: 18, elapsedSeconds: 0, seed, eventSequence: 0, cash, upgradeLevel, upgradeModules: { aero: 0, power: 0, suspension: 0, reliability: 0 }, weekendNumber, playerTeamName: safeTeamName, playerPrincipalName: playerPrincipalName.trim().slice(0, 32) || "Team Principal", circuitSeed, circuitName, circuitLengthFactor, teamPoints: {}, cars: [], events: [], teamMorale: 62, teamReputation: 45, pendingPaddockEvent: null, paddockEventRound: 0, resolvedPaddockEvents: [], driverContracts: [] };
   const roster: Array<{ id: string; driver: string; team: string; color: string; player: boolean; progress: number }> = [
     { id: "rp-1", driver: firstDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0.025 },
     { id: "rp-2", driver: secondDriverName, team: safeTeamName, color: "#f04438", player: true, progress: 0 },

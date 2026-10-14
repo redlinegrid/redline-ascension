@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
@@ -22,6 +22,53 @@ const GARAGE_PERKS = [
 type BestRun = { points: number; position: number; seed: number };
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
+
+const PADDOCK_EVENT_DECK: PaddockEvent[] = [
+ {id:"floor-protest",category:"FIA PROTEST",title:"A Rival Files a Technical Protest",source:"FIA TECHNICAL DELEGATE",story:"A rival alleges that your latest floor concept exploits a grey area in the technical regulations. Officials want documentation before qualifying. Your engineers believe the design is defensible, but a forced modification could cost performance.",choices:[
+ {id:"defend",label:"Defend the design",description:"Commission an urgent technical review. Expensive, but a successful defence protects the upgrade.",cashDelta:-140000,moraleDelta:3,reputationDelta:5},
+ {id:"modify",label:"Make a precautionary change",description:"Lose some engineering momentum to reduce the risk of a penalty.",cashDelta:-80000,moraleDelta:-1,reputationDelta:1},
+ {id:"cooperate",label:"Cooperate with inspectors",description:"Share the documentation and accept a disruptive inspection window.",cashDelta:-30000,moraleDelta:0,reputationDelta:3}]},
+ {id:"sponsor-pressure",category:"COMMERCIAL",title:"The Sponsor Wants a Statement",source:"COMMERCIAL DEPARTMENT",story:"Your principal sponsor wants more visibility after disappointing results. They are considering reducing future support unless the team commits to a promotional appearance before the race.",choices:[
+ {id:"accept",label:"Accept the activation",description:"Protect the commercial relationship and receive an immediate payment, at the cost of preparation time.",cashDelta:180000,moraleDelta:-2,reputationDelta:2},
+ {id:"negotiate",label:"Negotiate a smaller activation",description:"Secure a modest payment while keeping the drivers focused.",cashDelta:90000,moraleDelta:1,reputationDelta:1},
+ {id:"refuse",label:"Protect race preparation",description:"Reject the demand. The team stays focused, but the sponsor relationship cools.",cashDelta:0,moraleDelta:3,reputationDelta:-6}]},
+ {id:"radio-leak",category:"PADDOCK POLITICS",title:"A Radio Message Leaks",source:"PADDOCK MEDIA",story:"A clipped team-radio exchange is circulating online. Rival principals suggest your drivers were ordered to manipulate track position. The full recording is more nuanced, but the story is gathering attention.",choices:[
+ {id:"transparent",label:"Release the full context",description:"Pay for communications support and make the recording public.",cashDelta:-65000,moraleDelta:2,reputationDelta:7},
+ {id:"quiet",label:"Keep the team quiet",description:"Avoid feeding the story, accepting that speculation may continue.",cashDelta:0,moraleDelta:-1,reputationDelta:-2},
+ {id:"counter",label:"Challenge the rival publicly",description:"Fight back loudly. It may rally the team, but escalates paddock tension.",cashDelta:-25000,moraleDelta:4,reputationDelta:-1}]},
+ {id:"supplier-crisis",category:"TEAM DRAMA",title:"A Supplier Misses the Deadline",source:"CHIEF MECHANIC",story:"A critical component shipment has been delayed. Your mechanics can rework an older part, pay for an emergency shipment or accept a compromise that increases reliability risk.",choices:[
+ {id:"express",label:"Pay for emergency delivery",description:"Protect preparation time with an expensive courier and supplier fee.",cashDelta:-125000,moraleDelta:2,reputationDelta:1},
+ {id:"reuse",label:"Rework the older component",description:"Save money through extra workshop hours. The crew will be tired, but the job is manageable.",cashDelta:-45000,moraleDelta:-2,reputationDelta:0},
+ {id:"discount",label:"Accept the compromise",description:"Keep cash in reserve, knowing the reliability margin will be thinner.",cashDelta:0,moraleDelta:-1,reputationDelta:-1}]},
+ {id:"driver-ultimatum",category:"TEAM DRAMA",title:"Your Driver Wants a Contract Meeting",source:"DRIVER MANAGEMENT",story:"One driver believes the team has underinvested in performance and wants clarity about their future. A respectful meeting could preserve trust; ignoring the issue may make the next contract review more expensive.",choices:[
+ {id:"commit",label:"Offer a performance commitment",description:"Invest in the relationship and signal that the driver is part of the plan.",cashDelta:-90000,moraleDelta:7,reputationDelta:1},
+ {id:"honest",label:"Set realistic expectations",description:"Be candid about the budget. It costs nothing, but the driver may be disappointed.",cashDelta:0,moraleDelta:1,reputationDelta:0},
+ {id:"pressure",label:"Tell them to focus on racing",description:"Avoid a financial commitment, but risk losing trust in the garage.",cashDelta:0,moraleDelta:-8,reputationDelta:-1}]},
+ {id:"rival-poach",category:"PADDOCK POLITICS",title:"A Rival Is Courting Your Engineer",source:"TECHNICAL DIRECTOR",story:"A better-funded rival has approached one of your key engineers. You can make a retention offer, offer a non-financial role commitment or let them explore the market.",choices:[
+ {id:"retain",label:"Make a retention offer",description:"Pay a retention bonus to protect continuity in the engineering group.",cashDelta:-160000,moraleDelta:4,reputationDelta:2},
+ {id:"promote",label:"Offer a bigger technical role",description:"Promise more responsibility and keep cash for car development.",cashDelta:-35000,moraleDelta:5,reputationDelta:1},
+ {id:"release",label:"Let them explore",description:"Keep the budget intact, but the uncertainty unsettles the team.",cashDelta:0,moraleDelta:-5,reputationDelta:-1}]},
+ {id:"scrutineering",category:"FIA PROTEST",title:"Random Scrutineering Notice",source:"FIA SCRUTINEERING",story:"Officials select your car for an additional pre-session inspection after a rival raises questions about your setup. No violation has been established. The team can prepare a full technical case or take a conservative setup approach.",choices:[
+ {id:"full-case",label:"Prepare the technical case",description:"Spend on engineering documentation and defend the current specification.",cashDelta:-100000,moraleDelta:2,reputationDelta:4},
+ {id:"conservative",label:"Run a conservative setup",description:"Give away some potential pace and reduce the chance of a prolonged dispute.",cashDelta:-25000,moraleDelta:0,reputationDelta:1},
+ {id:"appeal",label:"Request formal clarification",description:"Pay a smaller fee to clarify the rule and reduce future uncertainty.",cashDelta:-55000,moraleDelta:1,reputationDelta:3}]},
+ {id:"unexpected-bonus",category:"COMMERCIAL",title:"A Sponsor Offers a Survival Bonus",source:"COMMERCIAL DEPARTMENT",story:"A partner offers an emergency payment if the team can provide a strong story for the weekend. You can accept a straightforward exposure package, negotiate a smaller commitment or decline to protect the team's independence.",choices:[
+ {id:"take-bonus",label:"Accept the bonus",description:"Bring in cash immediately, with a modest hit to staff time.",cashDelta:240000,moraleDelta:-1,reputationDelta:1},
+ {id:"small-deal",label:"Negotiate a smaller deal",description:"Take less money while keeping the workload manageable.",cashDelta:130000,moraleDelta:1,reputationDelta:1},
+ {id:"decline-bonus",label:"Decline the offer",description:"Keep full focus on racing and maintain independence.",cashDelta:0,moraleDelta:2,reputationDelta:0}]}
+];
+function createPaddockEvent(race: RaceState): PaddockEvent {
+ const previous = race.resolvedPaddockEvents ?? [];
+ const candidates = PADDOCK_EVENT_DECK.filter((event) => !previous.slice(-3).includes(event.id));
+ const pool = candidates.length ? candidates : PADDOCK_EVENT_DECK;
+ const seed = (race.seed ^ Math.imul(race.weekendNumber + 31, 2246822519)) >>> 0;
+ return pool[seed % pool.length];
+}
+function driverSalary(name: string): number {
+ const profile = DRIVER_MARKET.find((driver) => driver.name === name);
+ return Math.round((42000 + Math.max(0, (profile?.pace ?? 80) - 75) * 3200) / 5000) * 5000;
+}
+
 const TEAM_COLOR_PRESETS = [
   { name: "Racing Red", primary: "#f04438", secondary: "#f2f2f2" },
   { name: "Midnight Blue", primary: "#2864dc", secondary: "#dce9ff" },
@@ -66,7 +113,11 @@ function loadRace(): RaceState {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
       const saved = JSON.parse(raw) as RaceState;
-      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length >= 10) return ensureFullGrid({ ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 } });
+      if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length >= 10) {
+        const playerDrivers = saved.cars.filter((car) => car.playerCar).slice(0, 2);
+        const migrated: RaceState = { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }, teamMorale: saved.teamMorale ?? 62, teamReputation: saved.teamReputation ?? 45, pendingPaddockEvent: saved.pendingPaddockEvent ?? null, paddockEventRound: saved.paddockEventRound ?? 0, resolvedPaddockEvents: saved.resolvedPaddockEvents ?? [], driverContracts: saved.driverContracts?.length ? saved.driverContracts : playerDrivers.map((car, index) => ({ id: "driver-" + (index + 1), driverName: car.driver, salaryPerRace: driverSalary(car.driver), expiresAtRound: 10, renewed: false, loyalty: 60 })) };
+        return ensureFullGrid(migrated);
+      }
     }
   } catch { /* Ignore a damaged local save and start a new career. */ }
   return createRace();
@@ -506,6 +557,8 @@ export default function App() {
   const [importCode, setImportCode] = useState("");
   const [saveTransferMessage, setSaveTransferMessage] = useState("");
   const [selectedDraftId, setSelectedDraftId] = useState("");
+  const [replacementDriverOne, setReplacementDriverOne] = useState("Theo Laurent");
+  const [replacementDriverTwo, setReplacementDriverTwo] = useState("Rafael Costa");
   const playerTeamName = race.playerTeamName ?? race.cars.find((car) => car.playerCar)?.team ?? "Redline GP";
   const redlinePoints = race.teamPoints?.[playerTeamName] ?? 0;
   const teamRankings = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
@@ -518,9 +571,14 @@ export default function App() {
     try { localStorage.setItem(GARAGE_META_KEY, JSON.stringify(garageMeta)); } catch { /* Optional persistent storage. */ }
   }, [garageMeta]);
   useEffect(() => {
-    if (race.status === "finished" && !showInitialDraft) setShowIntermission(true);
+    if (race.status === "finished" && !showInitialDraft) {
+      setShowIntermission(true);
+      if (race.weekendNumber < CAMPAIGN_LENGTH && !race.pendingPaddockEvent && (race.paddockEventRound ?? 0) !== race.weekendNumber) {
+        setRace((current) => current.status !== "finished" || current.pendingPaddockEvent || (current.paddockEventRound ?? 0) === current.weekendNumber ? current : { ...current, pendingPaddockEvent: createPaddockEvent(current), paddockEventRound: current.weekendNumber });
+      }
+    }
     if (race.status !== "finished") { setShowIntermission(false); setIntermissionUpgradeInstalled(false); }
-  }, [race.status, showInitialDraft]);
+  }, [race.status, showInitialDraft, race.weekendNumber, race.pendingPaddockEvent, race.paddockEventRound]);
   useEffect(() => {
     if (race.status !== "finished" && race.status !== "gameover") return;
     const runId = race.seed + ":" + race.weekendNumber;
@@ -551,6 +609,12 @@ export default function App() {
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string, primary = teamPrimaryColor, secondary = teamSecondaryColor) => {
     const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal);
+    fresh.teamMorale = 62;
+    fresh.teamReputation = 45;
+    fresh.driverContracts = [driverOne, driverTwo].map((driverName, index) => ({ id: "driver-" + (index + 1), driverName, salaryPerRace: driverSalary(driverName), expiresAtRound: 10, renewed: false, loyalty: 60 }));
+    fresh.paddockEventRound = 0;
+    fresh.pendingPaddockEvent = null;
+    fresh.resolvedPaddockEvents = [];
     fresh.playerTeamColor = primary;
     fresh.playerTeamSecondaryColor = secondary;
     fresh.cars = fresh.cars.map((car) => car.playerCar ? { ...car, teamColor: primary } : car);
@@ -560,9 +624,31 @@ export default function App() {
     return fresh;
   };
   const startNextRace = () => {
-    if (!intermissionUpgradeInstalled || race.status !== "finished") return;
+    if (!intermissionUpgradeInstalled || race.status !== "finished" || race.pendingPaddockEvent) return;
     const playerCars = race.cars.filter((car) => car.playerCar);
-    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, race.cash, race.weekendNumber + 1, playerTeamName, playerCars[0]?.driver ?? "Alex Mercer", playerCars[1]?.driver ?? "Mika Tanaka", race.playerPrincipalName ?? "Team Principal");
+    const contracts = race.driverContracts ?? [];
+    if (contracts.some((contract) => contract.expiresAtRound <= race.weekendNumber)) return;
+    const drivers = contracts.length >= 2 ? contracts.map((contract) => contract.driverName) : [playerCars[0]?.driver ?? "Luca Moretti", playerCars[1]?.driver ?? "Emil Novak"];
+    const payroll = contracts.reduce((sum, contract) => sum + contract.salaryPerRace, 0);
+    const operatingCost = 215000 + payroll + 65000;
+    const sponsorIncome = Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800);
+    if (race.cash + sponsorIncome < operatingCost) {
+      setRace((current) => ({ ...current, status: "gameover", endReason: "bankruptcy", pendingPaddockEvent: null, lastOperatingCost: operatingCost, lastSponsorIncome: sponsorIncome }));
+      setShowIntermission(false);
+      return;
+    }
+    const nextCash = race.cash + sponsorIncome - operatingCost;
+    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal");
+    next.lastOperatingCost = operatingCost;
+    next.lastSponsorIncome = sponsorIncome;
+    next.teamMorale = race.teamMorale ?? 62;
+    next.teamReputation = race.teamReputation ?? 45;
+    next.driverContracts = contracts.map((contract) => ({ ...contract }));
+    next.resolvedPaddockEvents = [...(race.resolvedPaddockEvents ?? [])];
+    next.paddockEventRound = race.weekendNumber;
+    next.pendingPaddockEvent = null;
+    const moraleModifier = ((next.teamMorale ?? 62) - 60) * 0.055;
+    next.cars = next.cars.map((car) => car.playerCar ? { ...car, driverPace: Math.max(55, Math.min(99, car.driverPace + moraleModifier)), driverConsistency: Math.max(55, Math.min(99, car.driverConsistency + moraleModifier * 0.7)) } : car);
     next.playerTeamColor = race.playerTeamColor ?? playerCars[0]?.teamColor ?? teamPrimaryColor;
     next.playerTeamSecondaryColor = race.playerTeamSecondaryColor ?? teamSecondaryColor;
     next.cars = next.cars.map((car) => car.playerCar ? { ...car, teamColor: next.playerTeamColor! } : car);
@@ -574,6 +660,33 @@ export default function App() {
     setIntermissionUpgradeInstalled(false);
     setShowResults(false);
     setSelectedDraftId("");
+  };
+  const resolvePaddockChoice = (choiceId: string) => {
+    setRace((current) => {
+      const event = current.pendingPaddockEvent;
+      const choice = event?.choices.find((item) => item.id === choiceId);
+      if (!event || !choice || current.cash + choice.cashDelta < 0) return current;
+      return { ...current, cash: current.cash + choice.cashDelta, teamMorale: Math.max(0, Math.min(100, (current.teamMorale ?? 62) + choice.moraleDelta)), teamReputation: Math.max(0, Math.min(100, (current.teamReputation ?? 45) + choice.reputationDelta)), pendingPaddockEvent: null, resolvedPaddockEvents: [...(current.resolvedPaddockEvents ?? []), event.id].slice(-20), events: [{ id: current.eventSequence + 1, lap: current.totalLaps, message: "PADDOCK: " + event.title + " — " + choice.label + ".", kind: "info" }, ...current.events].slice(0, 14), eventSequence: current.eventSequence + 1 };
+    });
+  };
+  const renewDriverContract = (contractId: string) => {
+    setRace((current) => {
+      const contract = current.driverContracts?.find((item) => item.id === contractId);
+      const renewalFee = 125000;
+      if (!contract || current.cash < renewalFee) return current;
+      return { ...current, cash: current.cash - renewalFee, driverContracts: current.driverContracts!.map((item) => item.id === contractId ? { ...item, salaryPerRace: Math.round(item.salaryPerRace * 1.12 / 5000) * 5000, expiresAtRound: CAMPAIGN_LENGTH, renewed: true, loyalty: Math.min(100, item.loyalty + 8) } : item), teamMorale: Math.min(100, (current.teamMorale ?? 62) + 3) };
+    });
+  };
+  const replaceDriverContract = (contractId: string, replacementName: string) => {
+    setRace((current) => {
+      const contract = current.driverContracts?.find((item) => item.id === contractId);
+      const other = current.driverContracts?.find((item) => item.id !== contractId)?.driverName;
+      const profile = DRIVER_MARKET.find((driver) => driver.name === replacementName);
+      if (!contract || !profile || replacementName === other) return current;
+      const severance = contract.salaryPerRace * 2;
+      if (current.cash < severance) return current;
+      return { ...current, cash: current.cash - severance, driverContracts: current.driverContracts!.map((item) => item.id === contractId ? { ...item, driverName: replacementName, salaryPerRace: driverSalary(replacementName), expiresAtRound: CAMPAIGN_LENGTH, renewed: true, loyalty: 55 } : item), teamMorale: Math.max(0, (current.teamMorale ?? 62) - 3) };
+    });
   };
   const buyGaragePerk = (id: string, cost: number) => {
     if (garageMeta.unlocks.includes(id) || garageMeta.research < cost) return;
@@ -648,7 +761,10 @@ export default function App() {
         <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
         <h1 id="intermission-title">Build your <em>next advantage.</em></h1>
         <p className="career-intermission-intro">Review the weekend, choose one upgrade for this career, then visit the garage before heading to the next circuit.</p>
-        <div className="intermission-summary"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>DEVELOPMENT PICKS <b>{race.upgradeLevel}</b></span><span>RESEARCH BANK <b>✦ {garageMeta.research} RP</b></span></div>
+        <div className="intermission-summary"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>TEAM MORALE <b>{race.teamMorale ?? 62}/100</b></span><span>PADDOCK REPUTATION <b>{race.teamReputation ?? 45}/100</b></span><span>RESEARCH BANK <b>✦ {garageMeta.research} RP</b></span></div>
+        {race.pendingPaddockEvent && <section className="panel paddock-event-panel" aria-label="Paddock incident"><div className="paddock-event-top"><div><div className="section-kicker">{race.pendingPaddockEvent.category} · PRE-RACE BRIEFING</div><h2>{race.pendingPaddockEvent.title}</h2></div><span className="paddock-alert-badge">PADDOCK ALERT</span></div><div className="paddock-event-source">{race.pendingPaddockEvent.source}</div><p className="paddock-event-story">{race.pendingPaddockEvent.story}</p><div className="paddock-choice-grid">{race.pendingPaddockEvent.choices.map((choice) => <button className="paddock-choice" key={choice.id} disabled={race.cash + choice.cashDelta < 0} onClick={() => resolvePaddockChoice(choice.id)}><strong>{choice.label}</strong><span>{choice.description}</span><small className={choice.cashDelta < 0 ? "paddock-cost" : choice.cashDelta > 0 ? "paddock-income" : ""}>{choice.cashDelta > 0 ? "+" : choice.cashDelta < 0 ? "−" : ""}{choice.cashDelta ? money(Math.abs(choice.cashDelta)) : "NO DIRECT COST"} · MORALE {choice.moraleDelta > 0 ? "+" : ""}{choice.moraleDelta} · REPUTATION {choice.reputationDelta > 0 ? "+" : ""}{choice.reputationDelta}</small></button>)}</div></section>}
+        <section className="panel contract-desk-panel"><div className="panel-heading"><div><div className="section-kicker">TEAM MANAGEMENT · SEASON CONTRACTS</div><h2>Driver contract desk</h2></div><span className="contract-review-tag">{race.weekendNumber >= 10 ? "MID-SEASON REVIEW" : "REVIEW AT ROUND 10"}</span></div><p className="contract-desk-intro">Driver salaries are paid every race weekend. Contracts come up for renewal after Round 10. Renew to protect continuity, or terminate and recruit a replacement before the next race.</p><div className="contract-desk-grid">{(race.driverContracts ?? []).map((contract, index) => { const due = race.weekendNumber >= contract.expiresAtRound; const replacementDriver = index === 0 ? replacementDriverOne : replacementDriverTwo; const other = (race.driverContracts ?? []).find((item) => item.id !== contract.id)?.driverName; const candidates = DRIVER_MARKET.filter((driver) => driver.name !== other); return <article className="contract-card" key={contract.id}><div className="contract-card-top"><span>DRIVER {index + 1}</span><b>{due ? "RENEWAL DUE" : contract.renewed ? "RENEWED" : "ACTIVE CONTRACT"}</b></div><h3>{contract.driverName}</h3><p>{money(contract.salaryPerRace)} <small>/ race weekend</small></p><div className="contract-progress"><span>TERM</span><strong>{due ? "REVIEW REQUIRED" : "THROUGH ROUND " + contract.expiresAtRound}</strong></div>{due && <><button className="contract-action" disabled={race.cash < 125000} onClick={() => renewDriverContract(contract.id)}>RENEW · RM125K SIGNING FEE</button><label className="contract-replacement-label">REPLACEMENT DRIVER<select value={replacementDriver} onChange={(event) => index === 0 ? setReplacementDriverOne(event.target.value) : setReplacementDriverTwo(event.target.value)}>{candidates.map((driver) => <option key={driver.id} value={driver.name}>{driver.name} · {driver.role}</option>)}</select></label><button className="contract-release-action" disabled={race.cash < contract.salaryPerRace * 2} onClick={() => replaceDriverContract(contract.id, replacementDriver)}>TERMINATE & REPLACE · {money(contract.salaryPerRace * 2)} SEVERANCE</button></>}</article>; })}</div></section>
+        <div className="intermission-finance-strip"><div><span>EST. NEXT WEEKEND COST</span><strong>{money(215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000)}</strong><small>OPERATIONS + DRIVER PAYROLL + STAFF</small></div><div><span>SPONSOR INCOME FORECAST</span><strong>{money(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800))}</strong><small>BASED ON PADDOCK REPUTATION</small></div><div><span>PROJECTED CASH AFTER COSTS</span><strong className={race.cash + Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) < (215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000) ? "finance-danger" : ""}>{money(race.cash + Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) - (215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000))}</strong><small>BEFORE OPTIONAL SPENDING</small></div></div>
         <div className="intermission-section-heading"><div><span>STEP 01</span><h2>Choose your next upgrade</h2></div><small>ONE PICK · THIS CAREER</small></div>
         <div className="rogue-draft-grid intermission-upgrade-grid">
           {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => { setSelectedDraftId(card.id); setIntermissionUpgradeInstalled(false); }}>
@@ -658,7 +774,7 @@ export default function App() {
         </div>
         <div className="intermission-action-row">
           <div><span className="section-kicker">SELECTED DEVELOPMENT</span><strong>{selectedDraft?.title ?? "Choose one offer above"}</strong><p>{intermissionUpgradeInstalled ? "Upgrade installed. You can now continue to the garage and next race." : "Lock in your choice before moving to the garage."}</p></div>
-          <button className="primary-button" disabled={!selectedDraft || intermissionUpgradeInstalled} onClick={() => { if (!selectedDraft) return; setRace((current) => upgradeCar(current, selectedDraft.id)); setIntermissionUpgradeInstalled(true); setShowResults(false); }}> {intermissionUpgradeInstalled ? "UPGRADE INSTALLED ✓" : "INSTALL UPGRADE ↗"}</button>
+          <button className="primary-button" disabled={!selectedDraft || intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound) || race.cash < (selectedDraft?.cashBonus ? 0 : selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)} onClick={() => { if (!selectedDraft || race.pendingPaddockEvent || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)) return; const cost = selectedDraft.cashBonus ? 0 : selectedDraft.rarity === "EPIC" ? 260000 : selectedDraft.rarity === "RARE" ? 165000 : 95000; if (race.cash < cost) return; setRace((current) => ({ ...upgradeCar(current, selectedDraft.id), cash: Math.max(0, current.cash - cost) })); setIntermissionUpgradeInstalled(true); setShowResults(false); }}> {intermissionUpgradeInstalled ? "UPGRADE INSTALLED ✓" : "INSTALL UPGRADE · " + (selectedDraft?.cashBonus ? "NO COST" : money(selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)) + " ↗"}</button>
         </div>
         <div className="intermission-section-heading garage-intermission-heading"><div><span>STEP 02</span><h2>Development garage</h2></div><span className="research-counter">✦ {garageMeta.research} RESEARCH</span></div>
         <p className="garage-progression-intro">Spend research on permanent blueprints that carry into future careers. Completed races earn 1 RP, with a podium bonus of 1 RP.</p>
@@ -668,7 +784,7 @@ export default function App() {
             <button className={owned ? "garage-perk-button owned" : "garage-perk-button"} disabled={owned || !affordable} onClick={() => buyGaragePerk(perk.id, perk.cost)}>{owned ? "✓ PERMANENT BLUEPRINT" : affordable ? "UNLOCK BLUEPRINT ↗" : "NEED " + (perk.cost - garageMeta.research) + " MORE RP"}</button>
           </article>; })}
         </div>
-        <div className="intermission-bottom-row"><span>PERMANENT BLUEPRINTS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length} · SAVED LOCALLY</span><button className="primary-button" disabled={!intermissionUpgradeInstalled} onClick={startNextRace}>NEXT RACE ↗</button></div>
+        <div className="intermission-bottom-row"><span>PERMANENT BLUEPRINTS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length} · SAVED LOCALLY</span><button className="primary-button" disabled={!intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)} onClick={startNextRace}>NEXT RACE ↗</button></div>
       </div>
     </div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Paddock home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE PADDOCK</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}<button className="save-transfer-trigger" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>SAVE / TRANSFER</button></div></header>
@@ -716,7 +832,7 @@ export default function App() {
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
         <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName} circuitSeed={race.circuitSeed ?? race.seed} circuitName={race.circuitName ?? "Copperhead Ring"}/>
 
-        {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? "Campaign complete." : "Race complete."}</h3><p>{race.status === "gameover" ? "Twenty rounds. Final points are locked." : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
+        {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "Administration called." : "Campaign complete.") : "Race complete."}</h3><p>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "The team could not cover the next weekend’s committed costs. This run ends here." : "Twenty rounds. Final points are locked.") : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
 
@@ -777,11 +893,11 @@ export default function App() {
     {race.status === "gameover" && <section className="panel gameover-panel">
       <div className="gameover-kicker">REDLINE PADDOCK · RUN COMPLETE</div>
       <h2>Chequered flag. <em>Game over.</em></h2>
-      <p className="gameover-intro">The 20-round campaign is complete. Your engineering draft is retired with this run; a fresh campaign starts from baseline specification.</p>
+      <p className="gameover-intro">{race.endReason === "bankruptcy" ? "The team ran out of available cash before it could meet the next weekend’s committed costs. The run ends in insolvency, but your research progress remains yours." : "The 20-round campaign is complete. Your engineering draft is retired with this run; a fresh campaign starts from baseline specification."}</p>
       <div className="gameover-stats">
         <div><span>TEAM CHAMPIONSHIP</span><strong>{redlineRank ? "P" + redlineRank : "—"} <small>/ 11</small></strong></div>
         <div><span>REDLINE POINTS</span><strong>{redlinePoints}</strong></div>
-        <div><span>UPGRADES DRAFTED</span><strong>{race.upgradeLevel}</strong></div>
+        <div><span>{race.endReason === "bankruptcy" ? "ROUND REACHED" : "UPGRADES DRAFTED"}</span><strong>{race.endReason === "bankruptcy" ? race.weekendNumber : race.upgradeLevel}</strong></div>
         <div><span>FINAL TEAM BUDGET</span><strong>{money(race.cash)}</strong></div>
       </div>
       <div className="gameover-lower">
