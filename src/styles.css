@@ -1187,3 +1187,37 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .mode-select-grid { grid-template-columns: 1fr; }
   .mode-choice-card { padding: .85rem; }
 }
+
+
+/* Guided new-career flow: mode -> team identity -> driver market. */
+.start-screen-content[data-onboarding-step="mode"] .team-name-label,
+.start-screen-content[data-onboarding-step="mode"] .team-name-input,
+.start-screen-content[data-onboarding-step="mode"] .team-customization,
+.start-screen-content[data-onboarding-step="mode"] .start-screen-preview,
+.start-screen-content[data-onboarding-step="mode"] .driver-market,
+.start-screen-content[data-onboarding-step="mode"] .start-career-button,
+.start-screen-content[data-onboarding-step="mode"] .team-next,
+.start-screen-content[data-onboarding-step="team"] .mode-select-section,
+.start-screen-content[data-onboarding-step="team"] .mode-next,
+.start-screen-content[data-onboarding-step="team"] .driver-market,
+.start-screen-content[data-onboarding-step="team"] .research-lab-panel,
+.start-screen-content[data-onboarding-step="team"] .start-career-button,
+.start-screen-content[data-onboarding-step="drivers"] .mode-select-section,
+.start-screen-content[data-onboarding-step="drivers"] .mode-next,
+.start-screen-content[data-onboarding-step="drivers"] .team-name-label,
+.start-screen-content[data-onboarding-step="drivers"] .team-name-input,
+.start-screen-content[data-onboarding-step="drivers"] .team-customization,
+.start-screen-content[data-onboarding-step="drivers"] .start-screen-preview,
+.start-screen-content[data-onboarding-step="drivers"] .team-next,
+.start-screen-content[data-onboarding-step="drivers"] .research-lab-panel,
+.start-screen-content[data-onboarding-step="drivers"] .start-screen-utility-actions{display:none!important}
+.onboarding-step-indicator{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 18px;padding:0 0 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.onboarding-step-indicator span,.onboarding-step-footer>span{color:#777f8d;font-size:9px;font-weight:850;letter-spacing:.12em}
+.onboarding-step-indicator .active{color:#ff6d5f}
+.onboarding-step-indicator .complete{color:#8bd8ad}
+.onboarding-step-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.onboarding-step-footer>div{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.onboarding-step-footer .primary-button,.onboarding-step-footer .secondary-button{min-height:44px}
+.start-screen-content[data-onboarding-step="mode"] .start-screen-utility-actions{margin-top:12px}
+.start-screen-content[data-onboarding-step="team"] .start-screen-utility-actions{display:none}
+@media(max-width:600px){.onboarding-step-footer{align-items:stretch;flex-direction:column}.onboarding-step-footer>div{display:grid;grid-template-columns:1fr}.onboarding-step-footer .primary-button,.onboarding-step-footer .secondary-button{width:100%;justify-content:center}.onboarding-step-indicator{gap:8px}.onboarding-step-indicator span{font-size:8px}}
