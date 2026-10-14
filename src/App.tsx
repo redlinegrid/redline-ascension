@@ -159,54 +159,74 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
 
 function DriverPortrait({ driver, index }: { driver: { name: string; color: string }; index: number }) {
   const accent = driver.color;
-  // Restrained editorial silhouettes: natural proportions, monochrome lighting and grain;
-  // no facial features, bright contour strokes, badge graphics or cartoon suit details.
+  // Cinematic, photoreal-inspired driver bust silhouettes: varied hairlines, natural head shapes,
+  // subtle studio rim-light, racing suit shoulders and no cartoon facial features.
   const profiles = [
-    { head: "M31 26 C31 17 38 12 45 13 C55 14 60 22 59 31 L57 40 C56 47 52 53 46 56 L43 56 C36 53 32 47 31 40Z", hair: "M30 32 C27 22 31 13 40 10 C48 7 57 12 60 20 L60 31 L55 24 C49 26 40 24 35 20 L33 32Z" },
-    { head: "M32 27 C32 18 38 13 45 13 C54 13 59 21 58 31 L56 41 C54 48 50 53 45 55 C38 52 33 46 32 39Z", hair: "M31 31 C28 21 33 12 42 10 C51 8 58 15 59 24 L57 30 L53 22 C47 25 39 24 34 21Z" },
-    { head: "M31 27 C31 18 37 13 44 13 C53 13 59 20 58 30 L56 40 C54 48 50 53 44 56 C37 53 32 46 31 39Z", hair: "M30 30 C29 20 35 12 44 10 C53 10 59 17 59 27 L56 31 L53 22 C47 24 39 23 34 20Z" },
-    { head: "M32 27 C32 18 38 13 45 13 C54 13 59 21 58 31 L56 40 C54 48 50 53 45 55 C38 52 33 46 32 39Z", hair: "M31 30 C29 21 33 13 41 10 C50 8 58 15 59 24 L57 31 L53 22 C47 25 39 24 34 21Z" }
+    { head: "M29 29 C29 17 36 11 45 11 C55 11 61 19 60 31 L58 42 C56 51 51 57 45 59 C38 56 32 50 30 41Z", hair: "M28 32 C25 20 31 10 41 8 C51 5 60 13 62 23 L60 34 L55 25 C48 28 39 24 34 20 L32 33Z", fringe: "M31 22 C37 25 47 27 56 23 L55 29 C48 31 39 29 33 26Z" },
+    { head: "M31 29 C31 18 37 12 45 12 C54 12 59 20 59 31 L57 42 C55 50 50 56 45 58 C39 55 34 49 32 41Z", hair: "M29 29 C28 18 34 10 43 9 C53 8 60 15 60 25 L57 31 L54 20 C48 24 39 23 33 20 L32 31Z", fringe: "M33 20 C39 24 48 24 55 20 L54 26 C47 29 39 27 33 24Z" },
+    { head: "M30 28 C30 17 37 12 45 12 C54 12 60 19 59 31 L57 41 C55 50 50 56 44 58 C37 55 32 49 31 40Z", hair: "M28 32 C27 19 34 10 44 9 C54 8 61 16 61 27 L58 34 L54 22 C47 25 39 24 33 21 L32 33Z", fringe: "M32 21 C38 24 46 25 55 21 L55 27 C47 29 39 28 33 25Z" },
+    { head: "M31 28 C31 18 37 12 45 12 C54 12 59 20 59 31 L57 42 C55 50 50 55 45 58 C39 55 34 49 32 41Z", hair: "M29 29 C28 17 36 9 45 9 C55 9 61 17 60 27 L58 33 L54 22 C48 25 40 24 34 20 L32 31Z", fringe: "M33 21 C39 25 48 25 55 22 L54 27 C47 30 39 28 33 25Z" }
   ];
   const profile = profiles[index % profiles.length];
+  const id = "portrait-" + index;
   return <div className="driver-portrait" style={{ "--driver-accent": accent } as React.CSSProperties} aria-label={driver.name + " portrait"}>
     <svg viewBox="0 0 88 94" role="img" aria-label={"Driver silhouette of " + driver.name} focusable="false">
       <defs>
-        <linearGradient id={"portrait-light-" + index} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#737780" stopOpacity=".48" />
-          <stop offset="44%" stopColor="#292c33" stopOpacity=".16" />
-          <stop offset="100%" stopColor="#080a0e" stopOpacity=".95" />
+        <linearGradient id={id + "-studio"} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#858b96" stopOpacity=".58" />
+          <stop offset="38%" stopColor="#333741" stopOpacity=".32" />
+          <stop offset="100%" stopColor="#07090d" stopOpacity=".98" />
         </linearGradient>
-        <linearGradient id={"portrait-rim-" + index} x1="0" y1="0" x2="1" y2=".2">
-          <stop offset="0%" stopColor="#b9bdc5" stopOpacity=".5" />
-          <stop offset="55%" stopColor="#626772" stopOpacity=".12" />
-          <stop offset="100%" stopColor="#080a0e" stopOpacity="0" />
+        <linearGradient id={id + "-skinrim"} x1="0" y1="0" x2="1" y2=".1">
+          <stop offset="0%" stopColor="#c8ccd2" stopOpacity=".62" />
+          <stop offset="52%" stopColor="#737985" stopOpacity=".2" />
+          <stop offset="100%" stopColor="#171a20" stopOpacity="0" />
         </linearGradient>
-        <filter id={"portrait-grain-" + index}>
-          <feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed={index + 4} />
+        <linearGradient id={id + "-suit"} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#363b45" />
+          <stop offset="48%" stopColor="#15181f" />
+          <stop offset="100%" stopColor="#050609" />
+        </linearGradient>
+        <filter id={id + "-grain"}>
+          <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="2" seed={index + 8} />
           <feColorMatrix type="saturate" values="0" />
-          <feComponentTransfer><feFuncA type="table" tableValues="0 .11" /></feComponentTransfer>
+          <feComponentTransfer><feFuncA type="table" tableValues="0 .1" /></feComponentTransfer>
         </filter>
+        <clipPath id={id + "-clip"}><rect width="88" height="94" rx="1.5" /></clipPath>
       </defs>
-      <rect width="88" height="94" fill="#111319" />
-      <rect width="88" height="94" fill={"url(#portrait-light-" + index + ")"} />
-      <path d="M4 94 C7 78 16 70 29 65 L36 61 L54 61 L62 66 C76 71 82 80 85 94Z" fill="#050609" />
-      <path d="M17 94 C20 79 29 71 37 69 L44 77 L51 69 C62 72 69 81 72 94Z" fill="#171a20" />
-      <path d="M34 54 L34 66 L44 75 L54 65 L54 53Z" fill="#07090d" />
-      <path d={profile.head} fill="#050609" />
-      <path d={profile.hair} fill="#030407" />
-      <path d="M31 32 C29 45 34 55 43 60 C49 58 55 51 57 40" fill="none" stroke="#858a94" strokeOpacity=".18" strokeWidth="1.4" />
-      <path d="M28 36 C27 48 31 57 38 62 L32 67 L23 70 C17 64 14 57 15 49Z" fill="#20232a" opacity=".55" />
-      <path d="M59 34 C64 47 60 58 53 63 L60 68 L68 72 C75 64 77 55 74 46Z" fill="#020306" opacity=".8" />
-      <path d="M11 94 C15 77 23 70 34 66 L44 77 L54 66 C66 70 75 78 78 94Z" fill="#07090d" />
-      <path d="M34 66 L44 77 L54 66 L51 64 L37 64Z" fill="#858a93" opacity=".45" />
-      <path d="M0 0 H88 V94 H0Z" fill={"url(#portrait-rim-" + index + ")"} />
-      <rect width="88" height="94" filter={"url(#portrait-grain-" + index + ")"} opacity=".24" />
-      <rect x=".5" y=".5" width="87" height="93" fill="none" stroke="#aeb3bd" strokeOpacity=".15" />
+      <g clipPath={"url(#" + id + "-clip)"}>
+        <rect width="88" height="94" fill="#0b0d12" />
+        <rect width="88" height="94" fill={"url(#" + id + "-studio)"} />
+        <ellipse cx="44" cy="35" rx="34" ry="43" fill="#9ca2ad" opacity=".055" />
+        {/* Shoulder silhouette and high-collar race suit */}
+        <path d="M3 98 C5 80 13 71 27 66 L36 62 L53 62 L63 67 C76 71 83 82 86 98Z" fill="#030407" />
+        <path d="M13 98 C15 81 23 73 34 69 L44 78 L54 69 C66 73 74 82 76 98Z" fill={"url(#" + id + "-suit)"} />
+        <path d="M33 54 L33 67 L44 78 L55 66 L55 53Z" fill="#090b10" />
+        <path d="M34 63 L44 75 L54 63 L52 59 L36 59Z" fill="#717782" opacity=".24" />
+        <path d="M44 78 L44 94" stroke={accent} strokeWidth="1.3" strokeOpacity=".48" />
+        <path d="M17 94 C20 81 25 74 34 70 L40 77 L32 88Z" fill="#454b56" opacity=".26" />
+        <path d="M71 94 C68 81 62 74 54 70 L48 77 L56 88Z" fill="#000" opacity=".5" />
+        {/* Head shape, ears, and restrained studio edge light */}
+        <path d={profile.head} fill="#050609" />
+        <path d="M30 34 C26 31 26 38 30 42 L33 43Z" fill="#0a0c11" />
+        <path d="M58 34 C63 31 63 38 58 43 L56 43Z" fill="#030407" />
+        <path d={profile.hair} fill="#020306" />
+        <path d={profile.fringe} fill="#07090d" />
+        <path d="M30 31 C29 43 34 54 43 59" fill="none" stroke="#b7bdc7" strokeOpacity=".25" strokeWidth="1.05" />
+        <path d="M31 40 C32 49 36 55 42 58" fill="none" stroke="#717783" strokeOpacity=".22" strokeWidth="2.2" />
+        <path d="M58 34 C60 43 56 53 49 58" fill="none" stroke="#7b818d" strokeOpacity=".18" strokeWidth="1.1" />
+        <path d="M28 31 C26 21 32 12 40 9" fill="none" stroke="#d2d5dc" strokeOpacity=".3" strokeWidth="1.2" />
+        {/* Face stays anonymous: no eyes, mouth, or illustrated expression */}
+        <path d="M35 31 C36 37 36 43 39 47" fill="none" stroke="#7d838e" strokeOpacity=".1" strokeWidth="1" />
+        <path d="M0 0 H88 V94 H0Z" fill={"url(#" + id + "-skinrim)"} />
+        <path d="M0 0 H2 V94 H0Z" fill={accent} opacity=".3" />
+        <rect width="88" height="94" filter={"url(#" + id + "-grain)"} opacity=".26" />
+        <rect x=".5" y=".5" width="87" height="93" fill="none" stroke="#b9bec8" strokeOpacity=".18" />
+      </g>
     </svg>
     <span className="driver-portrait-number">{String(index + 1).padStart(2, "0")}</span>
   </div>;
 }
-
 function UpgradeIcon({ type }: { type: string | undefined }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return <svg className="upgrade-category-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
