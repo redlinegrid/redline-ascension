@@ -748,3 +748,8 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .pitwall-art{left:19%;right:-58px;opacity:.25}
   .pitwall-art>svg{width:160%;max-height:150px}
 }
+
+
+.strategy-advice{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin:14px 0;padding:12px;border:1px solid rgba(255,42,24,.28);background:linear-gradient(115deg,rgba(255,42,24,.075),rgba(18,21,28,.55));}
+.strategy-advice-copy{min-width:0}.strategy-advice-copy>span{display:block;font:9px var(--mono);letter-spacing:1px;color:var(--red);margin-bottom:5px}.strategy-advice-copy>strong{display:block;font:600 15px var(--display);color:#f3f3f4}.strategy-advice-copy p{font-size:11px;line-height:1.55;color:#a6a9b2;margin:5px 0 0}.strategy-advice>button{border:1px solid rgba(255,42,24,.55);background:#211715;color:#fff;padding:10px 11px;font:9px var(--mono);letter-spacing:.3px;white-space:nowrap}.strategy-advice>button:hover:not(:disabled){background:var(--red)}.strategy-advice>button span{margin-left:4px}
+@media(max-width:600px){.strategy-advice{grid-template-columns:1fr}.strategy-advice>button{width:100%;justify-content:center}}
