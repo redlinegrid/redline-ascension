@@ -856,3 +856,23 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .strategy-panel .strategy-row{grid-template-columns:minmax(0,1fr)}
   .race-panel .lap-badge{font-size:8px;padding:7px}
 }
+
+
+/* Independent desktop columns remove the empty grid track beneath live telemetry. */
+@media(min-width:761px){
+  .content-grid{grid-template-columns:minmax(0,1fr) minmax(390px,.92fr);align-items:start;row-gap:18px}
+  .content-column{display:flex;flex-direction:column;gap:18px;min-width:0;align-self:start}
+  .content-column>.panel,.content-column>.race-control-alert{width:100%;min-width:0}
+  .content-grid>.upgrade-panel{grid-column:1/-1}
+}
+/* Keep the established mobile flow when desktop column wrappers are flattened. */
+@media(max-width:760px){
+  .content-grid{display:flex;flex-direction:column;gap:12px}
+  .content-column{display:contents}
+  .content-grid .strategy-panel{order:1}
+  .content-grid .race-panel{order:2}
+  .content-grid .race-control-alert{order:3}
+  .content-grid .standings-panel{order:4}
+  .content-grid .event-panel{order:5}
+  .content-grid .upgrade-panel{order:6}
+}
