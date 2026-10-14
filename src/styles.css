@@ -1134,3 +1134,56 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Vampire Survivors-style meta-progression: research is available only between runs. */
 .research-lab-panel{margin:22px 0;padding:clamp(18px,2.4vw,28px);border:1px solid rgba(255,70,42,.3);border-radius:16px;background:linear-gradient(145deg,rgba(255,48,24,.07),rgba(15,17,23,.97) 48%);box-shadow:0 16px 50px rgba(0,0,0,.2)}.research-lab-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}.research-lab-heading h2{margin:7px 0 0;font-size:clamp(22px,2.8vw,30px);letter-spacing:-.04em}.research-lab-balance{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding:10px 14px;border:1px solid rgba(255,70,42,.3);border-radius:10px;background:#111319}.research-lab-balance span{font-size:9px;letter-spacing:.12em;color:#9ba3b1;font-weight:800}.research-lab-balance strong{font-size:20px;color:#ff725a;font-variant-numeric:tabular-nums}.research-lab-copy{max-width:850px;color:#b5bdc9;font-size:13px;line-height:1.7;margin:16px 0 20px}.research-lab-panel .garage-perk-grid{margin-top:0}.research-lab-foot{display:flex;justify-content:space-between;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid #343944;color:#8791a0;font-size:9px;font-weight:800;letter-spacing:.08em}.intermission-research-locked{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:20px 0;padding:18px;border:1px solid #343944;border-radius:12px;background:#111319}.intermission-research-locked strong{font-size:14px;color:#e8ebf1}.intermission-research-locked p{margin:0;color:#9da6b4;font-size:12px;line-height:1.6}.intermission-research-locked .research-counter{color:#ff725a;font-size:10px;font-weight:800;letter-spacing:.1em}@media(max-width:650px){.research-lab-heading{align-items:flex-start;flex-direction:column}.research-lab-balance{align-items:flex-start;width:100%;box-sizing:border-box}.research-lab-foot{flex-direction:column}.research-lab-panel .garage-perk-grid{grid-template-columns:1fr}}
+
+
+/* Separate season-based Championship play from open-ended survival. */
+.mode-select-section {
+  margin: 1.35rem 0 1.1rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 16px;
+  background: rgba(255,255,255,.025);
+}
+.mode-select-section .team-customization-heading { margin-bottom: .85rem; }
+.mode-select-section .team-customization-heading h2 { margin: .25rem 0 0; }
+.mode-select-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.mode-choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .6rem;
+  min-width: 0;
+  padding: 1rem;
+  text-align: left;
+  color: inherit;
+  background: rgba(10,11,15,.76);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.mode-choice-card:hover { border-color: rgba(255,255,255,.35); transform: translateY(-1px); }
+.mode-choice-card.active {
+  border-color: #ff3b30;
+  background: linear-gradient(145deg, rgba(255,59,48,.12), rgba(255,255,255,.035));
+  box-shadow: inset 0 0 0 1px rgba(255,59,48,.24);
+}
+.mode-choice-number, .mode-choice-footer {
+  color: #ff766e;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.mode-choice-card strong { font-size: 1.05rem; letter-spacing: -.02em; }
+.mode-choice-card p {
+  margin: 0;
+  color: #aeb2bd;
+  font-size: .78rem;
+  line-height: 1.55;
+}
+.mode-choice-footer { margin-top: auto; padding-top: .25rem; color: #8d929e; font-size: .58rem; }
+@media (max-width: 600px) {
+  .mode-select-section { padding: .8rem; }
+  .mode-select-grid { grid-template-columns: 1fr; }
+  .mode-choice-card { padding: .85rem; }
+}
