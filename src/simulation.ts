@@ -132,6 +132,7 @@ export interface RaceState {
   upgradeModules: UpgradeModules;
   installedUpgrades?: InstalledUpgrade[];
   buildTraits?: RunTrait[];
+  permanentPerks?: Record<string, number>;
   weekendNumber: number;
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
