@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type Tyre } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre } from "./simulation";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
@@ -495,8 +495,8 @@ function HeroCarGraphic() {
   </div>;
 }
 
-function DriverStrategy({ car, status, teamName, onPace, onTyre, onPitLap }: {
-  car: CarState; status: RaceState["status"]; teamName: string; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
+function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, onTyre, onPitLap }: {
+  car: CarState; status: RaceState["status"]; teamName: string; advice: StrategyAdvice | null; onApplyAdvice: () => void; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
 }) {
   const disabled = status === "finished" || status === "gameover";
   return <div className="driver-strategy">
@@ -505,6 +505,10 @@ function DriverStrategy({ car, status, teamName, onPace, onTyre, onPitLap }: {
       <div><span>TYRE LIFE</span><strong>{pct((1 - car.tyreWear) * 100)}</strong><div className="meter"><i style={{ width: pct((1 - car.tyreWear) * 100) }}/></div></div>
       <div><span>FUEL LOAD</span><strong>{pct(car.fuel)}</strong><div className="meter fuel"><i style={{ width: pct(car.fuel) }}/></div></div>
     </div>
+    {advice && <div className="strategy-advice">
+      <div className="strategy-advice-copy"><span>LIVE ENGINEER CALL</span><strong>{advice.headline}</strong><p>{advice.reason}</p></div>
+      <button type="button" disabled={disabled} onClick={onApplyAdvice}>{advice.actionLabel} <span>↗</span></button>
+    </div>}
     <div className="strategy-label">PACE MODE · SPEED VS TYRE/FUEL COST</div>
     <div className="segmented">{(["CONSERVE", "BALANCED", "PUSH"] as Pace[]).map((pace) => <button key={pace} disabled={disabled} className={car.pace === pace ? "selected" : ""} onClick={() => onPace(pace)}>{pace}</button>)}</div>
     <div className="strategy-row">
@@ -771,7 +775,12 @@ export default function App() {
       </section>
       {(race.safetyCarActive || (race.incidentCount ?? 0) > 0) && <section className={"race-control-alert" + (race.safetyCarActive ? " safety-car-alert" : "")} role="status"><span>{race.safetyCarActive ? "SC" : "!"}</span><div><strong>{race.safetyCarActive ? "SAFETY CAR DEPLOYED" : "RACE CONTROL · INCIDENTS"}</strong><p>{race.safetyCarActive ? "Field neutralised. Tyre wear and fuel consumption are reduced; consider pitting if the stop loss is favourable." : (race.incidentCount ?? 0) + " incident(s) reported this race. Monitor component condition and traffic."}</p></div></section>}
        <section className="panel strategy-panel"><div className="panel-heading"><div><div className="section-kicker">PIT WALL</div><h2>Driver strategy</h2></div><span className="strategy-count">02 CARS</span></div>
-        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => <DriverStrategy key={car.id} car={car} status={race.status} teamName={playerTeamName} onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>)}</div>
+        <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => {
+          const advice = getStrategyAdvice(race, car.id);
+          return <DriverStrategy key={car.id} car={car} status={race.status} teamName={playerTeamName} advice={advice}
+            onApplyAdvice={() => { if (!advice) return; if (advice.action === "PIT") setStrategy(car, { pitLap: Math.max(3, Math.min(race.totalLaps - 1, Math.floor(car.progress) + 1)) }); else setStrategy(car, { pace: advice.action }); }}
+            onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>;
+        })}</div>
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.safetyCarActive ? "Safety car conditions reduce tyre wear and fuel use. This can be a low-cost pit window, but calling both cars together may cost track position." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. CONSERVE protects the stint; PUSH trades tyre life and fuel for lap time. Adjust each car independently." : "Tyre life is manageable. PUSH gains pace but burns more fuel and rubber; CONSERVE extends the stint. Watch traffic and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
