@@ -720,3 +720,31 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @media(max-width:850px){
   .start-screen-visual{display:none}
 }
+
+
+/* Race Control header artwork: a lit pit-wall command room, not a car banner. */
+.page-heading{min-height:202px}
+.pitwall-art{left:35%;right:150px;top:3px;bottom:0;opacity:.98;overflow:hidden}
+.pitwall-art>svg{width:100%;height:100%;max-height:205px;object-fit:contain;filter:drop-shadow(0 10px 24px #0008)}
+.pitwall-art .hero-art-glow{
+  width:76%;height:75%;left:12%;top:12%;
+  background:radial-gradient(ellipse,#5c8aa51a 0%,#ff2a1808 42%,transparent 72%);
+}
+.pitwall-art .hero-art-caption{right:14px;bottom:13px;font-size:7px;letter-spacing:.8px}
+.pitwall-art .hero-art-caption span{color:#6dc7a2;font-size:10px}
+.pitwall-art .hero-art-caption i{background:#6dc7a2;width:18px}
+@media(max-width:1100px){
+  .pitwall-art{left:31%;right:135px;opacity:.8}
+  .pitwall-art>svg{width:115%;max-height:190px}
+  .pitwall-art .hero-art-caption{right:7px;font-size:6px}
+}
+@media(max-width:760px){
+  .page-heading{min-height:158px}
+  .pitwall-art{left:23%;right:-38px;top:7px;bottom:0;opacity:.34}
+  .pitwall-art>svg{width:145%;max-height:158px;transform:translateX(4%)}
+  .pitwall-art .hero-art-caption{display:none}
+}
+@media(max-width:390px){
+  .pitwall-art{left:19%;right:-58px;opacity:.25}
+  .pitwall-art>svg{width:160%;max-height:150px}
+}
