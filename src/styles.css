@@ -505,7 +505,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .garage-perk-top{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;font:10px var(--mono);letter-spacing:.07em;color:var(--muted)}
 .garage-perk-top b{color:#ff9184;font-weight:600;white-space:nowrap}
 .garage-perk-owned .garage-perk-top b{color:#72d5ad}
-.garage-perk-card h3{font:700 18px var(--display);margin:16px 0 7px}
+.garage-perk-card h3{font:700 18px var(--display);margin:16px 0 7px}.garage-perk-level{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin:0 0 10px;color:var(--muted);font:10px var(--mono);letter-spacing:.06em}.garage-perk-level span{display:flex;gap:3px}.garage-perk-level i{display:block;width:13px;height:4px;border-radius:2px;background:#353943}.garage-perk-level i.filled{background:#ff604b;box-shadow:0 0 8px rgba(255,70,42,.22)}
 .garage-perk-card p{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 18px;flex:1}
 .garage-perk-button{width:100%;border:1px solid rgba(255,64,46,.5);background:rgba(255,42,24,.09);color:#ffb5ab;padding:11px 8px;border-radius:4px;font:600 10px var(--mono);letter-spacing:.035em;cursor:pointer}
 .garage-perk-button:hover:not(:disabled){background:rgba(255,42,24,.18)}
