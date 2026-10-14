@@ -608,8 +608,8 @@ export default function App() {
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
-  const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string, primary = teamPrimaryColor, secondary = teamSecondaryColor) => {
-    const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal);
+  const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string, primary = teamPrimaryColor, secondary = teamSecondaryColor, mode: GameMode = selectedMode) => {
+    const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal, mode);
     fresh.teamMorale = 62;
     fresh.teamReputation = 45;
     fresh.driverContracts = [driverOne, driverTwo].map((driverName, index) => ({ id: "driver-" + (index + 1), driverName, salaryPerRace: driverSalary(driverName), expiresAtRound: 10, renewed: false, loyalty: 60 }));
@@ -694,7 +694,7 @@ export default function App() {
     if (garageMeta.unlocks.includes(id) || garageMeta.research < cost) return;
     setGarageMeta((current) => current.unlocks.includes(id) || current.research < cost ? current : { ...current, research: current.research - cost, unlocks: [...current.unlocks, id] });
   };
-  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createMetaCareer(Date.now() >>> 0, playerTeamName, principalNameDraft, selectedDriverOne, selectedDriverTwo)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
+  const resetCareer = () => { if (window.confirm("Start a new career? Your current local career will be replaced.")) { setRace(createMetaCareer(Date.now() >>> 0, playerTeamName, principalNameDraft, selectedDriverOne, selectedDriverTwo, teamPrimaryColor, teamSecondaryColor, selectedMode)); setShowResults(false); setSelectedDraftId(""); setShowInitialDraft(true); } };
   const startCustomCareer = () => { const name = teamNameDraft.trim().slice(0, 24); const principal = principalNameDraft.trim().slice(0, 32); if (!name || !principal || !selectedDriverOne || !selectedDriverTwo || selectedDriverOne === selectedDriverTwo) return; setRace(createMetaCareer(Date.now() >>> 0, name, principal, selectedDriverOne, selectedDriverTwo, teamPrimaryColor, teamSecondaryColor, selectedMode)); setTeamNameDraft(name); setPrincipalNameDraft(principal); setShowStartScreen(false); setShowInitialDraft(true); setShowResults(false); setSelectedDraftId(""); };
 
   const exportSaveCode = () => {
