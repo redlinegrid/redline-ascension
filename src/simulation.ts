@@ -5,6 +5,7 @@ export const CAMPAIGN_LENGTH = 20;
 export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
 export interface UpgradeModules { aero: number; power: number; suspension: number; reliability: number; }
+export interface InstalledUpgrade { id: string; title: string; subtitle: string; rarity: UpgradeRarity; effect: string; upgradeType?: UpgradeType; amount?: number; cashBonus?: number; }
 export function buildSynergies(modules: UpgradeModules): string[] {
   const active: string[] = [];
   if (modules.aero >= 2 && modules.power >= 2) active.push("AERO + POWER INTEGRATION");
@@ -116,6 +117,7 @@ export interface RaceState {
   cash: number;
   upgradeLevel: number;
   upgradeModules: UpgradeModules;
+  installedUpgrades?: InstalledUpgrade[];
   weekendNumber: number;
   teamPoints?: Record<string, number>;
   playerTeamName?: string;
@@ -326,6 +328,7 @@ export function applyStartingUpgrade(state: RaceState, cardId: string): RaceStat
   next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
   if (card.upgradeType && card.amount) next.upgradeModules[card.upgradeType] += card.amount;
   if (card.cashBonus) next.cash += card.cashBonus;
+  next.installedUpgrades = [...(next.installedUpgrades ?? []), { id: card.id, title: card.title, subtitle: card.subtitle, rarity: card.rarity, effect: card.effect, upgradeType: card.upgradeType, amount: card.amount, cashBonus: card.cashBonus }];
   next.upgradeLevel = 1;
   addEvent(next, "Pre-season development pick: " + card.title + ". " + card.effect);
   return next;
@@ -338,6 +341,7 @@ export function upgradeCar(state: RaceState, cardId: string): RaceState {
   next.upgradeModules ??= { aero: 0, power: 0, suspension: 0, reliability: 0 };
   if (card.upgradeType && card.amount) next.upgradeModules[card.upgradeType] += card.amount;
   if (card.cashBonus) next.cash += card.cashBonus;
+  next.installedUpgrades = [...(next.installedUpgrades ?? []), { id: card.id, title: card.title, subtitle: card.subtitle, rarity: card.rarity, effect: card.effect, upgradeType: card.upgradeType, amount: card.amount, cashBonus: card.cashBonus }];
   next.upgradeLevel += 1;
   next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
