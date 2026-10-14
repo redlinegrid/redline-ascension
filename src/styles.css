@@ -960,3 +960,81 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     overflow-x:auto;
   }
 }
+
+
+/* Micro-interaction pass: crisp tactile feedback without changing game logic. */
+:where(button, select, textarea, a){
+  -webkit-tap-highlight-color:transparent;
+}
+:where(button, select, textarea):focus-visible,
+:where(a):focus-visible{
+  outline:2px solid rgba(255,42,24,.9);
+  outline-offset:3px;
+}
+:where(.primary-button,.secondary-button,.text-button,.segmented button,
+  .speed-control button,.garage-perk-button,.rogue-card,.save-transfer-close,
+  .save-transfer-secondary){
+  transition:background-color .16s ease,border-color .16s ease,color .16s ease,
+    box-shadow .16s ease,transform .16s ease,opacity .16s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .primary-button:not(:disabled):hover,
+  .garage-perk-button:not(:disabled):hover{
+    box-shadow:0 0 0 1px rgba(255,42,24,.18),0 5px 18px rgba(255,42,24,.12);
+    transform:translateY(-1px);
+  }
+  .secondary-button:not(:disabled):hover,
+  .save-transfer-secondary:not(:disabled):hover{
+    border-color:rgba(255,92,78,.75);
+    box-shadow:inset 0 0 0 1px rgba(255,42,24,.08);
+  }
+  .rogue-card:hover{
+    border-color:rgba(255,255,255,.32);
+    transform:translateY(-2px);
+  }
+  .segmented button:not(:disabled):hover,
+  .speed-control button:not(:disabled):hover{
+    color:#fff;
+    border-color:#6c4140;
+    background:#302326;
+  }
+  .text-button:hover{ text-shadow:0 0 12px rgba(255,255,255,.18); }
+}
+:where(.primary-button,.secondary-button,.segmented button,.speed-control button,
+  .garage-perk-button,.rogue-card,.save-transfer-secondary):active:not(:disabled){
+  transform:translateY(1px) scale(.99);
+  box-shadow:none;
+}
+:where(button,select,textarea):disabled{
+  filter:saturate(.55);
+}
+.rogue-card-selected{
+  box-shadow:inset 0 0 0 1px rgba(255,42,24,.12),0 0 22px rgba(255,42,24,.08);
+}
+.segmented button.selected,
+.speed-control button.speed-active{
+  box-shadow:inset 0 -2px 0 rgba(255,42,24,.8);
+}
+.garage-perk-button.owned{
+  box-shadow:inset 0 0 0 1px rgba(100,186,139,.12);
+}
+:where(.meter,.upgrade-module-track){
+  overflow:hidden;
+}
+:where(.meter i,.upgrade-module-track i){
+  transition:width .28s cubic-bezier(.2,.7,.2,1),background-color .18s ease;
+}
+:where(.status-dot,.live-indicator,.tiny-live){
+  transition:background-color .18s ease,box-shadow .18s ease,opacity .18s ease;
+}
+:where(.event-marker,.event-count,.strategy-count,.upgrade-count-badge){
+  transition:border-color .18s ease,color .18s ease,background-color .18s ease;
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
