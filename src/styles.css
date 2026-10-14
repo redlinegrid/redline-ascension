@@ -1050,3 +1050,28 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .content-grid .standings-row,
   .content-grid .table-header { min-width: 340px; }
 }
+
+
+/* Keep the Race Control pit-wall illustration inside the viewport on phones. */
+@media (max-width: 760px) {
+  .strategy-panel { min-width: 0; overflow: hidden; }
+  .strategy-panel .pitwall-art {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .strategy-panel .pitwall-art > svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 132px;
+    object-fit: contain;
+    transform: none;
+  }
+}
+@media (max-width: 390px) {
+  .strategy-panel .pitwall-art > svg { max-height: 112px; }
+}
