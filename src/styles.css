@@ -795,3 +795,27 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .strategy-panel .pitwall-race-controls{border-top:0;border-bottom:1px solid var(--line);background:linear-gradient(110deg,#191a1e,#15161b)}
   .strategy-panel .pitwall-race-controls .primary-button{min-width:132px}
 }
+
+
+/* Responsive pit-wall polish: keep race controls clear and driver calls easy to scan on touch screens. */
+@media(max-width:760px){
+  .strategy-panel .pitwall-race-controls{display:flex;align-items:stretch;flex-direction:column;gap:12px;padding:13px 14px;border-top:0;border-bottom:1px solid var(--line);background:linear-gradient(110deg,#191a1e,#15161b)}
+  .strategy-panel .pitwall-race-controls .control-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+  .strategy-panel .pitwall-race-controls .primary-button{flex:1 1 150px;min-height:40px;justify-content:center}
+  .strategy-panel .pitwall-race-controls .speed-control{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0;padding-top:10px;border-top:1px solid #2b2e36}
+  .strategy-panel .pitwall-race-controls .speed-control button{min-width:42px;min-height:34px}
+  .strategy-panel .strategy-grid{grid-template-columns:minmax(0,1fr)}
+  .strategy-panel .driver-strategy{padding:15px 14px}
+  .strategy-panel .driver-strategy+.driver-strategy{border-left:0;border-top:1px solid var(--line)}
+  .strategy-panel .driver-head{gap:10px}
+  .strategy-panel .driver-number{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px}
+  .strategy-panel .driver-metrics{grid-template-columns:1fr 1fr;gap:12px}
+  .strategy-panel .strategy-advice{grid-template-columns:minmax(0,1fr);gap:10px}
+  .strategy-panel .strategy-advice>button{width:100%;min-height:40px;justify-content:center}
+}
+@media(max-width:390px){
+  .strategy-panel .pitwall-race-controls .control-left{display:grid;grid-template-columns:minmax(0,1fr);}
+  .strategy-panel .pitwall-race-controls .primary-button{width:100%;}
+  .strategy-panel .pitwall-race-controls .speed-control button{min-width:38px;padding:7px 9px;}
+  .strategy-panel .driver-metrics{gap:8px;}
+}
