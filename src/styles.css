@@ -619,3 +619,20 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
  .team-color-preset small { font-size:6px; }
  .team-color-picker code { font-size:9px; }
 }
+
+
+/* Redline Grid circuit-map language: white track outline, black canvas, three timing sectors. */
+.circuit-theme { background:#030406; border-top:1px solid #1b1e25; border-bottom:1px solid #1b1e25; }
+.circuit-theme:before { opacity:0 !important; }
+.circuit-theme svg { max-height:280px; }
+.circuit-theme .track-center-label { fill:#f2f4f8; font-size:10px; font-weight:700; letter-spacing:1.5px; }
+.circuit-theme .track-center-sub { fill:#9299a8; font-size:7px; letter-spacing:.9px; }
+.circuit-theme .track-center-live { fill:#aab2bf; font:600 6px var(--mono); letter-spacing:.7px; }
+.circuit-theme .track-marker-label { fill:#d8dce4; stroke:#030406; }
+.circuit-theme .track-sector circle { fill:#050609; stroke:#f1f3f6; stroke-width:1; }
+.circuit-theme .track-sector text { fill:#fff; }
+.circuit-theme .track-sector.sector-one circle { stroke:#ff453a; }
+.circuit-theme .track-sector.sector-two circle { stroke:#3b82f6; }
+.circuit-theme .map-legend { padding-top:3px; color:#8f96a3; }
+.circuit-theme .circuit-hud { color:#8c94a3; }
+.circuit-theme .circuit-hud>span i { background:#ff2a18; box-shadow:0 0 7px #ff2a1840; }
