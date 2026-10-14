@@ -782,3 +782,16 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .pitwall-race-controls{order:0}
   .circuit-theme svg{max-height:240px}
 }
+
+
+/* Pit-wall console polish: readable, vertically stacked driver workstations on desktop. */
+@media(min-width:1101px){
+  .strategy-panel .strategy-grid{grid-template-columns:minmax(0,1fr)}
+  .strategy-panel .driver-strategy{padding:14px 16px}
+  .strategy-panel .driver-strategy+.driver-strategy{border-left:0;border-top:1px solid var(--line)}
+  .strategy-panel .driver-head{gap:12px}
+  .strategy-panel .driver-number{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px}
+  .strategy-panel .driver-metrics{grid-template-columns:1fr 1fr;gap:18px}
+  .strategy-panel .pitwall-race-controls{border-top:0;border-bottom:1px solid var(--line);background:linear-gradient(110deg,#191a1e,#15161b)}
+  .strategy-panel .pitwall-race-controls .primary-button{min-width:132px}
+}
