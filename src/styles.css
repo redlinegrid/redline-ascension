@@ -819,3 +819,40 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .strategy-panel .pitwall-race-controls .speed-control button{min-width:38px;padding:7px 9px;}
   .strategy-panel .driver-metrics{gap:8px;}
 }
+
+
+/* Mobile race flow: put actionable pit-wall controls before supporting telemetry. */
+@media(max-width:760px){
+  .content-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .content-grid>.strategy-panel{grid-column:1;grid-row:1}
+  .content-grid>.race-panel{grid-column:1;grid-row:2}
+  .content-grid>.race-control-alert{grid-column:1;grid-row:3}
+  .content-grid>.standings-panel{grid-column:1;grid-row:4}
+  .content-grid>.event-panel{grid-column:1;grid-row:5}
+  .strategy-panel .panel-heading{padding:15px 14px 12px}
+  .strategy-panel .panel-heading h2{font-size:20px}
+  .strategy-panel .pitwall-race-controls{padding:12px;gap:10px}
+  .strategy-panel .pitwall-race-controls .primary-button{min-height:46px;font-size:11px}
+  .strategy-panel .pitwall-race-controls .speed-control button{min-width:48px;min-height:42px;font-size:11px}
+  .strategy-panel .driver-strategy{padding:14px 12px}
+  .strategy-panel .driver-ident strong{font-size:14px}
+  .strategy-panel .segmented{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .strategy-panel .segmented button{min-width:0;min-height:44px;padding:10px 4px;font-size:10px}
+  .strategy-panel .strategy-row{gap:9px}
+  .strategy-panel .strategy-row label{min-width:0;font-size:10px}
+  .strategy-panel .strategy-row select{width:100%;min-height:44px;font-size:12px}
+  .strategy-panel .engineer-note{margin:12px;padding:12px}
+  .race-panel .panel-heading,.standings-panel .panel-heading,.event-panel .panel-heading{padding:14px}
+  .race-panel .panel-heading h2,.standings-panel .panel-heading h2,.event-panel .panel-heading h2{font-size:19px}
+  .standings-table{overflow-x:auto}
+  .standings-row,.table-header{min-width:340px}
+  .event-list{padding:0 14px;max-height:300px}
+  .race-control-alert{margin:0;padding:12px}
+}
+@media(max-width:390px){
+  .strategy-panel .driver-metrics{grid-template-columns:minmax(0,1fr);gap:10px}
+  .strategy-panel .driver-metrics>div{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center}
+  .strategy-panel .driver-metrics .meter{grid-column:1/-1}
+  .strategy-panel .strategy-row{grid-template-columns:minmax(0,1fr)}
+  .race-panel .lap-badge{font-size:8px;padding:7px}
+}
