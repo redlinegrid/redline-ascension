@@ -430,6 +430,7 @@ export default function App() {
     next.playerTeamSecondaryColor = race.playerTeamSecondaryColor ?? teamSecondaryColor;
     next.cars = next.cars.map((car) => car.playerCar ? { ...car, teamColor: next.playerTeamColor! } : car);
     next.upgradeModules = { ...(race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }) };
+    next.installedUpgrades = [...(race.installedUpgrades ?? [])];
     next.teamPoints = { ...(race.teamPoints ?? {}) };
     setRace(next);
     setShowIntermission(false);
