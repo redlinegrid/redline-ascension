@@ -396,6 +396,7 @@ export function applyStartingUpgrade(state: RaceState, cardId: string): RaceStat
   if (card.cashBonus) next.cash += card.cashBonus;
   next.installedUpgrades = [...(next.installedUpgrades ?? []), { id: card.id, title: card.title, subtitle: card.subtitle, rarity: card.rarity, effect: card.effect, upgradeType: card.upgradeType, amount: card.amount, cashBonus: card.cashBonus }];
   if (card.trait) next.buildTraits = [...new Set([...(next.buildTraits ?? []), card.trait])];
+  if (card.trait) next.buildTraits = [...new Set([...(next.buildTraits ?? []), card.trait])];
   next.upgradeLevel = 1;
   addEvent(next, "Pre-season development pick: " + card.title + ". " + card.effect);
   return next;
@@ -409,6 +410,7 @@ export function upgradeCar(state: RaceState, cardId: string): RaceState {
   if (card.upgradeType && card.amount) next.upgradeModules[card.upgradeType] += card.amount;
   if (card.cashBonus) next.cash += card.cashBonus;
   next.installedUpgrades = [...(next.installedUpgrades ?? []), { id: card.id, title: card.title, subtitle: card.subtitle, rarity: card.rarity, effect: card.effect, upgradeType: card.upgradeType, amount: card.amount, cashBonus: card.cashBonus }];
+  if (card.trait) next.buildTraits = [...new Set([...(next.buildTraits ?? []), card.trait])];
   next.upgradeLevel += 1;
   next.weekendNumber += 1; next.status = "ready"; next.lap = 1; next.elapsedSeconds = 0;
   next.seed = (next.seed + 947) >>> 0; next.eventSequence = 0; next.events = [];
