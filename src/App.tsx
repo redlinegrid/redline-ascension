@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
@@ -606,8 +606,8 @@ function PitWallGraphic() {
   </div>;
 }
 
-function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, onTyre, onPitLap }: {
-  car: CarState; status: RaceState["status"]; teamName: string; advice: StrategyAdvice | null; onApplyAdvice: () => void; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void;
+function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, onTyre, onPitLap, onBattleMode, onFuelMode }: {
+  car: CarState; status: RaceState["status"]; teamName: string; advice: StrategyAdvice | null; onApplyAdvice: () => void; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void; onBattleMode: (mode: BattleMode) => void; onFuelMode: (mode: FuelMode) => void;
 }) {
   const disabled = status === "finished" || status === "gameover";
   return <div className="driver-strategy">
@@ -622,6 +622,10 @@ function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, 
     </div>}
     <div className="strategy-label">PACE MODE · SPEED VS TYRE/FUEL COST</div>
     <div className="segmented">{(["CONSERVE", "BALANCED", "PUSH"] as Pace[]).map((pace) => <button key={pace} disabled={disabled} className={car.pace === pace ? "selected" : ""} onClick={() => onPace(pace)}>{pace}</button>)}</div>
+    <div className="strategy-label strategy-control-label">RACECRAFT · HOW TO FIGHT TRAFFIC</div>
+    <div className="segmented">{(["STANDARD", "OVERTAKE", "DEFEND"] as BattleMode[]).map((mode) => <button key={mode} disabled={disabled} className={(car.battleMode ?? "STANDARD") === mode ? "selected" : ""} onClick={() => onBattleMode(mode)}>{mode}</button>)}</div>
+    <div className="strategy-label strategy-control-label">FUEL DEPLOYMENT · PACE VS RANGE</div>
+    <div className="segmented">{(["SAVE", "NORMAL", "DEPLOY"] as FuelMode[]).map((mode) => <button key={mode} disabled={disabled} className={(car.fuelMode ?? "NORMAL") === mode ? "selected" : ""} onClick={() => onFuelMode(mode)}>{mode}</button>)}</div>
     <div className="strategy-row">
       <label>Next tyre<select disabled={disabled} value={car.nextTyre} onChange={(e) => onTyre(e.target.value as Tyre)}><option value="SOFT">Soft</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></label>
       <label>Pit target<select disabled={disabled} value={car.pitLap} onChange={(e) => onPitLap(Number(e.target.value))}>{Array.from({ length: 12 }, (_, i) => i + 3).map((lap) => <option key={lap} value={lap}>Lap {lap}</option>)}</select></label>
@@ -884,7 +888,7 @@ export default function App() {
   const masteredTechnologyCount = UPGRADE_CARD_POOL.filter((card) => (codexMeta.usageCounts[card.id] ?? 0) >= 3).length;
   const draftCards = useMemo(() => race.status === "finished" || isInitialDraft ? draftUpgradeCards(race, { discoveredCount: discoveredTechnologyCount }) : [], [race.status, race.seed, race.weekendNumber, isInitialDraft, discoveredTechnologyCount]);
   const selectedDraft = draftCards.find((card) => card.id === selectedDraftId) ?? draftCards[0];
-  const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
+  const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap" | "battleMode" | "fuelMode">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string, primary = teamPrimaryColor, secondary = teamSecondaryColor, mode: GameMode = selectedMode) => {
     const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal, mode);
     fresh.teamMorale = 62;
@@ -1211,8 +1215,8 @@ export default function App() {
         <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => {
           const advice = getStrategyAdvice(race, car.id);
           return <DriverStrategy key={car.id} car={car} status={race.status} teamName={playerTeamName} advice={advice}
-            onApplyAdvice={() => { if (!advice) return; if (advice.action === "PIT") setStrategy(car, { pitLap: Math.max(3, Math.min(race.totalLaps - 1, Math.floor(car.progress) + 1)) }); else setStrategy(car, { pace: advice.action }); }}
-            onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })}/>;
+            onApplyAdvice={() => { if (!advice) return; if (advice.action === "PIT") setStrategy(car, { pitLap: Math.max(3, Math.min(race.totalLaps - 1, Math.floor(car.progress) + 1)) }); else if (advice.action === "OVERTAKE") setStrategy(car, { battleMode: "OVERTAKE" }); else if (advice.action === "DEFEND") setStrategy(car, { battleMode: "DEFEND" }); else if (advice.action === "FUEL_SAVE") setStrategy(car, { fuelMode: "SAVE" }); else setStrategy(car, { pace: advice.action }); }}
+            onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })} onBattleMode={(battleMode) => setStrategy(car, { battleMode })} onFuelMode={(fuelMode) => setStrategy(car, { fuelMode })}/>;
         })}</div>
         <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.safetyCarActive ? "Safety car conditions reduce tyre wear and fuel use. This can be a low-cost pit window, but calling both cars together may cost track position." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. CONSERVE protects the stint; PUSH trades tyre life and fuel for lap time. Adjust each car independently." : "Tyre life is manageable. PUSH gains pace but burns more fuel and rubber; CONSERVE extends the stint. Watch traffic and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
