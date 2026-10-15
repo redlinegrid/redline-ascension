@@ -600,6 +600,7 @@ return next;
 }
 export function upgradeCar(state:RaceState,cardId:string):RaceState{
 if(state.status!=="finished")return state;
+const previouslyActiveEvolutions=new Set(state.activeEvolutions??[]);
 const card=draftUpgradeCards(state).find((item)=>item.id===cardId);
 if(!card)return state;
 const next=structuredClone(state);
@@ -616,6 +617,7 @@ const fresh=createRace(next.seed,next.upgradeLevel,next.cash,next.weekendNumber,
 next.cars=fresh.cars;
 next.cars.forEach((car)=>{car.condition=Math.max(72,car.condition -(car.playerCar?2.5:0));if(car.playerCar){car.tyre="MEDIUM";car.nextTyre="HARD";car.tyreWear=0.02;car.fuel=100;car.pitLap=7;}});
 addEvent(next,"Weekend "+(next.weekendNumber - 1)+": drafted "+card.title+". "+card.effect);
+for(const evolutionId of next.activeEvolutions??[]){if(previouslyActiveEvolutions.has(evolutionId))continue;const evolution=UPGRADE_EVOLUTIONS.find((item)=>item.id===evolutionId);if(evolution)addEvent(next,"TECH EVOLUTION UNLOCKED: "+evolution.title+". "+evolution.rewardText,"info");}
 return next;
 }
 export function standings(state:RaceState):CarState[]{return[...state.cars].sort((a,b)=>{if(a.finished&&b.finished)return(a.finishTime??Infinity)-(b.finishTime??Infinity);if(a.finished)return -1;if(b.finished)return 1;return b.progress - a.progress;});}
