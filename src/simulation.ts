@@ -5,6 +5,17 @@ export type GameMode="championship"|"endless";
 import{RIVAL_STYLE_BY_TEAM,type RivalStyle,}from "./rivals";
 export const CAMPAIGN_LENGTH=20;
 export const POINTS_BY_POSITION=[25,18,15,12,10,8,6,4,2,1]as const;
+export interface ChampionshipAchievement { id:string; title:string; detail:string; round:number; cashReward:number; researchReward:number; }
+export const CHAMPIONSHIP_ACHIEVEMENTS=[
+{id:"first-points",title:"FIRST POINTS",description:"Finish a race inside the top ten.",cashReward:50000,researchReward:1},
+{id:"first-podium",title:"FIRST PODIUM",description:"Finish a race inside the top three.",cashReward:75000,researchReward:2},
+{id:"first-win",title:"FIRST VICTORY",description:"Win your first race.",cashReward:100000,researchReward:2},
+{id:"five-points-finishes",title:"POINTS REGULAR",description:"Record five top-ten finishes in one championship.",cashReward:125000,researchReward:2},
+{id:"three-points-streak",title:"ON THE CHARGE",description:"Score points in three consecutive rounds.",cashReward:100000,researchReward:2},
+{id:"century-club",title:"CENTURY CLUB",description:"Earn 100 championship points.",cashReward:150000,researchReward:3},
+{id:"top-three-season",title:"PODIUM CAMPAIGN",description:"Finish the 20-round season in the top three.",cashReward:250000,researchReward:4},
+{id:"world-champion",title:"WORLD CHAMPION",description:"Finish the season first in the championship.",cashReward:500000,researchReward:6},
+] as const;
 export type UpgradeType="aero"|"power"|"suspension"|"reliability";
 export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first";
 export interface UpgradeModules{aero:number;power:number;suspension:number;reliability:number;}
@@ -138,6 +149,9 @@ permanentPerks?:Record<string,number>;
 weekendNumber:number;
 teamPoints?:Record<string,number>;
 championshipMilestones?:number[];
+championshipAchievements?:string[];
+championshipRaceResults?:{round:number;position:number;points:number}[];
+latestChampionshipAchievements?:ChampionshipAchievement[];
 latestChampionshipMilestone?:{round:number;title:string;detail:string;reward:number;position:number;};
 rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
@@ -399,6 +413,37 @@ state.cars.forEach((car,index)=>{
 const points=POINTS_BY_POSITION[index]??0;
 state.teamPoints![car.team]=(state.teamPoints![car.team]??0)+points;
 });
+state.latestChampionshipAchievements=[];
+if((state.mode??"championship")==="championship"){
+const playerPoints=POINTS_BY_POSITION[playerPosition-1]??0;
+state.championshipRaceResults=[...(state.championshipRaceResults??[]),{round:state.weekendNumber,position:playerPosition,points:playerPoints}];
+state.championshipAchievements??=[];
+const results=state.championshipRaceResults;
+const pointsFinishes=results.filter((result)=>result.position>0&&result.position<=10).length;
+const lastThree=results.slice(-3);
+const playerTeam=state.playerTeamName??state.cars.find((car)=>car.playerCar)?.team??"Redline GP";
+const championshipOrder=Object.entries(state.teamPoints!).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+const seasonPosition=championshipOrder.findIndex(([team])=>team===playerTeam)+1;
+const eligible=[
+{...CHAMPIONSHIP_ACHIEVEMENTS[0],unlocked:playerPosition<=10},
+{...CHAMPIONSHIP_ACHIEVEMENTS[1],unlocked:playerPosition<=3},
+{...CHAMPIONSHIP_ACHIEVEMENTS[2],unlocked:playerPosition===1},
+{...CHAMPIONSHIP_ACHIEVEMENTS[3],unlocked:pointsFinishes>=5},
+{...CHAMPIONSHIP_ACHIEVEMENTS[4],unlocked:lastThree.length===3&&lastThree.every((result)=>result.position<=10)},
+{...CHAMPIONSHIP_ACHIEVEMENTS[5],unlocked:(state.teamPoints![playerTeam]??0)>=100},
+{...CHAMPIONSHIP_ACHIEVEMENTS[6],unlocked:state.weekendNumber>=CAMPAIGN_LENGTH&&seasonPosition<=3},
+{...CHAMPIONSHIP_ACHIEVEMENTS[7],unlocked:state.weekendNumber>=CAMPAIGN_LENGTH&&seasonPosition===1},
+];
+for(const achievement of eligible){
+if(achievement.unlocked&&!state.championshipAchievements.includes(achievement.id)){
+const unlocked:ChampionshipAchievement={id:achievement.id,title:achievement.title,detail:achievement.description,round:state.weekendNumber,cashReward:achievement.cashReward,researchReward:achievement.researchReward};
+state.championshipAchievements.push(achievement.id);
+state.latestChampionshipAchievements.push(unlocked);
+state.cash+=achievement.cashReward;
+addEvent(state,"ACHIEVEMENT UNLOCKED — "+achievement.title+". "+achievement.description+" Reward: RM"+achievement.cashReward.toLocaleString("en-MY")+" and "+achievement.researchReward+" Research Points.","finish");
+}
+}
+}
 if((state.mode??"championship")==="championship"&&state.weekendNumber%5===0&&!(state.championshipMilestones??[]).includes(state.weekendNumber)){
 const playerTeam=state.playerTeamName??state.cars.find((car)=>car.playerCar)?.team??"Redline GP";
 const championshipOrder=Object.entries(state.teamPoints!).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
@@ -497,7 +542,7 @@ if(card.cashBonus)next.cash+=card.cashBonus;
 next.installedUpgrades=[...(next.installedUpgrades??[]),{id:card.id,title:card.title,subtitle:card.subtitle,rarity:card.rarity,effect:card.effect,upgradeType:card.upgradeType,amount:card.amount,cashBonus:card.cashBonus}];
 if(card.trait)next.buildTraits=[...new Set([...(next.buildTraits??[]),card.trait])];
 next.upgradeLevel+=1;
-next.weekendNumber+=1;next.latestChampionshipMilestone=undefined;next.status="ready";next.lap=1;next.elapsedSeconds=0;
+next.weekendNumber+=1;next.latestChampionshipMilestone=undefined;next.latestChampionshipAchievements=[];next.status="ready";next.lap=1;next.elapsedSeconds=0;
 next.seed=(next.seed+947)>>>0;next.eventSequence=0;next.events=[];
 const fresh=createRace(next.seed,next.upgradeLevel,next.cash,next.weekendNumber,next.playerTeamName??next.cars.find((car)=>car.playerCar)?.team??"Redline GP",next.cars.find((car)=>car.id==="rp-1")?.driver??"Alex Mercer",next.cars.find((car)=>car.id==="rp-2")?.driver??"Mika Tanaka",next.playerPrincipalName??"Team Principal");
 next.cars=fresh.cars;
