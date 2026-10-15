@@ -662,16 +662,16 @@ export default function App() {
     const runId = race.seed + ":" + race.weekendNumber;
     const playerPosition = standings(race).findIndex((car) => car.playerCar) + 1;
     const earned = 1 + (playerPosition > 0 && playerPosition <= 3 ? 1 : 0) + Math.floor(garageLevel(garageMeta, "research-efficiency") / 2);
-    const newlyRewarded = (race.latestChampionshipAchievements ?? []).filter((achievement) => !(garageMeta.rewardedAchievements ?? []).includes(achievement.id));
+    const newlyRewarded = (race.latestChampionshipAchievements ?? []).filter((achievement) => !(garageMeta.rewardedAchievements ?? []).includes(race.seed + ":" + achievement.id));
     setGarageMeta((current) => {
-      const rewardable = newlyRewarded.filter((achievement) => !(current.rewardedAchievements ?? []).includes(achievement.id));
+      const rewardable = newlyRewarded.filter((achievement) => !(current.rewardedAchievements ?? []).includes(race.seed + ":" + achievement.id));
       const alreadyRewardedRun = current.rewardedRuns.includes(runId);
       if (alreadyRewardedRun && rewardable.length === 0) return current;
       return {
         ...current,
         research: current.research + (alreadyRewardedRun ? 0 : earned) + rewardable.reduce((total, achievement) => total + achievement.researchReward, 0),
         rewardedRuns: alreadyRewardedRun ? current.rewardedRuns : [...current.rewardedRuns, runId].slice(-500),
-        rewardedAchievements: [...new Set([...(current.rewardedAchievements ?? []), ...rewardable.map((achievement) => achievement.id)])].slice(-100),
+        rewardedAchievements: [...new Set([...(current.rewardedAchievements ?? []), ...rewardable.map((achievement) => race.seed + ":" + achievement.id)])].slice(-100),
       };
     });
   }, [race.status, race.seed, race.weekendNumber, race.cars, race.latestChampionshipAchievements, garageMeta.rewardedRuns, garageMeta.rewardedAchievements, garageMeta.levels]);
@@ -963,7 +963,7 @@ export default function App() {
         </div>
         <div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
       </section>
-      <section className="panel championship-achievements-panel" aria-label="Championship achievements">
+      {(race.mode ?? "championship") === "championship" && <section className="panel championship-achievements-panel" aria-label="Championship achievements">
         <div className="panel-heading"><div><div className="section-kicker">SEASON PROGRESSION</div><h2>Championship achievements</h2></div><span className="field-count">{(race.championshipAchievements ?? []).length}/{CHAMPIONSHIP_ACHIEVEMENTS.length} UNLOCKED</span></div>
         <div className="achievement-progress-track"><i style={{ width: (((race.championshipAchievements ?? []).length / CHAMPIONSHIP_ACHIEVEMENTS.length) * 100) + "%" }}/></div>
         <div className="achievement-grid">{CHAMPIONSHIP_ACHIEVEMENTS.map((achievement) => {
@@ -980,7 +980,7 @@ export default function App() {
           return <article className={"achievement-card" + (unlocked ? " achievement-unlocked" : "")} key={achievement.id}><div className="achievement-card-top"><span>{unlocked ? "✓ UNLOCKED" : "ACHIEVEMENT"}</span><b>RM{achievement.cashReward.toLocaleString("en-MY")}</b></div><h3>{achievement.title}</h3><p>{achievement.description}</p><div className="achievement-card-progress"><span>{progressLabel}</span><small>+{achievement.researchReward} RP</small></div><div className="achievement-card-track"><i style={{ width: bar + "%" }}/></div></article>;
         })}</div>
         {(race.latestChampionshipAchievements ?? []).length > 0 && <div className="achievement-unlock-feed">{race.latestChampionshipAchievements.map((achievement) => <div key={achievement.id}><strong>★ {achievement.title}</strong><span>{achievement.detail} · +RM{achievement.cashReward.toLocaleString("en-MY")} · +{achievement.researchReward} RP</span></div>)}</div>}
-      </section>
+      </section>}
       </div>
       {race.status === "finished" && <section className="panel upgrade-panel roguelite-panel">
         <div className="upgrade-copy">
