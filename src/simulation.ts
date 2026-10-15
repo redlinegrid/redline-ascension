@@ -115,6 +115,7 @@ export interface CarState {
   team: string;
   teamColor: string;
   playerCar: boolean;
+  rivalStyle?: RivalStyle;
   progress: number;
   lapTime: number;
   tyre: Tyre;
