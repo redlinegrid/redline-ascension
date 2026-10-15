@@ -262,10 +262,11 @@ const consistencyNoise=1+(80 - car.driverConsistency)*0.012;
 const noise=(random(state)- 0.5)*0.85*consistencyNoise;
 const racecraftBonus=(car.driverRacecraft - 80)*0.009;
 const rivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.991:car.rivalStyle==='aggressive-racer'?0.986:car.rivalStyle==='high-risk-attacker'?0.981:car.rivalStyle==='defensive-specialist'&&state.cars.some((other)=>other.playerCar&&Math.abs(other.progress-car.progress)<0.055)?0.99:car.rivalStyle==='development-team'&&state.weekendNumber>=8?0.988:car.rivalStyle==='opportunist'&&state.safetyCarActive?0.975:1;
+const rivalryPressure=!car.playerCar?Math.min(0.012,(state.rivalryBattles?.[car.team]??0)*0.003):0;
 const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
 const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
-const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
+const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
 car.lastLap=lapSeconds;
 car.bestLap=car.bestLap===0?lapSeconds:Math.min(car.bestLap,lapSeconds);
 const previousProgress=car.progress;
@@ -357,7 +358,15 @@ for(const rival of state.cars.filter((car)=>!car.playerCar)){
 const rivalPosition=state.cars.findIndex((car)=>car.team===rival.team)+1;
 if(playerPosition>0&&rivalPosition>playerPosition)beatenTeams.add(rival.team);
 }
-for(const team of beatenTeams)state.rivalryWins[team]=(state.rivalryWins[team]??0)+1;
+const rivalTeams=[...new Set(state.cars.filter((car)=>!car.playerCar).map((car)=>car.team))];
+for(const team of rivalTeams){
+if(beatenTeams.has(team)){
+state.rivalryWins[team]=(state.rivalryWins[team]??0)+1;
+state.rivalryBattles![team]=Math.min(10,(state.rivalryBattles![team]??0)+1);
+}else state.rivalryBattles![team]=0;
+}
+const mostMotivated=rivalTeams.map((team)=>({team,streak:state.rivalryBattles![team]??0})).sort((a,b)=>b.streak-a.streak)[0];
+if(mostMotivated&&mostMotivated.streak>=2)addEvent(state,"RIVALRY ALERT — "+mostMotivated.team+" have lost "+mostMotivated.streak+" straight battles to your team. Their engineers are targeting you next weekend.","warning");
 const rivalryBonus=Math.min(150000,beatenTeams.size*15000);
 if(rivalryBonus>0){state.cash+=rivalryBonus;addEvent(state,"Rivalry bonus: "+beatenTeams.size+" rival teams beaten. Commercial partners add RM"+rivalryBonus.toLocaleString("en-MY")+".","info");}
 state.cars.forEach((car,index)=>{
