@@ -184,3 +184,6 @@ The Synergy Lab now lists data-driven technology evolution recipes. Installing a
 ## Research & Mastery — Update C
 
 Engineering discoveries now award +1 permanent Research Point the first time each technology is installed, and technology mastery awards +2 RP once after a technology appears in three completed runs. Research Lab discovery milestones progressively improve upgrade drafts: 10 discoveries guarantee a Rare-or-better card, 20 guarantee an Epic-or-better card, and 30 guarantee a Legendary card. Reward ledgers are persisted locally and included in Save / Transfer, with safe defaults for older saves.
+
+### In-draft technology evolution clues
+Upgrade cards now show compact combination hints for technologies used in the eight existing evolutions. If the complementary technology is already installed, the card marks the evolution as ready; otherwise, it names the technology to pair with. Hints appear in the initial draft and post-race development choices, without changing the evolution rules or saved-game format.
