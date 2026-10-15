@@ -137,6 +137,8 @@ buildTraits?:RunTrait[];
 permanentPerks?:Record<string,number>;
 weekendNumber:number;
 teamPoints?:Record<string,number>;
+championshipMilestones?:number[];
+latestChampionshipMilestone?:{round:number;title:string;detail:string;reward:number;position:number;};
 rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
 rivalryFeudTeam?:string;
@@ -397,6 +399,21 @@ state.cars.forEach((car,index)=>{
 const points=POINTS_BY_POSITION[index]??0;
 state.teamPoints![car.team]=(state.teamPoints![car.team]??0)+points;
 });
+if((state.mode??"championship")==="championship"&&state.weekendNumber%5===0&&!(state.championshipMilestones??[]).includes(state.weekendNumber)){
+const playerTeam=state.playerTeamName??state.cars.find((car)=>car.playerCar)?.team??"Redline GP";
+const championshipOrder=Object.entries(state.teamPoints!).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+const championshipPosition=championshipOrder.findIndex(([team])=>team===playerTeam)+1;
+const standingReward=championshipPosition===1?250000:championshipPosition<=3?175000:championshipPosition<=5?125000:championshipPosition<=10?75000:35000;
+const raceWinBonus=playerPosition===1?75000:0;
+const reward=standingReward+raceWinBonus;
+const title=state.weekendNumber===CAMPAIGN_LENGTH?"SEASON FINALE MILESTONE":"ROUND "+state.weekendNumber+" CHAMPIONSHIP MILESTONE";
+const standingLabel=championshipPosition===1?"leading the championship":championshipPosition<=3?"inside the championship top three":championshipPosition<=5?"inside the championship top five":championshipPosition<=10?"inside the championship points top ten":"outside the current championship top ten";
+const detail="Your team is "+standingLabel+". "+(raceWinBonus?"Race victory bonus included. ":"")+"Milestone commercial reward secured.";
+state.cash+=reward;
+state.championshipMilestones=[...(state.championshipMilestones??[]),state.weekendNumber];
+state.latestChampionshipMilestone={round:state.weekendNumber,title,detail,reward,position:championshipPosition};
+addEvent(state,"CHAMPIONSHIP MILESTONE — "+title+". Championship position: P"+championshipPosition+". Commercial partners award RM"+reward.toLocaleString("en-MY")+".","finish");
+}
 if((state.mode??"championship")==="championship"&&state.weekendNumber>=CAMPAIGN_LENGTH){
 state.status="gameover";
 addEvent(state,"Campaign complete. Final championship points have been locked.","finish");
@@ -480,7 +497,7 @@ if(card.cashBonus)next.cash+=card.cashBonus;
 next.installedUpgrades=[...(next.installedUpgrades??[]),{id:card.id,title:card.title,subtitle:card.subtitle,rarity:card.rarity,effect:card.effect,upgradeType:card.upgradeType,amount:card.amount,cashBonus:card.cashBonus}];
 if(card.trait)next.buildTraits=[...new Set([...(next.buildTraits??[]),card.trait])];
 next.upgradeLevel+=1;
-next.weekendNumber+=1;next.status="ready";next.lap=1;next.elapsedSeconds=0;
+next.weekendNumber+=1;next.latestChampionshipMilestone=undefined;next.status="ready";next.lap=1;next.elapsedSeconds=0;
 next.seed=(next.seed+947)>>>0;next.eventSequence=0;next.events=[];
 const fresh=createRace(next.seed,next.upgradeLevel,next.cash,next.weekendNumber,next.playerTeamName??next.cars.find((car)=>car.playerCar)?.team??"Redline GP",next.cars.find((car)=>car.id==="rp-1")?.driver??"Alex Mercer",next.cars.find((car)=>car.id==="rp-2")?.driver??"Mika Tanaka",next.playerPrincipalName??"Team Principal");
 next.cars=fresh.cars;
