@@ -918,6 +918,33 @@ export default function App() {
     next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
     next.rivalryHistory = Object.fromEntries(Object.entries(race.rivalryHistory ?? {}).map(([team, history]) => [team, [...history]]));
     next.rivalryFeudTeam = race.rivalryFeudTeam;
+    if ((race.mode ?? "championship") === "championship") {
+      const rivalTeams = [...new Set(race.cars.filter((car) => !car.playerCar).map((car) => car.team))];
+      const adaptiveRival = race.rivalryFeudTeam ?? rivalTeams
+        .map((team) => ({ team, streak: race.rivalryBattles?.[team] ?? 0 }))
+        .filter((item) => item.streak >= 2)
+        .sort((a, b) => b.streak - a.streak)[0]?.team;
+      if (adaptiveRival) {
+        const playerCars = race.cars.filter((car) => car.playerCar);
+        const averages = {
+          pace: playerCars.reduce((sum, car) => sum + car.driverPace, 0) / Math.max(1, playerCars.length),
+          racecraft: playerCars.reduce((sum, car) => sum + car.driverRacecraft, 0) / Math.max(1, playerCars.length),
+          "tyre-management": playerCars.reduce((sum, car) => sum + car.driverTyreManagement, 0) / Math.max(1, playerCars.length),
+          consistency: playerCars.reduce((sum, car) => sum + car.driverConsistency, 0) / Math.max(1, playerCars.length),
+        };
+        next.nemesisTeam = adaptiveRival;
+        next.nemesisTarget = (Object.entries(averages).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "pace") as "pace" | "racecraft" | "tyre-management" | "consistency";
+        next.nemesisShowdown = next.weekendNumber % 5 === 0;
+      } else {
+        next.nemesisTeam = undefined;
+        next.nemesisTarget = undefined;
+        next.nemesisShowdown = false;
+      }
+    } else {
+      next.nemesisTeam = undefined;
+      next.nemesisTarget = undefined;
+      next.nemesisShowdown = false;
+    }
     next.rivalryFeudBonus = race.rivalryFeudBonus;
     next.weekendEffect = race.nextWeekendEffect;
     next.weekendEffectTitle = race.nextWeekendEffectTitle;
@@ -1120,6 +1147,11 @@ export default function App() {
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
 
+      {(race.mode ?? "championship") === "championship" && race.nemesisTeam && <section className={"championship-nemesis-panel" + (race.nemesisShowdown ? " nemesis-showdown" : "")} aria-label="Championship nemesis storyline">
+        <div className="nemesis-panel-mark">{race.nemesisShowdown ? "⚑" : "↗"}</div>
+        <div className="nemesis-panel-copy"><span className="section-kicker">{race.nemesisShowdown ? "CHAMPIONSHIP SHOWDOWN · ROUND " + race.weekendNumber : "RIVAL STORYLINE · ROUND " + race.weekendNumber}</span><h3>{race.nemesisTeam} {race.nemesisShowdown ? "— Showdown Weekend" : "are adapting to your team"}</h3><p>{race.nemesisTarget === "pace" ? "Their engineers are prioritising raw speed to attack your team's weakest pace profile." : race.nemesisTarget === "racecraft" ? "Their drivers are studying your racecraft and will attack when they get close on track." : race.nemesisTarget === "tyre-management" ? "Their strategists are targeting your tyre management, forcing your crew to protect stint life." : "Their analysts are exploiting consistency gaps and trying to force mistakes."} {race.nemesisShowdown ? "This is a major season checkpoint: the rival's tactical pace advantage is stronger this weekend." : "Expect a small tactical edge for the rival until you beat them and break the storyline."}</p></div>
+        <span className="nemesis-panel-status">{race.nemesisShowdown ? "SHOWDOWN" : "ADAPTING"}</span>
+      </section>}
       {race.weekendEffect && <section className={"weekend-condition-panel condition-" + race.weekendEffect} aria-label="Race weekend condition"><div><span className="section-kicker">WEEKEND BRIEFING · ACTIVE CONDITION</span><h3>{race.weekendEffectTitle ?? "Race weekend conditions"}</h3></div><p>{race.weekendEffect === "wet-prepared" ? "Wet-weather preparation is active: your cars gain pace and tyre control in changing conditions." : race.weekendEffect === "wet-unprepared" ? "The team skipped wet-weather preparation. Rain could cost your cars pace." : race.weekendEffect === "directive-compliant" ? "The technical directive was handled early. A small pace compromise avoids a larger scrutineering disruption." : race.weekendEffect === "directive-restricted" ? "The team challenged the technical directive. The current package is restricted and costs extra pace." : race.weekendEffect === "spares-secured" ? "Emergency spare parts are ready. Component condition loss is significantly reduced." : race.weekendEffect === "feud-attack" ? "Showdown mode is active: your cars gain a stronger pace edge against your nemesis, but tyre wear rises." : race.weekendEffect === "feud-composed" ? "A controlled feud strategy is active. Your cars give up a little peak pace, while your nemesis receives a smaller pace boost." : "Spare parts are running short. Component condition will deteriorate faster this weekend."}</p></section>}
         <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
                 <section className="rival-intel-panel" aria-label="Rival team intelligence">
