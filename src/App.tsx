@@ -935,6 +935,7 @@ export default function App() {
         next.nemesisTeam = adaptiveRival;
         next.nemesisTarget = (Object.entries(averages).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "pace") as "pace" | "racecraft" | "tyre-management" | "consistency";
         next.nemesisShowdown = next.weekendNumber % 5 === 0;
+        next.championshipObjective = { id: "beat-nemesis", title: "Beat the Nemesis", detail: "Finish ahead of at least one car from " + adaptiveRival + " to claim a special board reward.", targetTeam: adaptiveRival, reward: 160000 };
       } else {
         next.nemesisTeam = undefined;
         next.nemesisTarget = undefined;
@@ -1147,6 +1148,11 @@ export default function App() {
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
 
+      {(race.mode ?? "championship") === "championship" && race.championshipObjective && <section className={"championship-objective-panel" + (race.status === "finished" ? race.championshipObjective.completed ? " objective-complete" : " objective-missed" : "")} aria-label="Championship weekend objective">
+        <div className="objective-panel-mark">{race.status === "finished" ? race.championshipObjective.completed ? "✓" : "×" : "◎"}</div>
+        <div className="objective-panel-copy"><span className="section-kicker">{race.status === "finished" ? race.championshipObjective.completed ? "BOARD TARGET ACHIEVED" : "BOARD TARGET MISSED" : "CHAMPIONSHIP BRIEFING · ROUND " + race.weekendNumber}</span><h3>{race.championshipObjective.title}</h3><p>{race.championshipObjective.detail}</p></div>
+        <div className="objective-panel-reward"><span>{race.status === "finished" ? race.championshipObjective.completed ? "REWARD EARNED" : "POTENTIAL REWARD" : "BONUS PAYOUT"}</span><strong>RM{race.championshipObjective.reward.toLocaleString("en-MY")}</strong></div>
+      </section>}
       {(race.mode ?? "championship") === "championship" && race.nemesisTeam && <section className={"championship-nemesis-panel" + (race.nemesisShowdown ? " nemesis-showdown" : "")} aria-label="Championship nemesis storyline">
         <div className="nemesis-panel-mark">{race.nemesisShowdown ? "⚑" : "↗"}</div>
         <div className="nemesis-panel-copy"><span className="section-kicker">{race.nemesisShowdown ? "CHAMPIONSHIP SHOWDOWN · ROUND " + race.weekendNumber : "RIVAL STORYLINE · ROUND " + race.weekendNumber}</span><h3>{race.nemesisTeam} {race.nemesisShowdown ? "— Showdown Weekend" : "are adapting to your team"}</h3><p>{race.nemesisTarget === "pace" ? "Their engineers are prioritising raw speed to attack your team's weakest pace profile." : race.nemesisTarget === "racecraft" ? "Their drivers are studying your racecraft and will attack when they get close on track." : race.nemesisTarget === "tyre-management" ? "Their strategists are targeting your tyre management, forcing your crew to protect stint life." : "Their analysts are exploiting consistency gaps and trying to force mistakes."} {race.nemesisShowdown ? "This is a major season checkpoint: the rival's tactical pace advantage is stronger this weekend." : "Expect a small tactical edge for the rival until you beat them and break the storyline."}</p></div>
