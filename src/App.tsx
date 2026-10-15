@@ -979,7 +979,7 @@ export default function App() {
           const bar = unlocked ? 100 : achievement.id === "century-club" ? progress : achievement.id === "five-points-finishes" || achievement.id === "three-points-streak" ? progress / target * 100 : achievement.id === "top-three-season" ? progress / target * 100 : 0;
           return <article className={"achievement-card" + (unlocked ? " achievement-unlocked" : "")} key={achievement.id}><div className="achievement-card-top"><span>{unlocked ? "✓ UNLOCKED" : "ACHIEVEMENT"}</span><b>RM{achievement.cashReward.toLocaleString("en-MY")}</b></div><h3>{achievement.title}</h3><p>{achievement.description}</p><div className="achievement-card-progress"><span>{progressLabel}</span><small>+{achievement.researchReward} RP</small></div><div className="achievement-card-track"><i style={{ width: bar + "%" }}/></div></article>;
         })}</div>
-        {(race.latestChampionshipAchievements ?? []).length > 0 && <div className="achievement-unlock-feed">{race.latestChampionshipAchievements.map((achievement) => <div key={achievement.id}><strong>★ {achievement.title}</strong><span>{achievement.detail} · +RM{achievement.cashReward.toLocaleString("en-MY")} · +{achievement.researchReward} RP</span></div>)}</div>}
+        {(race.latestChampionshipAchievements ?? []).length > 0 && <div className="achievement-unlock-feed">{(race.latestChampionshipAchievements ?? []).map((achievement) => <div key={achievement.id}><strong>★ {achievement.title}</strong><span>{achievement.detail} · +RM{achievement.cashReward.toLocaleString("en-MY")} · +{achievement.researchReward} RP</span></div>)}</div>}
       </section>}
       </div>
       {race.status === "finished" && <section className="panel upgrade-panel roguelite-panel">
