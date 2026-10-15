@@ -233,7 +233,7 @@ export function createRace(seed = 8241, upgradeLevel = 0, cash = 2500000, weeken
     { id: "r-19", driver: "Rafael Costa", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0.008 },
     { id: "r-20", driver: "Chloe Martin", team: "Kestrel Performance", color: "#5f9d63", player: false, progress: 0 }
   ];
-  state.cars = roster.map((entry, index) => makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index, entry.player ? DRIVER_MARKET.find((driver) => driver.name === entry.driver) : undefined));
+  state.cars = roster.map((entry, index) => { const car = makeCar(entry.id, entry.driver, entry.team, entry.color, entry.player, entry.progress, index, entry.player ? DRIVER_MARKET.find((driver) => driver.name === entry.driver) : undefined); car.rivalStyle = entry.player ? undefined : RIVAL_STYLE_BY_TEAM[entry.team]; if (car.rivalStyle === 'strategy-gambler') car.pitLap = 5; if (car.rivalStyle === 'consistency-expert') car.driverConsistency = Math.min(99, car.driverConsistency + 8); return car; });
   state.cars.forEach((car) => { state.teamPoints![car.team] ??= 0; });
   addEvent(state, "Race control: formation complete. Twenty-two cars ready.");
   addEvent(state, "Engineer: monitor tyre life around the middle stint.");
