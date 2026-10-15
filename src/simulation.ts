@@ -1,5 +1,7 @@
 export type Tyre="SOFT"|"MEDIUM"|"HARD";
 export type Pace="CONSERVE"|"BALANCED"|"PUSH";
+export type BattleMode="STANDARD"|"OVERTAKE"|"DEFEND";
+export type FuelMode="NORMAL"|"SAVE"|"DEPLOY";
 export type RaceStatus="ready"|"running"|"paused"|"finished"|"gameover";
 export type GameMode="championship"|"endless";
 import{RIVAL_STYLE_BY_TEAM,type RivalStyle,}from "./rivals";
@@ -189,6 +191,8 @@ nextTyre:Tyre;
 tyreWear:number;
 fuel:number;
 pace:Pace;
+battleMode:BattleMode;
+fuelMode:FuelMode;
 pitLap:number;
 pitStops:number;
 pitDelay:number;
@@ -281,7 +285,7 @@ return{
 id,driver,driverPace:stats.pace,driverRacecraft:stats.racecraft,driverTyreManagement:stats.tyreManagement,driverConsistency:stats.consistency,driverPotential:stats.potential,team,teamColor,playerCar,progress,lapTime:91.4+n*0.11 -(stats.pace - 80)*0.045,
 tyre:n % 3===0?"SOFT":n % 3===1?"MEDIUM":"HARD",
 nextTyre:n % 3===0?"MEDIUM":"HARD",
-tyreWear:0.04+n*0.012,fuel:100,pace:"BALANCED",pitLap:playerCar?7:6+n % 4,
+tyreWear:0.04+n*0.012,fuel:100,pace:"BALANCED",battleMode:"STANDARD",fuelMode:"NORMAL",pitLap:playerCar?7:6+n % 4,
 pitStops:0,pitDelay:0,condition:100,lastLap:0,bestLap:0,finishTime:null,finished:false,
 };
 }
@@ -333,6 +337,8 @@ driverRacecraft:car.driverRacecraft??profile?.racecraft??75+(index*5 % 15),
 driverTyreManagement:car.driverTyreManagement??profile?.tyreManagement??74+(index*3 % 16),
 driverConsistency:car.driverConsistency??profile?.consistency??75+(index*11 % 14),
 driverPotential:car.driverPotential??profile?.potential??78+(index*9 % 18),
+battleMode:car.battleMode??"STANDARD",
+fuelMode:car.fuelMode??"NORMAL",
 };
 });
 if(migratedCars.length>=22)return{...saved,cars:migratedCars,rivalryHistory:saved.rivalryHistory??{}};
@@ -374,7 +380,11 @@ const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
 const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
 const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
-const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
+const rivalAhead=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress>car.progress&&other.progress-car.progress<0.065);
+const rivalBehind=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress<car.progress&&car.progress-other.progress<0.045);
+const battlePaceFactor=car.battleMode==="OVERTAKE"&&rivalAhead?0.978:car.battleMode==="DEFEND"&&rivalBehind?0.99:1;
+const fuelPaceFactor=car.fuelMode==="DEPLOY"?0.985:car.fuelMode==="SAVE"?1.012:1;
+const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor*battlePaceFactor*fuelPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
 car.lastLap=lapSeconds;
 car.bestLap=car.bestLap===0?lapSeconds:Math.min(car.bestLap,lapSeconds);
 const previousProgress=car.progress;
@@ -385,11 +395,12 @@ const traitWearFactor=car.playerCar?((state.buildTraits??[]).includes("tyre-save
 const wearReduction=(car.playerCar?Math.max(0.65,1 -(state.upgradeModules?.suspension??0)*0.06):1)*driverTyreCare*traitWearFactor;
 const aeroTyreLoad=car.playerCar?1+(state.upgradeModules?.aero??0)*0.025:1;
 const enduranceWearBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
-const strategyWear=car.pace==="PUSH"?0.095:car.pace==="CONSERVE"?0.05:0.07;
+const strategyWear=(car.pace==="PUSH"?0.095:car.pace==="CONSERVE"?0.05:0.07)*(car.battleMode==="OVERTAKE"&&rivalAhead?1.16:1);
 const weekendWearFactor=state.weekendEffect==="wet-prepared"?0.92:state.weekendEffect==="parts-shortage"?1.08:1;
 car.tyreWear=Math.min(1,car.tyreWear+strategyWear*TYRE_WEAR_RATE[car.tyre]*progressDelta*wearReduction*aeroTyreLoad*enduranceWearBonus*weekendWearFactor*(state.safetyCarActive?0.42:1));
 const powerFuelLoad=car.playerCar?1+(state.upgradeModules?.power??0)*0.025:1;
-car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*(state.safetyCarActive?0.5:1));
+const fuelModeFactor=car.fuelMode==="DEPLOY"?1.22:car.fuelMode==="SAVE"?0.68:1;
+car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*fuelModeFactor*(state.safetyCarActive?0.5:1));
 const reliabilityProtection=car.playerCar?Math.min(0.75,(state.upgradeModules?.reliability??0)*0.005):0;
 const enduranceConditionBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
 const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1):1;
@@ -573,7 +584,7 @@ return state;
 export interface StrategyAdvice{
 headline:string;
 reason:string;
-action:Pace|"PIT";
+action:Pace|"PIT"|"OVERTAKE"|"DEFEND"|"FUEL_SAVE";
 actionLabel:string;
 }
 export function getStrategyAdvice(state:RaceState,carId:string):StrategyAdvice|null{
@@ -585,6 +596,8 @@ const ahead=state.cars
 .filter((item)=>!item.finished&&item.id!==car.id&&item.progress>car.progress)
 .sort((a,b)=>a.progress - b.progress)[0];
 const gapAhead=ahead?ahead.progress - car.progress:Infinity;
+const behind=state.cars.filter((item)=>!item.finished&&item.id!==car.id&&item.progress<car.progress).sort((a,b)=>b.progress-a.progress)[0];
+const gapBehind=behind?car.progress-behind.progress:Infinity;
 const canPit=car.pitStops===0&&remainingLaps>1.2;
 if(canPit&&state.safetyCarActive&&car.tyreWear>=0.3){
 return{headline:"Use the safety-car window",reason:"The field is neutralised, so this is a lower-loss opportunity to change tyres before green-flag running resumes.",action:"PIT",actionLabel:"PIT NEXT LAP"};
@@ -592,14 +605,17 @@ return{headline:"Use the safety-car window",reason:"The field is neutralised, so
 if(canPit&&car.tyreWear>=0.8){
 return{headline:"Tyres are past their peak",reason:"Heavy wear is costing lap time. A stop is likely to recover more pace than extending this stint.",action:"PIT",actionLabel:"PIT NEXT LAP"};
 }
-if(car.fuel<=14){
-return{headline:"Protect the fuel margin",reason:"Fuel is running low. Conserve pace reduces consumption and lowers the risk of losing time late in the race.",action:"CONSERVE",actionLabel:"CONSERVE FUEL"};
+if(car.fuel<=14&&car.fuelMode!=="SAVE"){
+return{headline:"Protect the fuel margin",reason:"Fuel is running low. Fuel Save cuts consumption beyond the normal pace setting, trading a little lap time for a safer finish.",action:"FUEL_SAVE",actionLabel:"SAVE FUEL"};
 }
 if(car.tyreWear>=0.64){
 return{headline:"Manage the tyre drop-off",reason:"Tyre wear is entering the steep degradation range. Conserve pace can keep the stint competitive for longer.",action:"CONSERVE",actionLabel:"SAVE THE TYRES"};
 }
-if(gapAhead<0.035&&car.fuel>22&&car.tyreWear<0.62&&car.pace!=="PUSH"){
-return{headline:"Attack the car ahead",reason:"The gap is small enough to pressure the rival. Push pace may create an overtaking chance, at the cost of extra tyre wear and fuel.",action:"PUSH",actionLabel:"ATTACK"};
+if(gapAhead<0.035&&car.fuel>22&&car.tyreWear<0.62&&car.battleMode!=="OVERTAKE"){
+return{headline:"Attack the car ahead",reason:"A rival is within striking distance. Overtake mode adds a short-burst pace advantage in traffic, but increases tyre wear while fighting.",action:"OVERTAKE",actionLabel:"OVERTAKE"};
+}
+if(gapBehind<0.035&&car.battleMode!=="DEFEND"){
+return{headline:"Rival is entering attack range",reason:"A car behind is close enough to threaten track position. Defend mode prioritises holding the line when a rival is within range.",action:"DEFEND",actionLabel:"DEFEND POSITION"};
 }
 if(car.pace==="PUSH"&&(car.tyreWear>=0.42||car.fuel<32)){
 return{headline:"Reset to sustainable pace",reason:"The current push is consuming a meaningful resource margin. Balanced running protects the stint without fully giving up pace.",action:"BALANCED",actionLabel:"BALANCE PACE"};
@@ -609,7 +625,7 @@ return{headline:"There is room to push",reason:"Tyre life and fuel are healthy. 
 }
 return{headline:"Hold a balanced stint",reason:"Current tyre and fuel levels do not justify a more aggressive call. Reassess as traffic, wear and fuel margins change.",action:"BALANCED",actionLabel:"SET BALANCED"};
 }
-export function setDriverStrategy(state:RaceState,carId:string,patch:Partial<Pick<CarState,"pace"|"nextTyre"|"pitLap">>):RaceState{
+export function setDriverStrategy(state:RaceState,carId:string,patch:Partial<Pick<CarState,"pace"|"nextTyre"|"pitLap"|"battleMode"|"fuelMode">>):RaceState{
 const next=structuredClone(state);
 const car=next.cars.find((item)=>item.id===carId);
 if(!car||!car.playerCar||next.status==="finished")return state;
@@ -617,6 +633,8 @@ Object.assign(car,patch);
 if(patch.pace)addEvent(next,car.driver+" switches to "+patch.pace.toLowerCase()+" pace: "+(patch.pace==="PUSH"?"more speed, higher tyre wear and fuel use.":patch.pace==="CONSERVE"?"protecting tyres and fuel at the cost of lap time.":"balanced pace and resource use."));
 else if(patch.nextTyre)addEvent(next,car.driver+" will fit "+patch.nextTyre.toLowerCase()+" tyres at the next stop.");
 else if(patch.pitLap)addEvent(next,car.driver+" pit window moved to lap "+patch.pitLap+".");
+else if(patch.battleMode)addEvent(next,car.driver+" switches racecraft to "+patch.battleMode.toLowerCase()+".");
+else if(patch.fuelMode)addEvent(next,car.driver+" switches fuel deployment to "+patch.fuelMode.toLowerCase()+".");
 return next;
 }
 function activateUpgradeEvolutions(state:RaceState):RaceState{
