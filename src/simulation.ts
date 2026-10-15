@@ -284,7 +284,8 @@ export function stepRace(current: RaceState): RaceState {
     const reliabilityProtection = car.playerCar ? Math.min(0.75, (state.upgradeModules?.reliability ?? 0) * 0.005) : 0;
     const enduranceConditionBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
     const traitConditionFactor = car.playerCar ? ((state.buildTraits ?? []).includes("risk-reward") ? 1.8 : 1) * ((state.buildTraits ?? []).includes("reliability-first") ? 0.65 : 1) : 1;
-    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus * traitConditionFactor);
+    const rivalCondition = !car.playerCar && car.rivalStyle === "reliability-leader" ? 0.48 : !car.playerCar && car.rivalStyle === "high-risk-attacker" ? 1.7 : 1;
+    car.condition = Math.max(62, car.condition - 0.002 * (1 - reliabilityProtection) * enduranceConditionBonus * traitConditionFactor * rivalCondition);
     if (Math.floor(car.progress) > Math.floor(previousProgress)) {
       const completedLap = Math.floor(car.progress);
       if (car.pitStops === 0 && completedLap >= car.pitLap && car.progress < state.totalLaps) {
