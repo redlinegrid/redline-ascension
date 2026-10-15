@@ -261,6 +261,7 @@ export function stepRace(current: RaceState): RaceState {
     const consistencyNoise = 1 + (80 - car.driverConsistency) * 0.012;
     const noise = (random(state) - 0.5) * 0.85 * consistencyNoise;
     const racecraftBonus = (car.driverRacecraft - 80) * 0.009;
+    // Rival profiles will be applied in the pace model.
     const safetyCarFactor = state.safetyCarActive ? 1.34 : 1;
     const traits = state.buildTraits ?? [];
     const traitPaceFactor = car.playerCar ? (traits.includes("risk-reward") ? 0.985 : 1) * (traits.includes("reliability-first") ? 1.003 : 1) : 1;
