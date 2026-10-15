@@ -660,9 +660,9 @@ export default function App() {
   }, [race.status, race.teamPoints, race.seed, redlineRank, bestRun]);
   const order = useMemo(() => standings(race), [race]);
   const rivalIntel = useMemo(() => {
-    const seen = new Map<string, { team: string; style: CarState["rivalStyle"]; color: string; wins: number; position: number }>();
+    const seen = new Map<string, { team: string; style: CarState["rivalStyle"]; color: string; wins: number; streak: number; position: number }>();
     order.forEach((car, index) => {
-      if (!car.playerCar && !seen.has(car.team)) seen.set(car.team, { team: car.team, style: car.rivalStyle, color: car.teamColor, wins: race.rivalryWins?.[car.team] ?? 0, position: index + 1 });
+      if (!car.playerCar && !seen.has(car.team)) seen.set(car.team, { team: car.team, style: car.rivalStyle, color: car.teamColor, wins: race.rivalryWins?.[car.team] ?? 0, streak: race.rivalryBattles?.[car.team] ?? 0, position: index + 1 });
     });
     return [...seen.values()].sort((a, b) => a.position - b.position);
   }, [race, order]);
@@ -702,6 +702,7 @@ export default function App() {
     const nextCash = race.cash + sponsorIncome - operatingCost;
     const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
     next.rivalryWins = { ...(race.rivalryWins ?? {}) };
+    next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
     next.teamMorale = race.teamMorale ?? 62;
