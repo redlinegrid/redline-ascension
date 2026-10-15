@@ -871,9 +871,9 @@ export default function App() {
   }, [race.status, race.teamPoints, race.seed, redlineRank, bestRun]);
   const order = useMemo(() => standings(race), [race]);
   const rivalIntel = useMemo(() => {
-    const seen = new Map<string, { team: string; style: CarState["rivalStyle"]; color: string; wins: number; streak: number; position: number }>();
+    const seen = new Map<string, { team: string; style: CarState["rivalStyle"]; color: string; wins: number; streak: number; position: number; history: number[] }>();
     order.forEach((car, index) => {
-      if (!car.playerCar && !seen.has(car.team)) seen.set(car.team, { team: car.team, style: car.rivalStyle, color: car.teamColor, wins: race.rivalryWins?.[car.team] ?? 0, streak: race.rivalryBattles?.[car.team] ?? 0, position: index + 1 });
+      if (!car.playerCar && !seen.has(car.team)) seen.set(car.team, { team: car.team, style: car.rivalStyle, color: car.teamColor, wins: race.rivalryWins?.[car.team] ?? 0, streak: race.rivalryBattles?.[car.team] ?? 0, position: index + 1, history: race.rivalryHistory?.[car.team] ?? [] });
     });
     return [...seen.values()].sort((a, b) => a.position - b.position);
   }, [race, order]);
@@ -916,6 +916,7 @@ export default function App() {
     const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
     next.rivalryWins = { ...(race.rivalryWins ?? {}) };
     next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
+    next.rivalryHistory = Object.fromEntries(Object.entries(race.rivalryHistory ?? {}).map(([team, history]) => [team, [...history]]));
     next.rivalryFeudTeam = race.rivalryFeudTeam;
     next.rivalryFeudBonus = race.rivalryFeudBonus;
     next.weekendEffect = race.nextWeekendEffect;
@@ -1131,6 +1132,8 @@ export default function App() {
               <em>{rival.wins} {rival.wins === 1 ? "WEEKEND" : "WEEKENDS"} BEATEN</em>
               <em className={race.rivalryFeudTeam === rival.team ? "rival-feud-active" : rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{race.rivalryFeudTeam === rival.team ? "NEMESIS FEUD · RM" + (race.rivalryFeudBonus ?? 100000).toLocaleString("en-MY") + " REWARD" : null}</em>
               <em className={rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{rival.streak >= 2 ? "RIVAL ALERT · " : "CURRENT STREAK · "}{rival.streak} {rival.streak === 1 ? "WIN" : "WINS"}</em>
+              <em className="rival-form-line">RECENT FORM · {rival.history.length ? rival.history.map((position) => "P" + String(position).padStart(2, "0")).join(" → ") : "NO RACE DATA"}</em>
+              <em className={"rival-threat-line " + (rival.streak >= 4 ? "threat-high" : rival.streak >= 2 ? "threat-elevated" : "threat-standard")}>{rival.streak >= 4 ? "THREAT · HIGH — ADAPTING" : rival.streak >= 2 ? "THREAT · ELEVATED — STUDYING YOU" : "THREAT · STANDARD"}</em>
             </article>;
           })}</div>
         </section>
