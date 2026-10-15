@@ -147,6 +147,7 @@ consistency:number;
 potential:number;
 color:string;
 unlockCost?:number;
+secretUnlock?:"first-win"|"world-champion"|"five-unlocks";
 }
 export const DRIVER_MARKET:DriverProfile[]=[
 {id:"alex-mercer",name:"Luca Moretti",role:"ALL-ROUNDER",pace:86,racecraft:82,tyreManagement:79,consistency:83,potential:87,color:"#f04438"},
@@ -169,6 +170,9 @@ export const DRIVER_MARKET:DriverProfile[]=[
 {id:"liam-oconnell",name:"Liam O'Connell",role:"PURE PACE",pace:94,racecraft:80,tyreManagement:74,consistency:79,potential:91,color:"#f04438",unlockCost:7},
 {id:"sofia-petrov",name:"Sofia Petrov",role:"COMPLETE PACKAGE",pace:89,racecraft:90,tyreManagement:89,consistency:90,potential:93,color:"#49b9d1",unlockCost:7},
 {id:"alexei-volkov",name:"Alexei Volkov",role:"ELITE ALL-ROUNDER",pace:95,racecraft:93,tyreManagement:91,consistency:89,potential:94,color:"#ffc16f",unlockCost:9},
+{id:"secret-aria-vale",name:"Aria Vale",role:"THE PHENOM",pace:94,racecraft:91,tyreManagement:88,consistency:90,potential:99,color:"#ff7a68",secretUnlock:"first-win"},
+{id:"secret-max-sterling",name:"Max Sterling",role:"THE CHAMPION",pace:97,racecraft:95,tyreManagement:93,consistency:94,potential:98,color:"#f2c76f",secretUnlock:"world-champion"},
+{id:"secret-nova-reed",name:"Nova Reed",role:"ACADEMY PRODIGY",pace:90,racecraft:89,tyreManagement:92,consistency:91,potential:99,color:"#9c8cff",secretUnlock:"five-unlocks"},
 ];
 export interface CarState{
 id:string;
