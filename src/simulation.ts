@@ -2,6 +2,25 @@ export type Tyre = "SOFT" | "MEDIUM" | "HARD";
 export type Pace = "CONSERVE" | "BALANCED" | "PUSH";
 export type RaceStatus = "ready" | "running" | "paused" | "finished" | "gameover";
 export type GameMode = "championship" | "endless";
+export type RivalStyle = "tyre-specialist" | "qualifying-ace" | "reliability-leader" | "aggressive-racer" | "strategy-gambler" | "defensive-specialist" | "development-team" | "high-risk-attacker" | "consistency-expert" | "opportunist";
+export const RIVAL_STYLE_INFO: Record<RivalStyle, { label: string; description: string }> = {
+  "tyre-specialist": { label: "TYRE SPECIALIST", description: "Runs longer stints and protects tyre life." },
+  "qualifying-ace": { label: "QUALIFYING ACE", description: "Carries extra baseline pace, but is not especially kind to the tyres." },
+  "reliability-leader": { label: "RELIABILITY LEADER", description: "Keeps component condition high and avoids costly degradation." },
+  "aggressive-racer": { label: "AGGRESSIVE RACER", description: "Attacks hard for lap time, spending more fuel and tyre life." },
+  "strategy-gambler": { label: "STRATEGY GAMBLER", description: "Attempts an early pit stop to gain track position through timing." },
+  "defensive-specialist": { label: "DEFENSIVE SPECIALIST", description: "Finds extra pace when fighting in close traffic." },
+  "development-team": { label: "DEVELOPMENT TEAM", description: "Starts modestly, then becomes more competitive deeper into a run." },
+  "high-risk-attacker": { label: "HIGH-RISK ATTACKER", description: "Very quick, but wears components faster and is more vulnerable to incidents." },
+  "consistency-expert": { label: "CONSISTENCY EXPERT", description: "Produces steadier lap times with fewer performance swings." },
+  opportunist: { label: "OPPORTUNIST", description: "Makes the most of safety-car periods and disrupted races." },
+};
+const RIVAL_STYLE_BY_TEAM: Record<string, RivalStyle> = {
+  "Vortex Racing": "tyre-specialist", "Apex Motorsport": "qualifying-ace", "Northstar": "reliability-leader",
+  "Velocity Works": "aggressive-racer", "Titan Autosport": "strategy-gambler", "Solaris Racing": "defensive-specialist",
+  "Orion Motorsport": "development-team", "Ember GP": "high-risk-attacker", "Summit Racing": "consistency-expert",
+  "Kestrel Performance": "opportunist",
+};
 export const CAMPAIGN_LENGTH = 20;
 export const POINTS_BY_POSITION = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] as const;
 export type UpgradeType = "aero" | "power" | "suspension" | "reliability";
