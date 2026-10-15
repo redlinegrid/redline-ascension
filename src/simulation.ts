@@ -155,6 +155,10 @@ export interface RaceState {
   permanentPerks?: Record<string, number>;
   weekendNumber: number;
   teamPoints?: Record<string, number>;
+  rivalryWins?: Record<string, number>;
+  rivalryBattles?: Record<string, number>;
+  raceDramaLap?: number;
+  raceDramaTriggered?: boolean;
   playerTeamName?: string;
   playerPrincipalName?: string;
   playerTeamColor?: string;
