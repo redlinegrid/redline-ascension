@@ -1299,3 +1299,73 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .achievement-unlock-feed span{font-size:10px;line-height:1.5;color:#a9acb6;text-align:right}
 @media(max-width:1000px){.achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.championship-achievements-panel .panel-heading{align-items:flex-start;gap:8px}.championship-achievements-panel .panel-heading h2{font-size:18px}.achievement-grid{grid-template-columns:1fr;padding:10px}.achievement-card p{min-height:0}.achievement-unlock-feed>div{flex-direction:column;gap:4px}.achievement-unlock-feed span{text-align:left}}
+
+
+/* Engineering Codex: persistent discovery archive, synergy analysis and run dossiers. */
+.engineering-codex-overlay{position:fixed;inset:0;z-index:100001;display:flex;align-items:center;justify-content:center;overflow:auto;padding:22px;background:rgba(4,5,8,.9);backdrop-filter:blur(12px)}
+.engineering-codex-page{min-height:100dvh;padding:24px;background:radial-gradient(ellipse at 85% 0,#292126 0,transparent 38%),#090b10;color:#f1f2f5}
+.engineering-codex-shell{width:min(1180px,100%);max-height:calc(100dvh - 44px);overflow:auto;padding:clamp(18px,3vw,34px);border:1px solid #343a46;border-radius:12px;background:linear-gradient(145deg,#171a22,#0d0f14 72%);color:#f1f2f5;box-shadow:0 28px 100px #000b}
+.engineering-codex-page .engineering-codex-shell{max-height:none;margin:0 auto}
+.engineering-codex-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:22px;border-bottom:1px solid #2c313b}
+.engineering-codex-header h1{font:700 clamp(32px,5vw,54px)/1.05 var(--display);letter-spacing:-.04em;margin:8px 0}
+.engineering-codex-header h1 em{color:var(--red);font-style:normal}
+.engineering-codex-header p{max-width:700px;color:#aab1be;font-size:12px;line-height:1.7;margin:0}
+.engineering-codex-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #303540;margin:18px 0}
+.engineering-codex-stats>div{padding:14px;border-right:1px solid #303540;min-width:0}
+.engineering-codex-stats>div:last-child{border-right:0}
+.engineering-codex-stats span,.engineering-codex-section-heading>span{display:block;font:8px var(--mono);letter-spacing:.1em;color:#8e97a7}
+.engineering-codex-stats strong{display:block;font:600 clamp(19px,3vw,27px) var(--display);margin-top:7px}
+.engineering-codex-tabs{display:flex;gap:5px;overflow:auto;border-bottom:1px solid #303540}
+.engineering-codex-tabs button{flex:1;min-width:max-content;padding:13px 15px;background:transparent;border:0;border-bottom:2px solid transparent;color:#858d9b;font:8px var(--mono);letter-spacing:.07em}
+.engineering-codex-tabs button.active{color:#fff;border-bottom-color:var(--red);background:linear-gradient(0deg,#ff2a1815,transparent)}
+.engineering-codex-section{padding-top:18px}
+.engineering-codex-tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.5fr) auto;gap:8px;margin-bottom:12px}
+.engineering-codex-tools input,.engineering-codex-tools select{min-width:0;width:100%;background:#11141a;border:1px solid #353b46;border-radius:5px;padding:11px;color:#eef0f4;font-size:11px}
+.codex-mode-toggle{border:1px solid #454b57;border-radius:5px;background:#171a21;color:#e4e7ee;padding:10px 12px;font:8px var(--mono);letter-spacing:.06em;white-space:nowrap}
+.engineering-codex-note{color:#969eac;font-size:11px;line-height:1.7;margin:10px 0 16px}
+.engineering-codex-catalogue{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.engineering-codex-card{min-width:0;padding:14px;border:1px solid #303540;background:linear-gradient(145deg,#1a1d24,#111319)}
+.engineering-codex-card-top,.engineering-codex-card-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.engineering-codex-card-top span,.engineering-codex-card-top b,.engineering-codex-card-bottom b{font:7px var(--mono);letter-spacing:.07em;color:#9ba4b2}
+.engineering-codex-card-top b{color:#8dd7aa;text-align:right}
+.engineering-codex-card h3{font:600 17px var(--display);margin:14px 0 7px;line-height:1.25}
+.engineering-codex-card p{min-height:48px;color:#a2a9b5;font-size:10px;line-height:1.6;margin:0 0 12px}
+.engineering-codex-card-bottom{padding-top:10px;border-top:1px solid #303540;align-items:center}
+.engineering-codex-card-bottom span{font:8px var(--mono);color:#9ce1b2;line-height:1.5}
+.engineering-codex-card.rarity-rare .engineering-codex-card-bottom b{color:#8fc4ff}
+.engineering-codex-card.rarity-epic .engineering-codex-card-bottom b{color:#d4a7ff}
+.codex-plan-button{width:100%;margin-top:12px;border:1px solid #454b57;background:#20242d;color:#e5e8ee;padding:9px;font:8px var(--mono)}
+.engineering-codex-empty{grid-column:1/-1;padding:28px;border:1px dashed #414754;color:#9aa2b0;text-align:center;font-size:11px;line-height:1.7}
+.engineering-codex-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.engineering-codex-section-heading h2{font:600 25px var(--display);margin:5px 0}
+.engineering-codex-recipes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.engineering-codex-recipe{display:flex;gap:13px;padding:17px;border:1px solid #333843;background:#161920}
+.engineering-codex-recipe.recipe-active{border-color:#477c60;background:linear-gradient(140deg,#1a2a23,#15171c)}
+.engineering-codex-recipe-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:1px solid #4a515d;color:#9ca6b6;font-size:20px}
+.engineering-codex-recipe.recipe-active .engineering-codex-recipe-icon{border-color:#477c60;color:#8de0ac}
+.engineering-codex-recipe>div:last-child{min-width:0}
+.engineering-codex-recipe span{font:7px var(--mono);letter-spacing:.08em;color:#8ed6a9}
+.engineering-codex-recipe h3{font:600 18px var(--display);margin:6px 0}
+.engineering-codex-recipe p{font-size:10px;line-height:1.6;color:#a5adba}
+.engineering-codex-recipe small{font:8px var(--mono);color:#c4cbd6}
+.engineering-codex-planner{margin-top:20px;padding:17px;border:1px solid #333843;background:#11141a}
+.engineering-codex-planner-modules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}
+.engineering-codex-planner-modules>div{padding:12px;border:1px solid #303540;background:#1b1e26}
+.engineering-codex-planner-modules span{display:block;font:8px var(--mono);color:#8e97a7}
+.engineering-codex-planner-modules strong{display:block;font:600 23px var(--display);margin-top:5px}
+.engineering-codex-planner-list{display:grid;gap:6px;margin:12px 0}
+.engineering-codex-planner-list button{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid #343a46;background:#1b1e26;color:#e8ebf0;text-align:left;font-size:10px}
+.engineering-codex-planner-list button span{font:8px var(--mono);color:#ff9388}
+.engineering-codex-planner-list p{color:#969eac;font-size:10px;line-height:1.6}
+.engineering-codex-dossiers{display:grid;gap:10px}
+.engineering-codex-dossiers>article{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:15px;padding:16px;border:1px solid #303540;background:#161920}
+.engineering-codex-dossiers>article>div:first-child>span{font:8px var(--mono);color:#ff9287;letter-spacing:.07em}
+.engineering-codex-dossiers h3{font:600 19px var(--display);margin:6px 0}
+.engineering-codex-dossiers p{color:#b0b7c2;font-size:10px}
+.engineering-codex-dossiers small{color:#858e9d;font:8px var(--mono);line-height:1.6}
+.engineering-codex-dossier-upgrades{display:flex;align-content:flex-start;flex-wrap:wrap;gap:6px}
+.engineering-codex-dossier-upgrades span{padding:7px;border:1px solid #373d48;background:#20242d;color:#cbd1db;font-size:9px}
+.engineering-codex-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px;padding-top:16px;border-top:1px solid #2c313b}
+.engineering-codex-footer>span{font:8px var(--mono);letter-spacing:.08em;color:#828b9b}
+.engineering-codex-footer>div{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:760px){.engineering-codex-overlay{padding:0}.engineering-codex-shell{max-height:100dvh;border-radius:0;padding:18px 13px}.engineering-codex-page{padding:10px}.engineering-codex-stats>div{padding:10px 8px}.engineering-codex-stats span{font-size:7px}.engineering-codex-stats strong{font-size:18px}.engineering-codex-tools{grid-template-columns:1fr}.engineering-codex-catalogue,.engineering-codex-recipes{grid-template-columns:1fr}.engineering-codex-card p{min-height:0}.engineering-codex-dossiers>article{grid-template-columns:1fr}.engineering-codex-planner-modules{grid-template-columns:repeat(2,minmax(0,1fr))}.engineering-codex-footer{align-items:stretch;flex-direction:column}.engineering-codex-footer>div{display:grid;grid-template-columns:1fr}.engineering-codex-tabs button{padding:12px 10px;font-size:7px}.codex-header-trigger{display:none!important}}
