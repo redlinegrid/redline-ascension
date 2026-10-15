@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type UpgradeCard, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
@@ -76,6 +76,21 @@ function applyGarageBonuses<T extends RaceState>(state: T, meta: GarageMeta, new
   };
 }
 type BestRun = { points: number; position: number; seed: number };
+
+type CodexDossier = { id: string; team: string; mode: string; round: number; position: number; points: number; cash: number; upgrades: string[]; endedAt: string };
+type CodexMeta = { discoveredUpgradeIds: string[]; dossiers: CodexDossier[] };
+const CODEX_META_KEY = "redline-paddock-engineering-codex-v1";
+const EMPTY_CODEX_META: CodexMeta = { discoveredUpgradeIds: [], dossiers: [] };
+function loadCodexMeta(): CodexMeta {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CODEX_META_KEY) ?? "null") as Partial<CodexMeta> | null;
+    return {
+      discoveredUpgradeIds: Array.isArray(parsed?.discoveredUpgradeIds) ? [...new Set(parsed.discoveredUpgradeIds.filter((id): id is string => typeof id === "string"))] : [],
+      dossiers: Array.isArray(parsed?.dossiers) ? parsed.dossiers.filter((item): item is CodexDossier => Boolean(item && typeof item.id === "string" && typeof item.team === "string" && Array.isArray(item.upgrades))).slice(0, 50) : [],
+    };
+  } catch { return EMPTY_CODEX_META; }
+}
+
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
 
@@ -595,6 +610,79 @@ function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, 
   </div>;
 }
 
+
+function EngineeringCodex({ meta, modules, installedUpgrades, standalone = false, onClose }: {
+  meta: CodexMeta;
+  modules: RaceState["upgradeModules"];
+  installedUpgrades: NonNullable<RaceState["installedUpgrades"]>;
+  standalone?: boolean;
+  onClose: () => void;
+}) {
+  const [tab, setTab] = useState<"registry" | "synergy" | "dossiers">("registry");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("ALL");
+  const [researchMode, setResearchMode] = useState(standalone);
+  const [plannerIds, setPlannerIds] = useState<string[]>([]);
+  const discovered = new Set(meta.discoveredUpgradeIds);
+  const installedIds = new Set(installedUpgrades.map((item) => item.id));
+  const filtered = UPGRADE_CARD_POOL.filter((card) => {
+    const visible = researchMode || discovered.has(card.id) || installedIds.has(card.id);
+    const matchesQuery = (card.title + " " + card.subtitle + " " + card.description + " " + card.effect).toLowerCase().includes(query.toLowerCase());
+    return visible && matchesQuery && (category === "ALL" || card.subtitle === category);
+  });
+  const categories = ["ALL", ...Array.from(new Set(UPGRADE_CARD_POOL.map((card) => card.subtitle)))];
+  const planned = UPGRADE_CARD_POOL.filter((card) => plannerIds.includes(card.id));
+  const plannedModules = {
+    aero: modules.aero + planned.reduce((sum, card) => sum + (card.upgradeType === "aero" ? card.amount ?? 0 : 0), 0),
+    power: modules.power + planned.reduce((sum, card) => sum + (card.upgradeType === "power" ? card.amount ?? 0 : 0), 0),
+    suspension: modules.suspension + planned.reduce((sum, card) => sum + (card.upgradeType === "suspension" ? card.amount ?? 0 : 0), 0),
+    reliability: modules.reliability + planned.reduce((sum, card) => sum + (card.upgradeType === "reliability" ? card.amount ?? 0 : 0), 0),
+  };
+  const recipes = [
+    { id: "aero-power", title: "Aero + Power Integration", description: "Coordinate aerodynamic load with power deployment for a stronger baseline pace.", requirements: "Aerodynamics 2+ · Power unit 2+", active: plannedModules.aero >= 2 && plannedModules.power >= 2 },
+    { id: "endurance-platform", title: "Endurance Platform", description: "A stable mechanical platform and reliable components reduce tyre wear across long stints.", requirements: "Suspension 2+ · Reliability 2+", active: plannedModules.suspension >= 2 && plannedModules.reliability >= 2 },
+  ];
+  const closeLabel = standalone ? "RETURN TO GAME" : "CLOSE CODEX";
+  return <div className={standalone ? "engineering-codex-page" : "engineering-codex-overlay"} role={standalone ? undefined : "dialog"} aria-modal={standalone ? undefined : true} aria-labelledby="engineering-codex-title">
+    <section className="engineering-codex-shell">
+      <header className="engineering-codex-header">
+        <div><span className="section-kicker">REDLINE ASCENSION · ENGINEERING INTELLIGENCE</span><h1 id="engineering-codex-title">Engineering <em>Codex.</em></h1><p>A permanent record of discovered technology, proven synergies, and the builds that carried your team.</p></div>
+        <button className="save-transfer-close" onClick={onClose} aria-label={closeLabel}>×</button>
+      </header>
+      <div className="engineering-codex-stats">
+        <div><span>TECHNOLOGIES DISCOVERED</span><strong>{meta.discoveredUpgradeIds.length} / {UPGRADE_CARD_POOL.length}</strong></div>
+        <div><span>CONFIRMED SYNERGIES</span><strong>{recipes.filter((recipe) => recipe.active && !plannerIds.length).length + (planned.length ? recipes.filter((recipe) => recipe.active).length : buildSynergies(modules).length)}</strong></div>
+        <div><span>RUN DOSSIERS</span><strong>{meta.dossiers.length}</strong></div>
+      </div>
+      <nav className="engineering-codex-tabs" aria-label="Engineering Codex sections">
+        <button className={tab === "registry" ? "active" : ""} onClick={() => setTab("registry")}>01 · TECHNOLOGY REGISTRY</button>
+        <button className={tab === "synergy" ? "active" : ""} onClick={() => setTab("synergy")}>02 · SYNERGY LAB</button>
+        <button className={tab === "dossiers" ? "active" : ""} onClick={() => setTab("dossiers")}>03 · RUN DOSSIERS</button>
+      </nav>
+      {tab === "registry" && <section className="engineering-codex-section">
+        <div className="engineering-codex-tools"><input aria-label="Search technologies" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search technologies, effects, categories..." /><select aria-label="Filter technology category" value={category} onChange={(event) => setCategory(event.target.value)}>{categories.map((item) => <option key={item} value={item}>{item}</option>)}</select><button className="codex-mode-toggle" onClick={() => setResearchMode((value) => !value)}>{researchMode ? "DISCOVERY MODE" : "RESEARCH MODE"}</button></div>
+        {!researchMode && <p className="engineering-codex-note">Discovery mode hides technologies you have not installed yet. Switch to Research Mode to inspect the complete catalogue and plan future builds.</p>}
+        <div className="engineering-codex-catalogue">{filtered.map((card) => {
+          const isDiscovered = discovered.has(card.id) || installedIds.has(card.id);
+          return <article className={"engineering-codex-card rarity-" + card.rarity.toLowerCase()} key={card.id}><div className="engineering-codex-card-top"><span>{card.subtitle}</span><b>{isDiscovered ? (installedIds.has(card.id) ? "INSTALLED THIS RUN" : "DISCOVERED") : "UNDISCOVERED"}</b></div><h3>{isDiscovered || researchMode ? card.title : "Unidentified technology" }{isDiscovered || researchMode ? "" : " · ?????"}</h3><p>{isDiscovered || researchMode ? card.description : "Complete a development pick with this technology to record its specification in your Codex."}</p><div className="engineering-codex-card-bottom"><span>{isDiscovered || researchMode ? card.effect : "SPECIFICATION SEALED"}</span><b>{card.rarity}</b></div>{researchMode && <button className="codex-plan-button" onClick={() => setPlannerIds((current) => current.includes(card.id) ? current.filter((id) => id !== card.id) : [...current, card.id])}>{plannerIds.includes(card.id) ? "REMOVE FROM PLAN −" : "ADD TO BUILD PLAN +"}</button>}</article>;
+        })}{filtered.length === 0 && <div className="engineering-codex-empty">No matching technologies. Try another search or category.</div>}</div>
+      </section>}
+      {tab === "synergy" && <section className="engineering-codex-section">
+        <div className="engineering-codex-section-heading"><div><span className="section-kicker">LIVE BUILD ANALYSIS</span><h2>Synergy Lab</h2></div><span>{planned.length ? "PLANNER + CURRENT SPEC" : "CURRENT RUN SPEC"}</span></div>
+        <p className="engineering-codex-note">These are the two synergies currently implemented by the simulation. The planner adds selected technology to your current modules without spending cash or changing your save.</p>
+        <div className="engineering-codex-recipes">{recipes.map((recipe) => <article className={"engineering-codex-recipe" + (recipe.active ? " recipe-active" : "")} key={recipe.id}><div className="engineering-codex-recipe-icon">{recipe.active ? "✓" : "⌁"}</div><div><span>{recipe.active ? "REQUIREMENTS MET" : "REQUIREMENTS NOT MET"}</span><h3>{recipe.title}</h3><p>{recipe.description}</p><small>{recipe.requirements}</small></div></article>)}</div>
+        <div className="engineering-codex-planner"><div className="engineering-codex-section-heading"><div><span className="section-kicker">EXPERIMENTAL WORKSPACE</span><h2>Build Planner</h2></div><button className="codex-mode-toggle" onClick={() => setPlannerIds([])}>CLEAR PLAN</button></div><div className="engineering-codex-planner-modules">{Object.entries(plannedModules).map(([key, value]) => <div key={key}><span>{key.toUpperCase()}</span><strong>{value}</strong></div>)}</div><div className="engineering-codex-planner-list">{planned.length ? planned.map((card) => <button key={card.id} onClick={() => setPlannerIds((current) => current.filter((id) => id !== card.id))}>{card.title}<span>REMOVE ×</span></button>) : <p>No planned upgrades yet. Open Technology Registry, switch to Research Mode, and add technologies to test a build.</p>}</div><button className="primary-button" onClick={() => setTab("registry")}>BROWSE TECHNOLOGIES ↗</button></div>
+      </section>}
+      {tab === "dossiers" && <section className="engineering-codex-section">
+        <div className="engineering-codex-section-heading"><div><span className="section-kicker">CAREER MEMORY</span><h2>Run Dossiers</h2></div><span>LOCAL ARCHIVE · {meta.dossiers.length} RECORDS</span></div>
+        <p className="engineering-codex-note">Completed championships and ended runs are recorded on this device. Use Save / Transfer to carry Codex records with your career to another browser or device.</p>
+        <div className="engineering-codex-dossiers">{meta.dossiers.length ? meta.dossiers.map((dossier) => <article key={dossier.id}><div><span>{dossier.mode.toUpperCase()} · ROUND {dossier.round}</span><h3>{dossier.team}</h3><p>{dossier.position > 0 ? "Final team position P" + dossier.position : "Run ended before final classification"} · {dossier.points} championship points</p><small>{dossier.endedAt} · {dossier.upgrades.length} development picks · {money(dossier.cash)} final cash</small></div><div className="engineering-codex-dossier-upgrades">{dossier.upgrades.map((id) => <span key={id}>{UPGRADE_CARD_POOL.find((card) => card.id === id)?.title ?? id}</span>)}</div></article>) : <div className="engineering-codex-empty">No completed run has been archived yet. Finish a championship or reach a run-ending result to create your first dossier.</div>}</div>
+      </section>}
+      <footer className="engineering-codex-footer"><span>ENGINEERING CODEX · LOCAL FIRST · SAVE COMPATIBLE</span><div><button className="codex-mode-toggle" onClick={() => { const url = window.location.origin + window.location.pathname + "?view=codex"; window.open(url, "_blank", "noopener,noreferrer"); }}>OPEN EXTERNAL CODEX ↗</button><button className="secondary-button" onClick={onClose}>{closeLabel}</button></div></footer>
+    </section>
+  </div>;
+}
+
 export default function App() {
   const [race, setRace] = useState<RaceState>(() => loadRace());
   const [hasSavedCareer] = useState(() => { try { return Boolean(localStorage.getItem(SAVE_KEY)); } catch { return false; } });
@@ -627,6 +715,8 @@ export default function App() {
   const [selectedDriverTwo, setSelectedDriverTwo] = useState("Emil Novak");
   const [bestRun, setBestRun] = useState<BestRun | null>(() => { try { const raw = localStorage.getItem(BEST_RUN_KEY); return raw ? JSON.parse(raw) as BestRun : null; } catch { return null; } });
   const [garageMeta, setGarageMeta] = useState<GarageMeta>(() => loadGarageMeta());
+  const [codexMeta, setCodexMeta] = useState<CodexMeta>(() => loadCodexMeta());
+  const [showEngineeringCodex, setShowEngineeringCodex] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [savedAt, setSavedAt] = useState("LOCAL SAVE READY");
   const [showResults, setShowResults] = useState(false);
@@ -648,6 +738,27 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem(GARAGE_META_KEY, JSON.stringify(garageMeta)); } catch { /* Optional persistent storage. */ }
   }, [garageMeta]);
+  useEffect(() => {
+    try { localStorage.setItem(CODEX_META_KEY, JSON.stringify(codexMeta)); } catch { /* Codex remains usable for this session if storage is full. */ }
+  }, [codexMeta]);
+  const installedSignature = (race.installedUpgrades ?? []).map((item) => item.id).join("|");
+  useEffect(() => {
+    const discoveredNow = (race.installedUpgrades ?? []).map((item) => item.id);
+    if (!discoveredNow.length) return;
+    setCodexMeta((current) => {
+      const discoveredUpgradeIds = [...new Set([...current.discoveredUpgradeIds, ...discoveredNow])];
+      if (discoveredUpgradeIds.length === current.discoveredUpgradeIds.length) return current;
+      return { ...current, discoveredUpgradeIds };
+    });
+  }, [installedSignature]);
+  useEffect(() => {
+    if (race.status !== "gameover") return;
+    const id = String(race.seed) + ":" + String(race.weekendNumber) + ":" + (race.endReason ?? "complete");
+    const playerTeam = race.playerTeamName ?? race.cars.find((car) => car.playerCar)?.team ?? "Redline GP";
+    const position = Object.entries(race.teamPoints ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).findIndex(([team]) => team === playerTeam) + 1;
+    const dossier: CodexDossier = { id, team: playerTeam, mode: race.mode ?? "championship", round: race.weekendNumber, position, points: race.teamPoints?.[playerTeam] ?? 0, cash: race.cash, upgrades: (race.installedUpgrades ?? []).map((item) => item.id), endedAt: new Date().toLocaleDateString() };
+    setCodexMeta((current) => current.dossiers.some((item) => item.id === id) ? current : { ...current, dossiers: [dossier, ...current.dossiers].slice(0, 50) });
+  }, [race.status, race.seed, race.weekendNumber, race.endReason]);
   useEffect(() => {
     if (race.status === "finished" && !showInitialDraft) {
       setShowIntermission(true);
@@ -808,7 +919,7 @@ export default function App() {
 
   const exportSaveCode = () => {
     try {
-      const code = encodeSaveCode({ format: 1, exportedAt: new Date().toISOString(), race, garageMeta, bestRun });
+      const code = encodeSaveCode({ format: 1, exportedAt: new Date().toISOString(), race, garageMeta, bestRun, codexMeta });
       setSaveCode(code);
       setSaveTransferMessage("Save code generated. Keep a copy somewhere safe.");
     } catch { setSaveTransferMessage("Could not generate a save code. Try again after the game has saved."); }
@@ -822,6 +933,9 @@ export default function App() {
       const importedUnlocks = payload.garageMeta.unlocks.filter((id: unknown): id is string => typeof id === "string");
       const importedLevels = payload.garageMeta.levels && typeof payload.garageMeta.levels === "object" ? Object.fromEntries(Object.entries(payload.garageMeta.levels).map(([id, level]) => [id, Math.max(0, Math.min(5, Math.floor(Number(level) || 0)))])) : Object.fromEntries(importedUnlocks.map((id: string) => [id, 1]));
       setGarageMeta({ research: Math.max(0, Number(payload.garageMeta.research) || 0), unlocks: importedUnlocks, levels: importedLevels, rewardedRuns: payload.garageMeta.rewardedRuns.filter((id: unknown): id is string => typeof id === "string") });
+      if (payload.codexMeta && Array.isArray(payload.codexMeta.discoveredUpgradeIds) && Array.isArray(payload.codexMeta.dossiers)) {
+        setCodexMeta({ discoveredUpgradeIds: [...new Set(payload.codexMeta.discoveredUpgradeIds.filter((id: unknown): id is string => typeof id === "string"))], dossiers: payload.codexMeta.dossiers.filter((item: unknown): item is CodexDossier => Boolean(item && typeof item === "object" && typeof (item as CodexDossier).id === "string" && Array.isArray((item as CodexDossier).upgrades))).slice(0, 50) });
+      }
       setBestRun(payload.bestRun && typeof payload.bestRun.points === "number" ? payload.bestRun as BestRun : null);
       setTeamNameDraft(restored.playerTeamName ?? restored.cars.find((car) => car.playerCar)?.team ?? "Redline GP");
       setPrincipalNameDraft(restored.playerPrincipalName ?? "Team Principal");
@@ -846,6 +960,8 @@ export default function App() {
     }
   };
   const bestLap = Math.min(...race.cars.filter((car) => car.playerCar && car.bestLap > 0).map((car) => car.bestLap), Infinity);
+  const codexStandalone = new URLSearchParams(window.location.search).get("view") === "codex";
+  if (codexStandalone) return <EngineeringCodex meta={codexMeta} modules={race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }} installedUpgrades={race.installedUpgrades ?? []} standalone onClose={() => { window.location.href = window.location.pathname; }} />;
 
   return <main className="app-shell">
     {showStartScreen && <div className="start-screen" role="dialog" aria-modal="true" aria-labelledby="start-screen-title"><div className="start-screen-grid"/><div className="start-screen-content" data-onboarding-step={onboardingStep}><div className="start-screen-brand"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="start-brand-lockup"><b>REDLINE ASCENSION</b><small>RACE OPERATIONS SIMULATOR</small></span></div><div className="start-screen-kicker">YOUR TEAM. YOUR LEGACY.</div><h1 id="start-screen-title">{onboardingStep === "mode" ? <>Choose your <em>race format.</em></> : onboardingStep === "team" ? <>Create your <em>team.</em></> : <>Choose your <em>drivers.</em></>}</h1><p className="start-screen-intro">{onboardingStep === "mode" ? "Choose how your career will unfold. You can build your team after selecting a format." : onboardingStep === "team" ? "Give your underdog constructor an identity before entering the driver market." : "Pick two drivers to complete your line-up. Their strengths will shape every race weekend."}</p><div className="onboarding-step-indicator"><span className={onboardingStep === "mode" ? "active" : "complete"}>01 MODE{onboardingStep !== "mode" ? " ✓" : ""}</span><span className={onboardingStep === "team" ? "active" : onboardingStep === "drivers" ? "complete" : ""}>02 TEAM{onboardingStep === "drivers" ? " ✓" : ""}</span><span className={onboardingStep === "drivers" ? "active" : ""}>03 DRIVERS</span></div><section className="mode-select-section" aria-label="Choose game mode"><div className="team-customization-heading"><div><span className="market-eyebrow">CAREER FORMAT</span><h2>Choose your season.</h2></div></div><div className="mode-select-grid"><button type="button" className={"mode-choice-card" + (selectedMode === "championship" ? " active" : "")} aria-pressed={selectedMode === "championship"} onClick={() => setSelectedMode("championship")}><span className="mode-choice-number">01 / CAREER</span><strong>Championship</strong><p>Race 20 rounds. Build your car, manage the team, and finish the season to claim your final championship position.</p><span className="mode-choice-footer">DEFINED SEASON · FINAL STANDINGS</span></button><button type="button" className={"mode-choice-card" + (selectedMode === "endless" ? " active" : "")} aria-pressed={selectedMode === "endless"} onClick={() => setSelectedMode("endless")}><span className="mode-choice-number">02 / SURVIVAL</span><strong>Endless Mode</strong><p>No final round. Keep racing, developing, and balancing the books until the team can no longer survive.</p><span className="mode-choice-footer">OPEN-ENDED · SURVIVE AS LONG AS YOU CAN</span></button></div></section><div className="onboarding-step-footer mode-next"><span>STEP 01 / 03</span><button className="primary-button" onClick={() => setOnboardingStep("team")}>CONTINUE TO TEAM SETUP ↗</button></div><label className="team-name-label" htmlFor="team-name-input">TEAM NAME <span>{teamNameDraft.trim().length}/24</span></label><input id="team-name-input" className="team-name-input" value={teamNameDraft} maxLength={24} placeholder="Enter your team name" onChange={(event) => setTeamNameDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && teamNameDraft.trim()) document.getElementById("principal-name-input")?.focus(); }}/><label className="team-name-label principal-name-label" htmlFor="principal-name-input">TEAM PRINCIPAL <span>{principalNameDraft.trim().length}/32</span></label><input id="principal-name-input" className="team-name-input" value={principalNameDraft} maxLength={32} placeholder="Enter your team principal name" onChange={(event) => setPrincipalNameDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && principalNameDraft.trim()) document.getElementById("principal-name-input")?.blur(); }}/><section className="team-customization"><div className="team-customization-heading"><div><span className="market-eyebrow">TEAM IDENTITY</span><h2>Make the grid yours.</h2></div><span className="team-customization-note">PRIMARY + ACCENT</span></div><p>Choose your team's colours. They'll appear on your cars and race markers, and stay with your career save.</p><div className="team-color-controls"><label className="team-color-picker"><span>PRIMARY COLOUR</span><div><input type="color" aria-label="Choose primary team colour" value={teamPrimaryColor} onChange={(event) => setTeamPrimaryColor(event.target.value)} /><code>{teamPrimaryColor.toUpperCase()}</code></div></label><label className="team-color-picker"><span>SECONDARY COLOUR</span><div><input type="color" aria-label="Choose secondary team colour" value={teamSecondaryColor} onChange={(event) => setTeamSecondaryColor(event.target.value)} /><code>{teamSecondaryColor.toUpperCase()}</code></div></label></div><div className="team-color-presets" aria-label="Team colour presets">{TEAM_COLOR_PRESETS.map((preset) => <button type="button" key={preset.name} className={"team-color-preset" + (teamPrimaryColor.toLowerCase() === preset.primary && teamSecondaryColor.toLowerCase() === preset.secondary ? " active" : "")} onClick={() => { setTeamPrimaryColor(preset.primary); setTeamSecondaryColor(preset.secondary); }} aria-label={"Use " + preset.name + " team colours"} title={preset.name}><span style={{ background: "linear-gradient(135deg, " + preset.primary + " 0 55%, " + preset.secondary + " 55% 100%)" }} /><small>{preset.name}</small></button>)}</div></section><div className="start-screen-preview" style={{ "--team-primary": teamPrimaryColor, "--team-secondary": teamSecondaryColor } as React.CSSProperties}><span className="team-preview-swatch"/><div><small>YOUR CONSTRUCTOR</small><strong>{teamNameDraft.trim() || "YOUR TEAM NAME"}</strong><small className="principal-preview-label">TEAM PRINCIPAL</small><strong className="principal-preview-name">{principalNameDraft.trim() || "YOUR NAME"}</strong></div><span className="team-preview-number">07 / 22</span></div><div className="onboarding-step-footer team-next"><span>STEP 02 / 03</span><div><button className="secondary-button" onClick={() => setOnboardingStep("mode")}>← BACK</button><button className="primary-button" disabled={!teamNameDraft.trim() || !principalNameDraft.trim()} onClick={() => setOnboardingStep("drivers")}>CONTINUE TO DRIVERS ↗</button></div></div><section className="driver-market"><div className="driver-market-heading"><div><span className="market-eyebrow">DRIVER MARKET · PRE-SEASON</span><h2>Build your driver line-up.</h2></div><span className="market-seat-count">{selectedDriverOne && selectedDriverTwo ? "2 / 2 SEATS" : "SELECT 2 DRIVERS"}</span></div><p className="driver-market-copy">Choose two drivers before the season begins. Pace, racecraft, tyre management and consistency affect race performance; potential shows future upside.</p><div className="driver-market-seats"><div><small>SEAT 01</small><strong>{selectedDriverOne || "OPEN SEAT"}</strong></div><div><small>SEAT 02</small><strong>{selectedDriverTwo || "OPEN SEAT"}</strong></div></div><div className="driver-market-grid">{DRIVER_MARKET.map((driver) => { const seatOne = selectedDriverOne === driver.name; const seatTwo = selectedDriverTwo === driver.name; const overall = Math.round((driver.pace + driver.racecraft + driver.tyreManagement + driver.consistency) / 4); return <article className={"market-driver-card" + (seatOne || seatTwo ? " market-driver-selected" : "")} key={driver.id}><div className="market-driver-top"><span className="market-driver-number">#{String(DRIVER_MARKET.indexOf(driver) + 1).padStart(2, "0")}</span><span className="market-driver-overall">{overall}<small>OVR</small></span></div><div className="market-driver-identity"><DriverPortrait driver={driver} index={DRIVER_MARKET.indexOf(driver)} /><div className="market-driver-nameplate"><h3>{driver.name}</h3><span className="market-driver-role">{driver.role}</span></div></div><span className="market-driver-role">{driver.role}</span><div className="market-driver-stats">{[["PACE", driver.pace], ["RACECRAFT", driver.racecraft], ["TYRE MGMT", driver.tyreManagement], ["CONSISTENCY", driver.consistency], ["POTENTIAL", driver.potential]].map(([label, value]) => <div className="market-stat" key={label as string}><span>{label}</span><div><i style={{ width: (value as number) + "%" }}/></div><b>{value}</b></div>)}</div><div className="market-driver-actions"><button type="button" className={seatOne ? "selected-seat" : ""} disabled={seatTwo} onClick={() => setSelectedDriverOne(driver.name)}>{seatOne ? "✓ SEAT 01" : "SELECT · 01"}</button><button type="button" className={seatTwo ? "selected-seat" : ""} disabled={seatOne} onClick={() => setSelectedDriverTwo(driver.name)}>{seatTwo ? "✓ SEAT 02" : "SELECT · 02"}</button></div></article>; })}</div></section><section className="research-lab-panel" aria-label="Permanent research lab"><div className="research-lab-heading"><div><span className="section-kicker">META PROGRESSION · BETWEEN RUNS ONLY</span><h2>Research Lab</h2></div><div className="research-lab-balance"><span>AVAILABLE RESEARCH</span><strong>✦ {garageMeta.research} RP</strong></div></div><p className="research-lab-copy">Spend research to unlock permanent blueprints. These benefits carry into future careers. The lab is only available on this start screen; banked RP waits until you return here between runs.</p><div className="garage-perk-grid">{GARAGE_PERKS.map((perk) => { const level = garageLevel(garageMeta, perk.id); const maxed = level >= 5; const cost = perk.cost * (level + 1); const affordable = garageMeta.research >= cost; return <article className={"garage-perk-card" + (level > 0 ? " garage-perk-owned" : "")} key={perk.id}><div className="garage-perk-top"><span>{perk.category}</span><b>{maxed ? "MAX LEVEL" : cost + " RP"}</b></div><h3>{perk.title}</h3><div className="garage-perk-level" aria-label={"Level " + level + " of 5"}><strong>LVL {level}/5</strong><span>{[1,2,3,4,5].map((rank) => <i key={rank} className={rank <= level ? "filled" : ""}/>)}</span></div><p>{perk.description}</p><button className={maxed ? "garage-perk-button owned" : "garage-perk-button"} disabled={maxed || !affordable} onClick={() => buyGaragePerk(perk.id)}>{maxed ? "✓ MAXED OUT" : affordable ? "UPGRADE TO LVL " + (level + 1) + " ↗" : "NEED " + (cost - garageMeta.research) + " MORE RP"}</button></article>; })}</div><div className="research-lab-foot"><span>PERMANENT UNLOCKS: {garageMeta.unlocks.length}/{GARAGE_PERKS.length}</span><span>PROGRESS SAVED LOCALLY ACROSS RUNS</span></div></section><button className="primary-button start-career-button" disabled={!teamNameDraft.trim() || !principalNameDraft.trim() || !selectedDriverOne || !selectedDriverTwo || selectedDriverOne === selectedDriverTwo} onClick={startCustomCareer}>CONFIRM LINE-UP & START CAREER <span>↗</span></button>{hasSavedCareer && <button className="continue-career-button" onClick={() => { setShowStartScreen(false); setShowInitialDraft(race.status === "ready" && race.upgradeLevel === 0 && race.weekendNumber === 1); }}>CONTINUE EXISTING CAREER <span>→</span></button>}<button className="start-save-transfer" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>IMPORT A SAVE CODE / TRANSFER CAREER ↗</button><p className="start-screen-footnote">{selectedMode === "championship" ? "20-ROUND CHAMPIONSHIP" : "ENDLESS SURVIVAL"} · 22 DRIVERS · SINGLE-PLAYER MANAGEMENT</p></div><div className="start-screen-visual"><StartScreenCarGraphic primary={teamPrimaryColor} secondary={teamSecondaryColor}/><div className="start-visual-caption"><span>01</span> CHASSIS R-01 <i/> RACE ENGINEERING DIVISION</div></div></div>}
@@ -893,7 +1009,7 @@ export default function App() {
         <div className="intermission-bottom-row"><span>RESEARCH LAB OPENS AT RUN BOUNDARIES</span><button className="primary-button" disabled={!intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)} onClick={startNextRace}>NEXT RACE ↗</button></div>
       </div>
     </div>}
-    <header className="topbar"><a className="brand" href="#" aria-label="Redline Ascension home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE ASCENSION</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}<button className="save-transfer-trigger" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>SAVE / TRANSFER</button></div></header>
+    <header className="topbar"><a className="brand" href="#" aria-label="Redline Ascension home"><svg className="brand-mark-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0B0B10"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="13.3" fill="none" stroke="#fff" strokeOpacity=".16" strokeWidth="1.5"/><g transform="translate(6.8 0) skewX(-12)"><path fill="#F4F4F6" fillRule="evenodd" d="M16 14L38 14L48 19L50 26L50 29L47 35L41 38L24 38L24 50L16 50ZM24 21L36 21L42 24L42 28L36 31L24 31Z"/><path fill="#FF1E00" d="M30 38L40 38L51 50L40.5 50Z"/></g></svg><span className="brand-text"><b>REDLINE ASCENSION</b><span>RACE OPERATIONS SIMULATOR</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}<button className="save-transfer-trigger codex-header-trigger" onClick={() => setShowEngineeringCodex(true)}>ENGINEERING CODEX</button><button className="save-transfer-trigger" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>SAVE / TRANSFER</button></div></header>
     <section className="page-heading"><div className="heading-copy"><div className="eyebrow">TEAM PRINCIPAL: {race.playerPrincipalName ?? "Team Principal"} <b>/</b> TEAM OPERATIONS <b>/</b> ROUND {String((race.mode ?? "championship") === "championship" ? Math.min(race.weekendNumber, CAMPAIGN_LENGTH) : race.weekendNumber).padStart(2, "0")} / {(race.mode ?? "championship") === "endless" ? "∞" : CAMPAIGN_LENGTH}</div><h1>Race <em>Control.</em></h1><p>Every decision has a cost. Every lap is an opportunity.</p></div><PitWallGraphic /><div className="weekend-status"><i className={"live-indicator " + (race.status === "running" ? "is-live" : "")}/><div><strong>{race.status === "running" ? "SESSION LIVE" : race.status === "finished" || race.status === "gameover" ? "SESSION COMPLETE" : race.status === "paused" ? "SESSION PAUSED" : "RACE WEEKEND"}</strong><span>{(race.circuitName ?? "Copperhead Ring").toUpperCase()} · GENERATED CIRCUIT</span></div></div></section>
     <section className="stat-strip">
       <div className="stat-cell"><span>TEAM BUDGET</span><strong>{money(race.cash)}</strong><small>{race.upgradeLevel ? "PACKAGE LEVEL " + race.upgradeLevel : "INITIAL ALLOCATION"}</small></div>
@@ -1031,6 +1147,7 @@ export default function App() {
       </div>
     </section>}
 
+    {showEngineeringCodex && <EngineeringCodex meta={codexMeta} modules={race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }} installedUpgrades={race.installedUpgrades ?? []} onClose={() => setShowEngineeringCodex(false)} />}
     {showSaveTransfer && <div className="save-transfer-overlay" role="dialog" aria-modal="true" aria-labelledby="save-transfer-title">
       <section className="save-transfer-panel">
         <div className="save-transfer-heading"><div><span className="section-kicker">CAREER DATA MANAGEMENT</span><h2 id="save-transfer-title">Save <em>& transfer.</em></h2><p>Move your career and permanent Garage blueprints between browsers or devices. No account required.</p></div><button className="save-transfer-close" aria-label="Close save transfer" onClick={() => setShowSaveTransfer(false)}>×</button></div>
