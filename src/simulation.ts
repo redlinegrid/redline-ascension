@@ -189,6 +189,7 @@ export interface RaceEvent{id:number;lap:number;message:string;kind:"info"|"pit"
 export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";}
 export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL";title:string;source:string;story:string;choices:PaddockChoice[];}
 export interface DriverContract{id:string;driverName:string;salaryPerRace:number;expiresAtRound:number;renewed:boolean;loyalty:number;}
+export interface ChampionshipObjective{id:"score-points"|"podium"|"double-points"|"beat-nemesis";title:string;detail:string;targetTeam?:string;reward:number;completed?:boolean;}
 export interface RaceState{
 version:1;
 mode?:GameMode;
@@ -214,6 +215,7 @@ championshipAchievements?:string[];
 championshipRaceResults?:{round:number;position:number;points:number}[];
 latestChampionshipAchievements?:ChampionshipAchievement[];
 latestChampionshipMilestone?:{round:number;title:string;detail:string;reward:number;position:number;};
+championshipObjective?:ChampionshipObjective;
 rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
 rivalryHistory?:Record<string,number[]>;
@@ -276,7 +278,7 @@ const circuitSeed=(seed ^ Math.imul(weekendNumber+37,2246822519))>>>0;
 const circuitNames=["Copperhead Ring","Monsoon Park","Granite Valley","Nightfall Circuit","Cobalt Coast","Redwood Raceway","Sundown Autodrome","Ironclad Park","Tempest Circuit","Silver Basin","Emberstone GP","Highland Loop","Mirage International","Blackstone Raceway","Aurora Park","Thunder Ridge","Mariner Circuit","Crimson Dunes","Summit Ring","Neon Harbour"];
 const circuitName=circuitNames[(circuitSeed>>>8)% circuitNames.length];
 const circuitLengthFactor=0.94+((circuitSeed>>>16)% 1200)/ 10000;
-const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
+const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},championshipObjective:mode!=="championship"?undefined:weekendNumber%4===0?{id:"podium",title:"Podium Push",detail:"Finish in the top three to impress the board and commercial partners.",reward:170000}:weekendNumber%3===0?{id:"double-points",title:"Double Points",detail:"Get both of your drivers into the top ten.",reward:145000}:{id:"score-points",title:"Score Points",detail:"Bring at least one car home in the top ten.",reward:100000},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
 const roster:Array<{id:string;driver:string;team:string;color:string;player:boolean;progress:number}>=[
 {id:"rp-1",driver:firstDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0.025},
 {id:"rp-2",driver:secondDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0},
@@ -479,6 +481,20 @@ state.rivalryFeudBonus=100000;
 const feudStyle=RIVAL_STYLE_BY_TEAM[mostMotivated.team];
 const feudStory=feudStyle==="qualifying-ace"?"Their qualifying group vows to outpace you next weekend.":feudStyle==="aggressive-racer"||feudStyle==="high-risk-attacker"?"Their drivers promise an all-out attack next weekend.":feudStyle==="strategy-gambler"||feudStyle==="opportunist"?"Their strategists are preparing a counter-punch in the pit lane.":feudStyle==="tyre-specialist"?"Their engineers are building a tyre strategy specifically to beat you.":"Their principal has made beating your team the next priority.";
 addEvent(state,"FEUD IGNITED — "+mostMotivated.team+" are now your nemesis. "+feudStory+" Beat them in a future race for a RM100,000 rivalry reward.","warning");
+}
+if((state.mode??"championship")==="championship"&&state.championshipObjective){
+const objective=state.championshipObjective;
+const playerPositions=state.cars.map((car,index)=>({car,position:index+1})).filter((entry)=>entry.car.playerCar).map((entry)=>entry.position);
+const objectiveComplete=objective.id==="score-points"?playerPosition<=10:objective.id==="podium"?playerPosition<=3:objective.id==="double-points"?playerPositions.length>=2&&playerPositions.every((position)=>position<=10):!!objective.targetTeam&&beatenTeams.has(objective.targetTeam);
+objective.completed=objectiveComplete;
+if(objectiveComplete){
+state.cash+=objective.reward;
+state.teamReputation=Math.min(100,(state.teamReputation??45)+3);
+state.teamMorale=Math.min(100,(state.teamMorale??62)+4);
+addEvent(state,"CHAMPIONSHIP OBJECTIVE COMPLETE — "+objective.title+". Board confidence rises; reward: RM"+objective.reward.toLocaleString("en-MY")+".","finish");
+}else{
+addEvent(state,"CHAMPIONSHIP OBJECTIVE MISSED — "+objective.title+". The board expected a stronger result this weekend.","warning");
+}
 }
 const rivalryBonus=Math.min(150000,beatenTeams.size*15000);
 if(rivalryBonus>0){state.cash+=rivalryBonus;addEvent(state,"Rivalry bonus: "+beatenTeams.size+" rival teams beaten. Commercial partners add RM"+rivalryBonus.toLocaleString("en-MY")+".","info");}
