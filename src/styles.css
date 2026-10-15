@@ -1276,3 +1276,26 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .milestone-mark{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(255,177,94,.48);border-radius:9px;color:#ffc16f;font-size:22px;background:rgba(255,177,94,.08)}
 .milestone-copy{min-width:0}.milestone-copy .section-kicker{font-size:8px;letter-spacing:.13em;color:#ffc16f;font-weight:900}.milestone-copy h3{margin:5px 0;color:#f5f5f6;font-size:15px}.milestone-copy p{margin:0 0 6px;color:#b5bdc9;font-size:10px;line-height:1.5}.milestone-copy small{color:#8f99a8;font:800 8px var(--mono);letter-spacing:.08em}.milestone-reward{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-left:12px;border-left:1px solid rgba(255,255,255,.1)}.milestone-reward span{color:#929baa;font-size:7px;font-weight:850;letter-spacing:.1em}.milestone-reward strong{color:#8ee0ae;font:800 14px var(--mono);white-space:nowrap}
 @media(max-width:600px){.championship-milestone{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:12px}.milestone-mark{width:34px;height:34px}.milestone-reward{grid-column:2;align-items:flex-start;border-left:0;border-top:1px solid rgba(255,255,255,.1);padding:9px 0 0;margin-top:2px}.milestone-copy h3{font-size:13px}}
+
+
+/* Championship achievements — season progression */
+.championship-achievements-panel{grid-column:1/-1;overflow:hidden}
+.achievement-progress-track{height:3px;background:#292b31;margin:0 20px}
+.achievement-progress-track i,.achievement-card-track i{display:block;height:100%;background:linear-gradient(90deg,#ff352a,#f0b45d);transition:width .25s}
+.achievement-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:15px}
+.achievement-card{min-width:0;padding:13px;border:1px solid #303139;border-radius:9px;background:linear-gradient(145deg,#202126,#18191d)}
+.achievement-card.achievement-unlocked{border-color:rgba(105,201,151,.48);background:linear-gradient(145deg,rgba(42,87,65,.24),#18191d)}
+.achievement-card-top{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#9296a1;font:8px var(--mono);letter-spacing:.04em}
+.achievement-card-top b{color:#c6c8cf;font-size:8px;white-space:nowrap}
+.achievement-unlocked .achievement-card-top span{color:#78c99a}
+.achievement-card h3{font:700 12px var(--display);letter-spacing:.04em;margin:11px 0 6px;color:#f3f4f6}
+.achievement-card p{font-size:10px;line-height:1.5;min-height:30px;margin:0;color:#9b9eaa}
+.achievement-card-progress{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:13px;color:#bfc2ca;font:8px var(--mono)}
+.achievement-card-progress small{color:#8ee0ae;font:800 8px var(--mono);white-space:nowrap}
+.achievement-card-track{height:3px;background:#303138;margin-top:8px;overflow:hidden}
+.achievement-unlock-feed{border-top:1px solid var(--line);padding:12px 15px;display:grid;gap:8px}
+.achievement-unlock-feed>div{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.achievement-unlock-feed strong{font:800 9px var(--mono);color:#ffc16f;white-space:nowrap}
+.achievement-unlock-feed span{font-size:10px;line-height:1.5;color:#a9acb6;text-align:right}
+@media(max-width:1000px){.achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.championship-achievements-panel .panel-heading{align-items:flex-start;gap:8px}.championship-achievements-panel .panel-heading h2{font-size:18px}.achievement-grid{grid-template-columns:1fr;padding:10px}.achievement-card p{min-height:0}.achievement-unlock-feed>div{flex-direction:column;gap:4px}.achievement-unlock-feed span{text-align:left}}
