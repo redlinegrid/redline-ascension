@@ -1423,3 +1423,19 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .championship-objective-panel.objective-complete{border-color:rgba(104,211,145,.45);background:linear-gradient(115deg,rgba(55,170,105,.12),rgba(15,17,23,.96) 68%)}.objective-complete .objective-panel-mark{color:#7de0a4;border-color:rgba(104,211,145,.5);background:rgba(55,170,105,.1)}.objective-complete .objective-panel-copy .section-kicker,.objective-complete .objective-panel-reward span,.objective-complete .objective-panel-reward strong{color:#7de0a4}
 .championship-objective-panel.objective-missed{border-color:rgba(255,126,103,.35);background:linear-gradient(115deg,rgba(255,72,56,.08),rgba(15,17,23,.96) 68%)}.objective-missed .objective-panel-mark{color:#ff9385;border-color:rgba(255,126,103,.4)}.objective-missed .objective-panel-copy .section-kicker{color:#ff9385}
 @media(max-width:600px){.championship-objective-panel{grid-template-columns:32px minmax(0,1fr);gap:10px;padding:12px}.objective-panel-mark{width:30px;height:30px;font-size:18px}.objective-panel-copy h3{font-size:13px}.objective-panel-reward{grid-column:2;align-items:flex-start;gap:3px}.objective-panel-reward strong{font-size:13px}}
+
+
+/* Unlockable driver market */
+.driver-market-heading{align-items:flex-start}
+.driver-market-heading-side{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}
+.driver-market-research{font:800 9px var(--mono);color:#ffc16f;letter-spacing:.06em}
+.driver-market-unlock-count{font:8px var(--mono);color:#9ba4b2;letter-spacing:.04em}
+.market-driver-locked{border-color:#373943;background:linear-gradient(145deg,#191a20,#111217)}
+.market-driver-locked .driver-portrait{filter:saturate(.45)}
+.market-driver-locked .market-driver-overall{color:#aeb5c2}
+.market-driver-lock{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #30323b}
+.market-driver-lock>span{grid-column:1/-1;font:800 7px var(--mono);letter-spacing:.07em;color:#9299a8}
+.market-driver-lock strong{font:800 11px var(--mono);color:#ffc16f;white-space:nowrap}
+.market-driver-lock button{grid-column:1/-1;width:100%;padding:10px;border:1px solid #70552c;background:linear-gradient(110deg,#392b18,#252018);color:#ffcf83;font:800 8px var(--mono);letter-spacing:.07em;cursor:pointer}
+.market-driver-lock button:disabled{border-color:#343640;background:#191b21;color:#777e8c;cursor:not-allowed}
+@media(max-width:600px){.driver-market-heading{flex-direction:column}.driver-market-heading-side{align-items:flex-start}.market-driver-lock button{padding:11px}}

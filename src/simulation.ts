@@ -146,6 +146,7 @@ tyreManagement:number;
 consistency:number;
 potential:number;
 color:string;
+unlockCost?:number;
 }
 export const DRIVER_MARKET:DriverProfile[]=[
 {id:"alex-mercer",name:"Luca Moretti",role:"ALL-ROUNDER",pace:86,racecraft:82,tyreManagement:79,consistency:83,potential:87,color:"#f04438"},
@@ -156,6 +157,18 @@ export const DRIVER_MARKET:DriverProfile[]=[
 {id:"kai-watanabe",name:"Kenji Arata",role:"YOUNG PROSPECT",pace:79,racecraft:78,tyreManagement:80,consistency:76,potential:97,color:"#f36b8b"},
 {id:"rafael-costa",name:"Rafael Costa",role:"VETERAN",pace:85,racecraft:88,tyreManagement:83,consistency:90,potential:81,color:"#5f9d63"},
 {id:"chloe-martin",name:"Adrian Keller",role:"BALANCED PACKAGE",pace:84,racecraft:84,tyreManagement:84,consistency:84,potential:88,color:"#ad8bf4"},
+{id:"marco-bianchi",name:"Marco Bianchi",role:"LATE BRAKING SPECIALIST",pace:87,racecraft:91,tyreManagement:76,consistency:82,potential:88,color:"#f07828",unlockCost:3},
+{id:"priya-nair",name:"Priya Nair",role:"TECHNICAL THINKER",pace:84,racecraft:85,tyreManagement:86,consistency:89,potential:91,color:"#48b9d1",unlockCost:3},
+{id:"jules-martin",name:"Jules Martin",role:"QUALIFYING PROSPECT",pace:91,racecraft:78,tyreManagement:75,consistency:80,potential:94,color:"#b28bf4",unlockCost:4},
+{id:"daniel-reyes",name:"Daniel Reyes",role:"OVERTAKING ACE",pace:85,racecraft:92,tyreManagement:80,consistency:79,potential:90,color:"#e4b45c",unlockCost:4},
+{id:"aisha-rahman",name:"Aisha Rahman",role:"TYRE WHISPERER",pace:82,racecraft:83,tyreManagement:94,consistency:88,potential:93,color:"#ec4f9b",unlockCost:4},
+{id:"oliver-shaw",name:"Oliver Shaw",role:"VETERAN LEADER",pace:88,racecraft:89,tyreManagement:87,consistency:93,potential:84,color:"#8a929f",unlockCost:5},
+{id:"yuki-sato",name:"Yuki Sato",role:"HIGH-POTENTIAL ROOKIE",pace:80,racecraft:81,tyreManagement:84,consistency:78,potential:98,color:"#e85b5b",unlockCost:5},
+{id:"gabriel-costa",name:"Gabriel Costa",role:"WET-WEATHER ACE",pace:84,racecraft:88,tyreManagement:91,consistency:86,potential:92,color:"#5f9d63",unlockCost:6},
+{id:"maya-chen",name:"Maya Chen",role:"CONSISTENT SCORER",pace:86,racecraft:84,tyreManagement:90,consistency:95,potential:89,color:"#ad8bf4",unlockCost:6},
+{id:"liam-oconnell",name:"Liam O'Connell",role:"PURE PACE",pace:94,racecraft:80,tyreManagement:74,consistency:79,potential:91,color:"#f04438",unlockCost:7},
+{id:"sofia-petrov",name:"Sofia Petrov",role:"COMPLETE PACKAGE",pace:89,racecraft:90,tyreManagement:89,consistency:90,potential:93,color:"#49b9d1",unlockCost:7},
+{id:"alexei-volkov",name:"Alexei Volkov",role:"ELITE ALL-ROUNDER",pace:95,racecraft:93,tyreManagement:91,consistency:89,potential:94,color:"#ffc16f",unlockCost:9},
 ];
 export interface CarState{
 id:string;
