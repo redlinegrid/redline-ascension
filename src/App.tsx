@@ -124,9 +124,17 @@ const PADDOCK_EVENT_DECK: PaddockEvent[] = [
  {id:"secure-spares",label:"Fly in emergency spares",description:"Spend RM110,000 to protect component condition throughout the weekend.",cashDelta:-110000,moraleDelta:2,reputationDelta:1,weekendEffect:"spares-secured"},
  {id:"stretch-parts",label:"Stretch the existing stock",description:"Keep the cash, but component wear and reliability risk will rise.",cashDelta:0,moraleDelta:-2,reputationDelta:-1,weekendEffect:"parts-shortage"},
  {id:"borrow-parts",label:"Borrow from a partner team",description:"Pay RM45,000 and keep reliability on neutral footing.",cashDelta:-45000,moraleDelta:1,reputationDelta:1}]}
+ {id:"nemesis-showdown",category:"PADDOCK POLITICS",title:"Your Nemesis Demands a Showdown",source:"PADDOCK MEDIA",story:"A rival principal has made this personal. The team wants a direct response before the next race: go all-in on beating them, or stay composed and let the result speak for itself.",choices:[
+ {id:"feud-attack",label:"Declare war on track",description:"Spend RM60,000 on a targeted performance programme. Gain a stronger pace edge over your nemesis, but push the team harder.",cashDelta:-60000,moraleDelta:2,reputationDelta:2,weekendEffect:"feud-attack"},
+ {id:"feud-composed",label:"Keep the response professional",description:"A modest RM20,000 preparation cost. Give up a little peak pace for a more controlled showdown.",cashDelta:-20000,moraleDelta:3,reputationDelta:4,weekendEffect:"feud-composed"},
+ {id:"feud-ignore",label:"Refuse to play their game",description:"Spend nothing and avoid the media circus, but your rival gets extra motivation.",cashDelta:0,moraleDelta:1,reputationDelta:-2,weekendEffect:"feud-composed"}]},
 ];
 function createPaddockEvent(race: RaceState): PaddockEvent {
  const previous = race.resolvedPaddockEvents ?? [];
+ if (race.rivalryFeudTeam && !previous.slice(-2).includes("nemesis-showdown")) {
+   const showdown = PADDOCK_EVENT_DECK.find((event) => event.id === "nemesis-showdown");
+   if (showdown) return { ...showdown, title: race.rivalryFeudTeam + " Demand a Showdown", story: race.rivalryFeudTeam + " have turned your rivalry into a public feud. Their principal wants a direct response before the next race: attack them on track, stay composed, or refuse to play their game.", choices: showdown.choices.map((choice) => ({ ...choice })) };
+ }
  const candidates = PADDOCK_EVENT_DECK.filter((event) => !previous.slice(-3).includes(event.id));
  const pool = candidates.length ? candidates : PADDOCK_EVENT_DECK;
  const seed = (race.seed ^ Math.imul(race.weekendNumber + 31, 2246822519)) >>> 0;
