@@ -40,7 +40,7 @@ cashBonus?:number;
 trait?:RunTrait;
 buildPath?:string;
 }
-const UPGRADE_CARD_POOL:UpgradeCard[]=[
+export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 {id:"front-wing",title:"Reprofiled Front Wing",subtitle:"AERO PACKAGE",rarity:"COMMON",description:"A cleaner front-wing profile gives the drivers more confidence through medium-speed corners.",effect:"Aerodynamics +1",upgradeType:"aero",amount:1},
 {id:"floor-edge",title:"Revised Floor Edge",subtitle:"AERO PACKAGE",rarity:"RARE",description:"A more stable underfloor platform unlocks a bigger step in cornering performance.",effect:"Aerodynamics +2",upgradeType:"aero",amount:2},
 {id:"active-flow",title:"Active Flow Concept",subtitle:"AERO PACKAGE",rarity:"EPIC",description:"A breakthrough airflow concept delivers an unusually large aerodynamic gain.",effect:"Aerodynamics +3",upgradeType:"aero",amount:3},
