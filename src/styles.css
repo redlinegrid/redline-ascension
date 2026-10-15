@@ -1402,3 +1402,14 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .rival-threat-line.threat-standard{color:#9299a8!important}
 .rival-threat-line.threat-elevated{color:#e4b45c!important;border-color:#66502d;background:#282116}
 .rival-threat-line.threat-high{color:#ff8176!important;border-color:#713b37;background:#2c1c1c}
+
+
+/* Championship-only nemesis storylines and round-five showdowns */
+.championship-nemesis-panel{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;margin:14px 0;padding:15px 17px;border:1px solid rgba(255,126,103,.4);border-radius:11px;background:linear-gradient(115deg,rgba(255,72,56,.12),rgba(15,17,23,.96) 68%)}
+.nemesis-panel-mark{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(255,126,103,.45);border-radius:8px;color:#ff9385;background:rgba(255,72,56,.08);font-size:22px}
+.nemesis-panel-copy{min-width:0}.nemesis-panel-copy .section-kicker{font-size:8px;letter-spacing:.12em;color:#ff9385;font-weight:900}.nemesis-panel-copy h3{margin:5px 0;color:#f4f4f7;font-size:15px}.nemesis-panel-copy p{margin:0;color:#aeb6c4;font-size:10px;line-height:1.65}
+.nemesis-panel-status{padding:7px 9px;border:1px solid #66413d;color:#ff9587;background:#281a1a;font:800 8px var(--mono);letter-spacing:.08em;white-space:nowrap}
+.championship-nemesis-panel.nemesis-showdown{border-color:rgba(255,185,91,.58);background:linear-gradient(115deg,rgba(255,155,58,.16),rgba(15,17,23,.96) 68%)}
+.nemesis-showdown .nemesis-panel-mark{color:#ffc16f;border-color:rgba(255,185,91,.55);background:rgba(255,185,91,.1)}
+.nemesis-showdown .nemesis-panel-copy .section-kicker,.nemesis-showdown .nemesis-panel-status{color:#ffc16f;border-color:#6b522d;background:#292116}
+@media(max-width:600px){.championship-nemesis-panel{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:12px}.nemesis-panel-mark{width:32px;height:32px;font-size:18px}.nemesis-panel-copy h3{font-size:13px}.nemesis-panel-status{grid-column:2;justify-self:start}}
