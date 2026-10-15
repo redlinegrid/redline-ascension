@@ -93,6 +93,23 @@ function loadCodexMeta(): CodexMeta {
   } catch { return EMPTY_CODEX_META; }
 }
 
+
+function evolutionHintsForUpgrade(upgradeId: string, race: RaceState): { key: string; text: string; ready: boolean }[] {
+  const installedIds = new Set((race.installedUpgrades ?? []).map((item) => item.id));
+  const activeIds = new Set(race.activeEvolutions ?? []);
+  return UPGRADE_EVOLUTIONS.filter((evolution) => evolution.requiredUpgradeIds.includes(upgradeId)).map((evolution) => {
+    const counterpartId = evolution.requiredUpgradeIds.find((id) => id !== upgradeId) ?? "";
+    const counterpartTitle = UPGRADE_CARD_POOL.find((item) => item.id === counterpartId)?.title ?? counterpartId;
+    const ready = installedIds.has(counterpartId);
+    const active = activeIds.has(evolution.id);
+    return {
+      key: evolution.id,
+      ready,
+      text: active ? `EVOLUTION ACTIVE · ${evolution.title}` : ready ? `COMBO READY · Completes ${evolution.title}` : `COMBO CLUE · Pair with ${counterpartTitle}`,
+    };
+  });
+}
+
 const money = (amount: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", maximumFractionDigits: 0 }).format(amount);
 const pct = (value: number) => Math.round(value) + "%";
 
@@ -1035,6 +1052,7 @@ export default function App() {
             <span className="rogue-card-subtitle">{card.subtitle}</span>
             <strong>{card.title}</strong><p>{card.description}</p>
             <span className="rogue-card-effect">{card.effect}</span>
+            {evolutionHintsForUpgrade(card.id, race).map((hint) => <span key={hint.key} className={"evolution-combo-hint" + (hint.ready ? " evolution-combo-ready" : "")}>{hint.text}</span>)}
             <span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
           </button>)}
         </div>
@@ -1055,7 +1073,7 @@ export default function App() {
         <div className="rogue-draft-grid intermission-upgrade-grid">
           {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => { setSelectedDraftId(card.id); setIntermissionUpgradeInstalled(false); }}>
             <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
-            <span className="rogue-card-art"><UpgradeIcon type={card.upgradeType}/></span><span className="rogue-card-subtitle">{card.subtitle}</span><strong>{card.title}</strong><p>{card.description}</p><span className="rogue-card-effect">{card.effect}</span><span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
+            <span className="rogue-card-art"><UpgradeIcon type={card.upgradeType}/></span><span className="rogue-card-subtitle">{card.subtitle}</span><strong>{card.title}</strong><p>{card.description}</p><span className="rogue-card-effect">{card.effect}</span>{evolutionHintsForUpgrade(card.id, race).map((hint) => <span key={hint.key} className={"evolution-combo-hint" + (hint.ready ? " evolution-combo-ready" : "")}>{hint.text}</span>)}<span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
           </button>)}
         </div>
         <div className="intermission-action-row">
@@ -1170,6 +1188,7 @@ export default function App() {
               <strong>{card.title}</strong>
               <p>{card.description}</p>
               <span className="rogue-card-effect">{card.effect}</span>
+              {evolutionHintsForUpgrade(card.id, race).map((hint) => <span key={hint.key} className={"evolution-combo-hint" + (hint.ready ? " evolution-combo-ready" : "")}>{hint.text}</span>)}
               <span className="rogue-card-pick">{selectedDraft?.id === card.id ? "SELECTED ✓" : "SELECT THIS →"}</span>
             </button>)}
           </div>
