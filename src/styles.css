@@ -1247,3 +1247,8 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .rival-intel-card p{margin:5px 0 8px;color:#a4acb9;font-size:10px;line-height:1.45}
 .rival-intel-card em{font-style:normal;color:#7f8998;font-size:7px;font-weight:800;letter-spacing:.08em}
 @media(max-width:390px){.rival-intel-panel{padding:10px}.rival-intel-grid{grid-template-columns:1fr}.rival-intel-heading>small{font-size:7px}}
+
+
+/* Recurring rivalry heat */
+.rival-intel-card em.rival-streak-hot{display:block;margin-top:5px;color:#ff786a;font-size:7px;font-weight:900;letter-spacing:.08em}
+.rival-intel-card em.rival-streak-calm{display:block;margin-top:5px;color:#a0a8b4;font-size:7px;font-weight:800;letter-spacing:.08em}
