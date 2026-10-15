@@ -1,4 +1,4 @@
-# Redline Paddock
+# Redline Ascension
 
 > **Build your team. Engineer your future.**  
 > A single-player idle motorsport management game built around long-term progression, strategic race control, and evolving rivals.
@@ -7,7 +7,7 @@
 **Repository:** Private  
 **Project type:** Independent game project — separate from Redline Grid
 
-Redline Paddock is a motorsport management game inspired by the satisfying long-term progression of idle games such as *Melvor Idle*. Players build a team over time, develop drivers and technology, manage finances, and compete in race weekends. Most management systems progress while the player is away, while races remain a deliberate activity the player can return to and influence.
+Redline Ascension is a motorsport management game inspired by the satisfying long-term progression of idle games such as *Melvor Idle*. Players build a team over time, develop drivers and technology, manage finances, and compete in race weekends. Most management systems progress while the player is away, while races remain a deliberate activity the player can return to and influence.
 
 This README records the current design direction. Specific numbers, balance values, and features remain subject to iteration. No application implementation has started.
 
@@ -247,7 +247,7 @@ The interface should feel like a focused motorsport engineering workstation:
 - Touch-friendly controls for race strategy
 - An offline progress summary that is easy to scan
 
-The visual direction may take inspiration from Redline Grid, but **Redline Paddock is a separate project with its own codebase and identity**.
+The visual direction may take inspiration from Redline Grid, but **Redline Ascension is a separate project with its own codebase and identity**.
 
 ## Technical direction
 
@@ -709,13 +709,13 @@ Exact notice periods, transition deadlines, regulation scope, and the treatment 
 
 ### Confirmed prototype visual scope
 
-- **Polished Redline Paddock experience**: the first playable prototype should establish the game's dark motorsport identity, restrained racing-red accents, responsive layout, timing tower and clear strategy panels. Keep the scope focused and avoid advanced animation or extensive dashboard polish until the core game loop is proven.
+- **Polished Redline Ascension experience**: the first playable prototype should establish the game's dark motorsport identity, restrained racing-red accents, responsive layout, timing tower and clear strategy panels. Keep the scope focused and avoid advanced animation or extensive dashboard polish until the core game loop is proven.
 
 ## Consolidated first playable prototype specification
 
 ### Goal
 
-Deliver a compact, polished, end-to-end playable slice that proves the central Redline Paddock loop before expanding into the full career-management game. This is a prototype milestone, not a promise that every planned career feature will be present immediately.
+Deliver a compact, polished, end-to-end playable slice that proves the central Redline Ascension loop before expanding into the full career-management game. This is a prototype milestone, not a promise that every planned career feature will be present immediately.
 
 ### Player loop
 
