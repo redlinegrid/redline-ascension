@@ -327,6 +327,21 @@ export function stepRace(current: RaceState): RaceState {
   }
   const leader = order[0];
   state.lap = Math.min(state.totalLaps, Math.max(1, Math.floor(leader.progress) + 1));
+  if (!state.raceDramaTriggered && state.lap >= (state.raceDramaLap ?? 8) && state.lap < state.totalLaps) {
+    state.raceDramaTriggered = true;
+    const dramaType = (state.circuitSeed ?? state.seed) % 3;
+    if (dramaType === 0) {
+      state.safetyCarTicks = Math.max(state.safetyCarTicks ?? 0, 3); state.safetyCarActive = true;
+      addEvent(state, "RACE DRAMA — Debris on track. Safety car deployed; review both cars' pit windows.", "warning");
+    } else if (dramaType === 1) {
+      const target = order.find((car) => !car.playerCar && !car.finished && car.progress > 0.15);
+      if (target) { target.condition = Math.max(55, target.condition - 14); target.progress = Math.max(0, target.progress - 0.035); addEvent(state, "RACE DRAMA — " + target.team + " reports a technical issue on " + target.driver + "'s car. Lost time and reduced component condition.", "warning"); }
+    } else {
+      const target = state.cars.find((car) => !car.playerCar && !car.finished && car.pitStops === 0 && car.rivalStyle === "strategy-gambler");
+      if (target) { target.pitDelay = 2; target.pitStops += 1; target.tyreWear = 0.02; target.tyre = target.nextTyre; addEvent(state, "RACE DRAMA — " + target.team + " gambles on an unscheduled tyre stop. Track position sacrificed for fresh rubber.", "pit"); }
+      else { state.safetyCarTicks = 2; state.safetyCarActive = true; addEvent(state, "RACE DRAMA — A late incident brings out the safety car. Reassess both cars' strategy.", "warning"); }
+    }
+  }
   if (state.lap !== oldLap && state.lap <= state.totalLaps) addEvent(state, "Lap " + state.lap + " of " + state.totalLaps + " — " + leader.driver + " leads the field.");
   if (state.cars.every((car) => car.finished)) {
     state.status = "finished";
