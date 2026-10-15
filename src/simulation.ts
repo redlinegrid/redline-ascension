@@ -225,6 +225,7 @@ const migratedCars=saved.cars.map((car,index)=>{
 const profile=DRIVER_MARKET.find((driver)=>driver.name===car.driver);
 return{
 ...car,
+rivalStyle:car.playerCar?undefined:car.rivalStyle??RIVAL_STYLE_BY_TEAM[car.team],
 driverPace:car.driverPace??profile?.pace??76+(index*7 % 13),
 driverRacecraft:car.driverRacecraft??profile?.racecraft??75+(index*5 % 15),
 driverTyreManagement:car.driverTyreManagement??profile?.tyreManagement??74+(index*3 % 16),
