@@ -169,3 +169,8 @@ Championship runs now track eight achievement milestones, including first points
 ## Engineering Codex
 
 The Engineering Codex is a permanent, local-first knowledge archive for upgrade discoveries, active build synergies, a non-destructive build planner, and completed-run dossiers. Open it from the game header, or visit the companion view at [Engineering Codex](https://redlinegrid.github.io/redline-paddock/?view=codex). The companion shares browser-local records with the game; use Save / Transfer to include Codex discoveries and dossiers in a save code when moving between devices. Existing save codes remain compatible.
+
+
+## Engineering Codex Expansion
+
+The Codex now includes an expanded technology catalogue with five rarity tiers, per-category discovery progress, technology mastery based on completed runs, and a persistent favourites filter. Catalogue additions use the existing simulation's supported upgrade effects; mastery and favourites are stored locally and included in Save / Transfer exports. Older career saves and Codex metadata are migrated with empty defaults for the new fields.
