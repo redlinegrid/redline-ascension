@@ -105,7 +105,7 @@ export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 {id:"supplier-volume-rebate",title:"Supplier Volume Rebate",subtitle:"COMMERCIAL WIN",rarity:"UNCOMMON",description:"A negotiated parts agreement returns cash to the team's development budget.",effect:"+RM175,000 team funds",cashBonus:175000},
 {id:"component-stress-testing",title:"Component Stress Testing",subtitle:"RELIABILITY",rarity:"EPIC",description:"A more demanding validation programme gives the reliability department a substantial baseline improvement.",effect:"Reliability +2",upgradeType:"reliability",amount:2}
 ];
-export function draftUpgradeCards(state:RaceState):UpgradeCard[]{
+export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number}={}):UpgradeCard[]{
 const pool=[...UPGRADE_CARD_POOL];
 let seed=(state.seed ^ Math.imul(state.weekendNumber+17,2654435761))>>>0;
 const nextRandom=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed / 4294967296;};
@@ -120,6 +120,20 @@ const category=card.buildPath??card.upgradeType??"commercial";
 if(selected.length<3&&!categories.has(category)){selected.push(card);categories.add(category);}
 }
 for(const card of pool)if(selected.length<3&&!selected.some((item)=>item.id===card.id))selected.push(card);
+const rarityRank:Record<UpgradeRarity,number>={COMMON:0,UNCOMMON:1,RARE:2,EPIC:3,LEGENDARY:4};
+const categoryOf=(card:UpgradeCard)=>card.buildPath??card.upgradeType??"commercial";
+const ensureRarity=(minimumRank:number)=>{
+if(selected.some((card)=>rarityRank[card.rarity]>=minimumRank))return;
+const candidate=pool.find((card)=>rarityRank[card.rarity]>=minimumRank&&!selected.some((item)=>item.id===card.id));
+if(!candidate)return;
+let replaceIndex=selected.findIndex((card,index)=>!selected.some((other,otherIndex)=>otherIndex!==index&&categoryOf(other)===categoryOf(card)));
+if(replaceIndex<0)replaceIndex=selected.reduce((weakest,card,index)=>rarityRank[card.rarity]<rarityRank[selected[weakest].rarity]?index:weakest,0);
+selected[replaceIndex]=candidate;
+};
+const discoveries=Math.max(0,Math.floor(progression.discoveredCount??0));
+if(discoveries>=10)ensureRarity(2);
+if(discoveries>=20)ensureRarity(3);
+if(discoveries>=30)ensureRarity(4);
 return selected;
 }
 export interface DriverProfile{
