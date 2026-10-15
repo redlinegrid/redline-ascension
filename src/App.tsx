@@ -920,6 +920,7 @@ export default function App() {
               <div className="rival-intel-card-top"><i style={{ background: rival.color }} /><strong>{rival.team}</strong><small>P{String(rival.position).padStart(2, "0")}</small></div>
               <span>{style.label}</span><p>{style.description}</p>
               <em>{rival.wins} {rival.wins === 1 ? "WEEKEND" : "WEEKENDS"} BEATEN</em>
+              <em className={rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{rival.streak >= 2 ? "RIVAL ALERT · " : "CURRENT STREAK · "}{rival.streak} {rival.streak === 1 ? "WIN" : "WINS"}</em>
             </article>;
           })}</div>
         </section>
