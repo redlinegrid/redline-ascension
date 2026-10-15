@@ -266,7 +266,7 @@ export function stepRace(current: RaceState): RaceState {
     const safetyCarFactor = state.safetyCarActive ? 1.34 : 1;
     const traits = state.buildTraits ?? [];
     const traitPaceFactor = car.playerCar ? (traits.includes("risk-reward") ? 0.985 : 1) * (traits.includes("reliability-first") ? 1.003 : 1) : 1;
-    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] * safetyCarFactor * traitPaceFactor + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
+    const lapSeconds = Math.max(85, car.lapTime * (state.circuitLengthFactor ?? 1) * PACE_FACTOR[car.pace] * TYRE_PACE_FACTOR[car.tyre] * safetyCarFactor * traitPaceFactor * rivalPace + tyrePenalty + fuelPenalty + reliabilityPenalty - upgradeBonus - racecraftBonus + noise);
     car.lastLap = lapSeconds;
     car.bestLap = car.bestLap === 0 ? lapSeconds : Math.min(car.bestLap, lapSeconds);
     const previousProgress = car.progress;
