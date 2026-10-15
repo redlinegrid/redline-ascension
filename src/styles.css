@@ -1252,3 +1252,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 /* Recurring rivalry heat */
 .rival-intel-card em.rival-streak-hot{display:block;margin-top:5px;color:#ff786a;font-size:7px;font-weight:900;letter-spacing:.08em}
 .rival-intel-card em.rival-streak-calm{display:block;margin-top:5px;color:#a0a8b4;font-size:7px;font-weight:800;letter-spacing:.08em}
+
+
+/* Active nemesis feud badge in rival scouting */
+.rival-intel-card em.rival-feud-active{display:block;margin-top:5px;color:#ffb15e;font-size:7px;font-style:normal;font-weight:950;letter-spacing:.07em}
