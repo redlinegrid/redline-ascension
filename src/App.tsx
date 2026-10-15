@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type UpgradeCard, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
@@ -934,7 +934,9 @@ export default function App() {
       const importedLevels = payload.garageMeta.levels && typeof payload.garageMeta.levels === "object" ? Object.fromEntries(Object.entries(payload.garageMeta.levels).map(([id, level]) => [id, Math.max(0, Math.min(5, Math.floor(Number(level) || 0)))])) : Object.fromEntries(importedUnlocks.map((id: string) => [id, 1]));
       setGarageMeta({ research: Math.max(0, Number(payload.garageMeta.research) || 0), unlocks: importedUnlocks, levels: importedLevels, rewardedRuns: payload.garageMeta.rewardedRuns.filter((id: unknown): id is string => typeof id === "string") });
       if (payload.codexMeta && Array.isArray(payload.codexMeta.discoveredUpgradeIds) && Array.isArray(payload.codexMeta.dossiers)) {
-        setCodexMeta({ discoveredUpgradeIds: [...new Set(payload.codexMeta.discoveredUpgradeIds.filter((id: unknown): id is string => typeof id === "string"))], dossiers: payload.codexMeta.dossiers.filter((item: unknown): item is CodexDossier => Boolean(item && typeof item === "object" && typeof (item as CodexDossier).id === "string" && Array.isArray((item as CodexDossier).upgrades))).slice(0, 50) });
+        const importedDiscoveredIds: string[] = payload.codexMeta.discoveredUpgradeIds.filter((id: unknown): id is string => typeof id === "string");
+        const importedDossiers: CodexDossier[] = payload.codexMeta.dossiers.filter((item: unknown) => Boolean(item && typeof item === "object" && typeof (item as { id?: unknown }).id === "string" && Array.isArray((item as { upgrades?: unknown }).upgrades))).map((item: unknown) => { const record = item as Record<string, unknown>; return { id: String(record.id), team: typeof record.team === "string" ? record.team : "Unknown team", mode: typeof record.mode === "string" ? record.mode : "championship", round: Number(record.round) || 0, position: Number(record.position) || 0, points: Number(record.points) || 0, cash: Number(record.cash) || 0, upgrades: (record.upgrades as unknown[]).filter((id): id is string => typeof id === "string"), endedAt: typeof record.endedAt === "string" ? record.endedAt : "Imported" }; }).slice(0, 50);
+        setCodexMeta({ discoveredUpgradeIds: [...new Set(importedDiscoveredIds)], dossiers: importedDossiers });
       }
       setBestRun(payload.bestRun && typeof payload.bestRun.points === "number" ? payload.bestRun as BestRun : null);
       setTeamNameDraft(restored.playerTeamName ?? restored.cars.find((car) => car.playerCar)?.team ?? "Redline GP");
