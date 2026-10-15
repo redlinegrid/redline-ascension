@@ -4,6 +4,7 @@
 
 A single-player motorsport **roguelite management game** where every run is a new attempt to turn an underdog team into a racing force. Draft upgrades, shape a build, manage your cash, make difficult paddock decisions, and adapt your race strategy as the championship unfolds.
 
+**Live Demo:** [Play Redline Ascension](https://redlinegrid.github.io/redline-paddock/)  
 **Project:** Redline Ascension  
 **Genre:** Motorsport management · Roguelite · Strategy  
 **Platform:** Browser  
