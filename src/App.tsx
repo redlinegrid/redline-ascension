@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
 const GARAGE_META_KEY = "redline-paddock-garage-meta-v1";
-type GarageMeta = { research: number; unlocks: string[]; rewardedRuns: string[]; levels: Record<string, number> };
-const EMPTY_GARAGE_META: GarageMeta = { research: 0, unlocks: [], rewardedRuns: [], levels: {} };
+type GarageMeta = { research: number; unlocks: string[]; rewardedRuns: string[]; rewardedAchievements?: string[]; levels: Record<string, number> };
+const EMPTY_GARAGE_META: GarageMeta = { research: 0, unlocks: [], rewardedRuns: [], rewardedAchievements: [], levels: {} };
 function loadGarageMeta(): GarageMeta {
   try {
     const raw = localStorage.getItem(GARAGE_META_KEY);
@@ -14,7 +14,7 @@ function loadGarageMeta(): GarageMeta {
     const parsed = JSON.parse(raw) as Partial<GarageMeta>;
     const unlocks = Array.isArray(parsed.unlocks) ? parsed.unlocks.filter((id): id is string => typeof id === "string") : [];
     const levels = parsed.levels && typeof parsed.levels === "object" ? Object.fromEntries(Object.entries(parsed.levels).map(([id, level]) => [id, Math.max(0, Math.min(5, Math.floor(Number(level) || 0)))])) : Object.fromEntries(unlocks.map((id) => [id, 1]));
-    return { research: Math.max(0, Number(parsed.research) || 0), unlocks: [...new Set([...unlocks, ...Object.keys(levels).filter((id) => (levels[id] ?? 0) > 0)])], rewardedRuns: Array.isArray(parsed.rewardedRuns) ? parsed.rewardedRuns.filter((id): id is string => typeof id === "string") : [], levels };
+    return { research: Math.max(0, Number(parsed.research) || 0), unlocks: [...new Set([...unlocks, ...Object.keys(levels).filter((id) => (levels[id] ?? 0) > 0)])], rewardedRuns: Array.isArray(parsed.rewardedRuns) ? parsed.rewardedRuns.filter((id): id is string => typeof id === "string") : [], rewardedAchievements: Array.isArray(parsed.rewardedAchievements) ? parsed.rewardedAchievements.filter((id): id is string => typeof id === "string") : [], levels };
   } catch { return EMPTY_GARAGE_META; }
 }
 const GARAGE_PERKS = [
@@ -660,11 +660,21 @@ export default function App() {
   useEffect(() => {
     if (race.status !== "finished" && race.status !== "gameover") return;
     const runId = race.seed + ":" + race.weekendNumber;
-    if (garageMeta.rewardedRuns.includes(runId)) return;
     const playerPosition = standings(race).findIndex((car) => car.playerCar) + 1;
     const earned = 1 + (playerPosition > 0 && playerPosition <= 3 ? 1 : 0) + Math.floor(garageLevel(garageMeta, "research-efficiency") / 2);
-    setGarageMeta((current) => current.rewardedRuns.includes(runId) ? current : { ...current, research: current.research + earned, rewardedRuns: [...current.rewardedRuns, runId].slice(-500) });
-  }, [race.status, race.seed, race.weekendNumber, race.cars, garageMeta.rewardedRuns, garageMeta.levels]);
+    const newlyRewarded = (race.latestChampionshipAchievements ?? []).filter((achievement) => !(garageMeta.rewardedAchievements ?? []).includes(achievement.id));
+    setGarageMeta((current) => {
+      const rewardable = newlyRewarded.filter((achievement) => !(current.rewardedAchievements ?? []).includes(achievement.id));
+      const alreadyRewardedRun = current.rewardedRuns.includes(runId);
+      if (alreadyRewardedRun && rewardable.length === 0) return current;
+      return {
+        ...current,
+        research: current.research + (alreadyRewardedRun ? 0 : earned) + rewardable.reduce((total, achievement) => total + achievement.researchReward, 0),
+        rewardedRuns: alreadyRewardedRun ? current.rewardedRuns : [...current.rewardedRuns, runId].slice(-500),
+        rewardedAchievements: [...new Set([...(current.rewardedAchievements ?? []), ...rewardable.map((achievement) => achievement.id)])].slice(-100),
+      };
+    });
+  }, [race.status, race.seed, race.weekendNumber, race.cars, race.latestChampionshipAchievements, garageMeta.rewardedRuns, garageMeta.rewardedAchievements, garageMeta.levels]);
   useEffect(() => {
     if (race.status !== "running") return;
     const id = window.setInterval(() => setRace((current) => stepRace(current)), Math.max(120, 1000 / speed));
@@ -952,6 +962,24 @@ export default function App() {
           {order.map((car, index) => <div className={"standings-row " + (car.playerCar ? "player-row" : "")} key={car.id}><span className="position">{String(index + 1).padStart(2, "0")}</span><span className="driver-cell"><i style={{ background: car.teamColor }}/><span><strong>{car.driver}</strong><small>{car.team}</small></span>{car.playerCar && <b className="you-tag">YOU</b>}</span><span className="gap-cell">{index === 0 ? "LEADER" : car.finished && order[0].finished ? "+" + ((car.finishTime ?? 0) - (order[0].finishTime ?? 0)).toFixed(1) + "s" : "+" + Math.max(0, (order[0].progress - car.progress) * 91.4).toFixed(1) + "s"}</span><span className={"tyre-mini tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>)}
         </div>
         <div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
+      </section>
+      <section className="panel championship-achievements-panel" aria-label="Championship achievements">
+        <div className="panel-heading"><div><div className="section-kicker">SEASON PROGRESSION</div><h2>Championship achievements</h2></div><span className="field-count">{(race.championshipAchievements ?? []).length}/{CHAMPIONSHIP_ACHIEVEMENTS.length} UNLOCKED</span></div>
+        <div className="achievement-progress-track"><i style={{ width: (((race.championshipAchievements ?? []).length / CHAMPIONSHIP_ACHIEVEMENTS.length) * 100) + "%" }}/></div>
+        <div className="achievement-grid">{CHAMPIONSHIP_ACHIEVEMENTS.map((achievement) => {
+          const unlocked = (race.championshipAchievements ?? []).includes(achievement.id);
+          const results = race.championshipRaceResults ?? [];
+          const pointsFinishes = results.filter((result) => result.position > 0 && result.position <= 10).length;
+          const lastThree = results.slice(-3);
+          const streakProgress = unlocked ? 3 : lastThree.length === 3 && lastThree.every((result) => result.position <= 10) ? 3 : lastThree.slice(-2).filter((result) => result.position <= 10).length;
+          const points = race.teamPoints?.[playerTeamName] ?? 0;
+          const progress = achievement.id === "five-points-finishes" ? Math.min(5, pointsFinishes) : achievement.id === "three-points-streak" ? streakProgress : achievement.id === "century-club" ? Math.min(100, points) : achievement.id === "top-three-season" ? (unlocked ? 20 : Math.min(19, race.weekendNumber - 1)) : achievement.id === "world-champion" ? (unlocked ? 1 : 0) : (unlocked || results.some((result) => achievement.id === "first-points" ? result.position <= 10 : achievement.id === "first-podium" ? result.position <= 3 : result.position === 1) ? 1 : 0);
+          const target = achievement.id === "five-points-finishes" ? 5 : achievement.id === "three-points-streak" ? 3 : achievement.id === "century-club" ? 100 : achievement.id === "top-three-season" ? 20 : 1;
+          const progressLabel = achievement.id === "century-club" ? progress + " / 100 PTS" : achievement.id === "five-points-finishes" ? progress + " / 5 FINISHES" : achievement.id === "three-points-streak" ? progress + " / 3 ROUNDS" : achievement.id === "top-three-season" ? (unlocked ? "SEASON COMPLETE" : Math.max(0, race.weekendNumber - 1) + " / 20 ROUNDS") : achievement.id === "world-champion" ? (unlocked ? "CHAMPION" : "SEASON TARGET") : (unlocked ? "COMPLETED" : "LOCKED");
+          const bar = unlocked ? 100 : achievement.id === "century-club" ? progress : achievement.id === "five-points-finishes" || achievement.id === "three-points-streak" ? progress / target * 100 : achievement.id === "top-three-season" ? progress / target * 100 : 0;
+          return <article className={"achievement-card" + (unlocked ? " achievement-unlocked" : "")} key={achievement.id}><div className="achievement-card-top"><span>{unlocked ? "✓ UNLOCKED" : "ACHIEVEMENT"}</span><b>RM{achievement.cashReward.toLocaleString("en-MY")}</b></div><h3>{achievement.title}</h3><p>{achievement.description}</p><div className="achievement-card-progress"><span>{progressLabel}</span><small>+{achievement.researchReward} RP</small></div><div className="achievement-card-track"><i style={{ width: bar + "%" }}/></div></article>;
+        })}</div>
+        {(race.latestChampionshipAchievements ?? []).length > 0 && <div className="achievement-unlock-feed">{race.latestChampionshipAchievements.map((achievement) => <div key={achievement.id}><strong>★ {achievement.title}</strong><span>{achievement.detail} · +RM{achievement.cashReward.toLocaleString("en-MY")} · +{achievement.researchReward} RP</span></div>)}</div>}
       </section>
       </div>
       {race.status === "finished" && <section className="panel upgrade-panel roguelite-panel">
