@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, type CarState, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode } from "./simulation";
+import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
@@ -658,6 +659,13 @@ export default function App() {
     }
   }, [race.status, race.teamPoints, race.seed, redlineRank, bestRun]);
   const order = useMemo(() => standings(race), [race]);
+  const rivalIntel = useMemo(() => {
+    const seen = new Map<string, { team: string; style: CarState["rivalStyle"]; color: string; wins: number; position: number }>();
+    order.forEach((car, index) => {
+      if (!car.playerCar && !seen.has(car.team)) seen.set(car.team, { team: car.team, style: car.rivalStyle, color: car.teamColor, wins: race.rivalryWins?.[car.team] ?? 0, position: index + 1 });
+    });
+    return [...seen.values()].sort((a, b) => a.position - b.position);
+  }, [race, order]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
   const isInitialDraft = showInitialDraft;
@@ -693,6 +701,7 @@ export default function App() {
     }
     const nextCash = race.cash + sponsorIncome - operatingCost;
     const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
+    next.rivalryWins = { ...(race.rivalryWins ?? {}) };
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
     next.teamMorale = race.teamMorale ?? 62;
@@ -901,7 +910,19 @@ export default function App() {
       <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">22 CARS</span></div>
         <div className="standings-table"><div className="table-header"><span>POS</span><span>DRIVER / TEAM</span><span>GAP</span><span>TYRE</span></div>
           {order.map((car, index) => <div className={"standings-row " + (car.playerCar ? "player-row" : "")} key={car.id}><span className="position">{String(index + 1).padStart(2, "0")}</span><span className="driver-cell"><i style={{ background: car.teamColor }}/><span><strong>{car.driver}</strong><small>{car.team}</small></span>{car.playerCar && <b className="you-tag">YOU</b>}</span><span className="gap-cell">{index === 0 ? "LEADER" : car.finished && order[0].finished ? "+" + ((car.finishTime ?? 0) - (order[0].finishTime ?? 0)).toFixed(1) + "s" : "+" + Math.max(0, (order[0].progress - car.progress) * 91.4).toFixed(1) + "s"}</span><span className={"tyre-mini tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>)}
-        </div><div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
+        </div>
+        <section className="rival-intel-panel" aria-label="Rival team intelligence">
+          <div className="rival-intel-heading"><div><span>PADDOCK SCOUTING</span><strong>Rival intelligence</strong></div><small>{rivalIntel.length} TEAM PROFILES</small></div>
+          <div className="rival-intel-grid">{rivalIntel.map((rival) => {
+            const style = RIVAL_STYLE_INFO[rival.style ?? "consistency-expert"];
+            return <article className="rival-intel-card" key={rival.team}>
+              <div className="rival-intel-card-top"><i style={{ background: rival.color }} /><strong>{rival.team}</strong><small>P{String(rival.position).padStart(2, "0")}</small></div>
+              <span>{style.label}</span><p>{style.description}</p>
+              <em>{rival.wins} {rival.wins === 1 ? "WEEKEND" : "WEEKENDS"} BEATEN</em>
+            </article>;
+          })}</div>
+        </section>
+        <div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
       </section>
       </div>
       {race.status === "finished" && <section className="panel upgrade-panel roguelite-panel">
