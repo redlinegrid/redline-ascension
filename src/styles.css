@@ -1395,3 +1395,10 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @media(max-width:760px){.evolution-heading{margin-top:18px}.evolution-recipe .evolution-reward{font-size:8px}}
 
 @media(max-width:760px){.research-milestone-grid{grid-template-columns:1fr}.research-milestone{min-height:0}}
+
+/* Rival Nemesis System — form history and adaptive threat readouts */
+.rival-form-line{display:block;margin-top:5px;color:#aeb6c4!important;line-height:1.5}
+.rival-threat-line{display:block;margin-top:5px;padding:5px 7px;border:1px solid #343640;background:#191b22;letter-spacing:.55px}
+.rival-threat-line.threat-standard{color:#9299a8!important}
+.rival-threat-line.threat-elevated{color:#e4b45c!important;border-color:#66502d;background:#282116}
+.rival-threat-line.threat-high{color:#ff8176!important;border-color:#713b37;background:#2c1c1c}
