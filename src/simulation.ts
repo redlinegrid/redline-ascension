@@ -2,7 +2,7 @@ export type Tyre="SOFT"|"MEDIUM"|"HARD";
 export type Pace="CONSERVE"|"BALANCED"|"PUSH";
 export type RaceStatus="ready"|"running"|"paused"|"finished"|"gameover";
 export type GameMode="championship"|"endless";
-import{RIVAL_STYLE_BY_TEAM,type RivalStyle,rivalPaceFactor,rivalWearFactor,rivalConditionFactor}from "./rivals";
+import{RIVAL_STYLE_BY_TEAM,type RivalStyle,}from "./rivals";
 export const CAMPAIGN_LENGTH=20;
 export const POINTS_BY_POSITION=[25,18,15,12,10,8,6,4,2,1]as const;
 export type UpgradeType="aero"|"power"|"suspension"|"reliability";
