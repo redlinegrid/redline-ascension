@@ -174,3 +174,8 @@ The Engineering Codex is a permanent, local-first knowledge archive for upgrade 
 ## Engineering Codex Expansion
 
 The Codex now includes an expanded technology catalogue with five rarity tiers, per-category discovery progress, technology mastery based on completed runs, and a persistent favourites filter. Catalogue additions use the existing simulation's supported upgrade effects; mastery and favourites are stored locally and included in Save / Transfer exports. Older career saves and Codex metadata are migrated with empty defaults for the new fields.
+
+
+## Engineering Codex Update B — Technology Evolutions
+
+The Synergy Lab now lists data-driven technology evolution recipes. Installing all required technologies in a run activates a recipe once and grants its defined module or cash bonus. Activated evolution IDs are stored on the race state; the field is optional so older saves continue to load. The planner previews recipe requirements without changing the actual save. Championship Achievements now sits directly below the rival-intelligence panel in the race dashboard.
