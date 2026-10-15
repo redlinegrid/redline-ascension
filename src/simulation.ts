@@ -139,6 +139,8 @@ weekendNumber:number;
 teamPoints?:Record<string,number>;
 rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
+rivalryFeudTeam?:string;
+rivalryFeudBonus?:number;
 raceDramaLap?:number;
 raceDramaTriggered?:boolean;
 playerTeamName?:string;
@@ -368,6 +370,20 @@ state.rivalryBattles![team]=Math.min(10,(state.rivalryBattles![team]??0)+1);
 }
 const mostMotivated=rivalTeams.map((team)=>({team,streak:state.rivalryBattles![team]??0})).sort((a,b)=>b.streak-a.streak)[0];
 if(mostMotivated&&mostMotivated.streak>=2)addEvent(state,"RIVALRY ALERT — "+mostMotivated.team+" have lost "+mostMotivated.streak+" straight battles to your team. Their engineers are targeting you next weekend.","warning");
+if(state.rivalryFeudTeam&&beatenTeams.has(state.rivalryFeudTeam)){
+const feudBonus=state.rivalryFeudBonus??100000;
+state.cash+=feudBonus;
+addEvent(state,"NEMESIS DEFEATED — "+state.rivalryFeudTeam+" finally fall to your team. Rivalry sponsors award RM"+feudBonus.toLocaleString("en-MY")+".","finish");
+state.rivalryFeudTeam=undefined;
+state.rivalryFeudBonus=undefined;
+}
+if(!state.rivalryFeudTeam&&mostMotivated&&mostMotivated.streak>=3){
+state.rivalryFeudTeam=mostMotivated.team;
+state.rivalryFeudBonus=100000;
+const feudStyle=RIVAL_STYLE_BY_TEAM[mostMotivated.team];
+const feudStory=feudStyle==="qualifying-ace"?"Their qualifying group vows to outpace you next weekend.":feudStyle==="aggressive-racer"||feudStyle==="high-risk-attacker"?"Their drivers promise an all-out attack next weekend.":feudStyle==="strategy-gambler"||feudStyle==="opportunist"?"Their strategists are preparing a counter-punch in the pit lane.":feudStyle==="tyre-specialist"?"Their engineers are building a tyre strategy specifically to beat you.":"Their principal has made beating your team the next priority.";
+addEvent(state,"FEUD IGNITED — "+mostMotivated.team+" are now your nemesis. "+feudStory+" Beat them in a future race for a RM100,000 rivalry reward.","warning");
+}
 const rivalryBonus=Math.min(150000,beatenTeams.size*15000);
 if(rivalryBonus>0){state.cash+=rivalryBonus;addEvent(state,"Rivalry bonus: "+beatenTeams.size+" rival teams beaten. Commercial partners add RM"+rivalryBonus.toLocaleString("en-MY")+".","info");}
 state.cars.forEach((car,index)=>{
