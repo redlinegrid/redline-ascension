@@ -261,7 +261,7 @@ const upgradeBonus=car.playerCar?modules.aero*0.08+modules.power*0.12+synergyPac
 const consistencyNoise=1+(80 - car.driverConsistency)*0.012;
 const noise=(random(state)- 0.5)*0.85*consistencyNoise;
 const racecraftBonus=(car.driverRacecraft - 80)*0.009;
-const rivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.991:car.rivalStyle==='aggressive-racer'?0.986:car.rivalStyle==='high-risk-attacker'?0.981:car.rivalStyle==='development-team'&&state.weekendNumber>=8?0.988:car.rivalStyle==='opportunist'&&state.safetyCarActive?0.975:1;
+const rivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.991:car.rivalStyle==='aggressive-racer'?0.986:car.rivalStyle==='high-risk-attacker'?0.981:car.rivalStyle==='defensive-specialist'&&state.cars.some((other)=>other.playerCar&&Math.abs(other.progress-car.progress)<0.055)?0.99:car.rivalStyle==='development-team'&&state.weekendNumber>=8?0.988:car.rivalStyle==='opportunist'&&state.safetyCarActive?0.975:1;
 const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
 const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
