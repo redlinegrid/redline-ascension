@@ -160,3 +160,7 @@ Balance, upgrade effects, economy values, and the available event pool may chang
 ---
 
 *Redline Ascension: every race is a decision, every run is a new build, and every upgrade is another chance to rise.*
+
+## Latest update
+
+Championship runs now track eight achievement milestones, including first points, podiums, wins, points streaks, a 100-point season, a top-three finish, and the world championship. Unlocks award cash, and eligible achievements also grant permanent Research Points.
