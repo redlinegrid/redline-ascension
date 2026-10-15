@@ -216,6 +216,7 @@ latestChampionshipAchievements?:ChampionshipAchievement[];
 latestChampionshipMilestone?:{round:number;title:string;detail:string;reward:number;position:number;};
 rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
+rivalryHistory?:Record<string,number[]>;
 rivalryFeudTeam?:string;
 rivalryFeudBonus?:number;
 weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";
@@ -272,7 +273,7 @@ const circuitSeed=(seed ^ Math.imul(weekendNumber+37,2246822519))>>>0;
 const circuitNames=["Copperhead Ring","Monsoon Park","Granite Valley","Nightfall Circuit","Cobalt Coast","Redwood Raceway","Sundown Autodrome","Ironclad Park","Tempest Circuit","Silver Basin","Emberstone GP","Highland Loop","Mirage International","Blackstone Raceway","Aurora Park","Thunder Ridge","Mariner Circuit","Crimson Dunes","Summit Ring","Neon Harbour"];
 const circuitName=circuitNames[(circuitSeed>>>8)% circuitNames.length];
 const circuitLengthFactor=0.94+((circuitSeed>>>16)% 1200)/ 10000;
-const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},rivalryWins:{},rivalryBattles:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
+const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
 const roster:Array<{id:string;driver:string;team:string;color:string;player:boolean;progress:number}>=[
 {id:"rp-1",driver:firstDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0.025},
 {id:"rp-2",driver:secondDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0},
@@ -316,7 +317,7 @@ driverConsistency:car.driverConsistency??profile?.consistency??75+(index*11 % 14
 driverPotential:car.driverPotential??profile?.potential??78+(index*9 % 18),
 };
 });
-if(migratedCars.length>=22)return{...saved,cars:migratedCars};
+if(migratedCars.length>=22)return{...saved,cars:migratedCars,rivalryHistory:saved.rivalryHistory??{}};
 const fresh=createRace(saved.seed,saved.upgradeLevel,saved.cash,saved.weekendNumber,saved.playerTeamName??saved.cars.find((car)=>car.playerCar)?.team??"Redline GP",saved.cars.find((car)=>car.id==="rp-1")?.driver??"Alex Mercer",saved.cars.find((car)=>car.id==="rp-2")?.driver??"Mika Tanaka",saved.playerPrincipalName??"Team Principal");
 const existingIds=new Set(migratedCars.map((car)=>car.id));
 const missing=fresh.cars.filter((car)=>!existingIds.has(car.id));
@@ -451,6 +452,9 @@ if(beatenTeams.has(team)){
 state.rivalryWins[team]=(state.rivalryWins[team]??0)+1;
 state.rivalryBattles![team]=Math.min(10,(state.rivalryBattles![team]??0)+1);
 }else state.rivalryBattles![team]=0;
+const rivalPosition=state.cars.findIndex((car)=>car.team===team)+1;
+state.rivalryHistory??={};
+state.rivalryHistory[team]=[...(state.rivalryHistory[team]??[]),rivalPosition].slice(-5);
 }
 const mostMotivated=rivalTeams.map((team)=>({team,streak:state.rivalryBattles![team]??0})).sort((a,b)=>b.streak-a.streak)[0];
 if(mostMotivated&&mostMotivated.streak>=2)addEvent(state,"RIVALRY ALERT — "+mostMotivated.team+" have lost "+mostMotivated.streak+" straight battles to your team. Their engineers are targeting you next weekend.","warning");
