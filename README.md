@@ -179,3 +179,8 @@ The Codex now includes an expanded technology catalogue with five rarity tiers, 
 ## Engineering Codex Update B — Technology Evolutions
 
 The Synergy Lab now lists data-driven technology evolution recipes. Installing all required technologies in a run activates a recipe once and grants its defined module or cash bonus. Activated evolution IDs are stored on the race state; the field is optional so older saves continue to load. The planner previews recipe requirements without changing the actual save. Championship Achievements now sits directly below the rival-intelligence panel in the race dashboard.
+
+
+## Research & Mastery — Update C
+
+Engineering discoveries now award +1 permanent Research Point the first time each technology is installed, and technology mastery awards +2 RP once after a technology appears in three completed runs. Research Lab discovery milestones progressively improve upgrade drafts: 10 discoveries guarantee a Rare-or-better card, 20 guarantee an Epic-or-better card, and 30 guarantee a Legendary card. Reward ledgers are persisted locally and included in Save / Transfer, with safe defaults for older saves.
