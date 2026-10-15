@@ -651,7 +651,7 @@ function EngineeringCodex({ meta, modules, installedUpgrades, standalone = false
       </header>
       <div className="engineering-codex-stats">
         <div><span>TECHNOLOGIES DISCOVERED</span><strong>{meta.discoveredUpgradeIds.length} / {UPGRADE_CARD_POOL.length}</strong></div>
-        <div><span>CONFIRMED SYNERGIES</span><strong>{recipes.filter((recipe) => recipe.active && !plannerIds.length).length + (planned.length ? recipes.filter((recipe) => recipe.active).length : buildSynergies(modules).length)}</strong></div>
+        <div><span>CONFIRMED SYNERGIES</span><strong>{recipes.filter((recipe) => recipe.active).length}</strong></div>
         <div><span>RUN DOSSIERS</span><strong>{meta.dossiers.length}</strong></div>
       </div>
       <nav className="engineering-codex-tabs" aria-label="Engineering Codex sections">
