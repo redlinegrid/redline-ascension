@@ -1266,3 +1266,6 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .weekend-condition-panel.condition-spares-secured{border-color:rgba(93,207,151,.34)}
 .weekend-condition-panel.condition-parts-shortage,.weekend-condition-panel.condition-wet-unprepared,.weekend-condition-panel.condition-directive-restricted{border-color:rgba(255,92,78,.48)}
 @media(max-width:600px){.weekend-condition-panel{flex-direction:column;gap:9px}.weekend-condition-panel p{max-width:none}}
+
+.weekend-condition-panel.condition-feud-attack{border-color:rgba(255,64,42,.65);background:linear-gradient(120deg,rgba(255,40,30,.17),rgba(14,16,22,.94) 62%)}
+.weekend-condition-panel.condition-feud-composed{border-color:rgba(236,177,77,.48)}
