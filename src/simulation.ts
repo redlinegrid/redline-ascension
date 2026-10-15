@@ -352,6 +352,7 @@ state.cash+=payout+sponsorBonus;
 if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
 state.teamPoints??={};
 state.rivalryWins??={};
+state.rivalryBattles??={};
 const playerPosition=state.cars.findIndex((car)=>car.playerCar)+1;
 const beatenTeams=new Set<string>();
 for(const rival of state.cars.filter((car)=>!car.playerCar)){
