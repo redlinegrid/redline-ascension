@@ -90,6 +90,7 @@
 .rogue-card>strong{font:600 18px var(--display);line-height:1.15}
 .rogue-card>p{font-size:10px;line-height:1.55;color:#a4a6ad;margin:10px 0 14px}
 .rogue-card-effect{font:8px var(--mono);line-height:1.5;color:#9ce1b2;margin-top:auto}
+.evolution-combo-hint{display:block;width:100%;margin-top:8px;padding:7px 8px;border:1px solid #343d47;background:#151d24;color:#a9c9e8;font:7px/1.45 var(--mono);letter-spacing:.25px;text-transform:uppercase;overflow-wrap:anywhere}.evolution-combo-ready{border-color:#526f56;background:#18251d;color:#a9e4b3}
 .rogue-card-pick{font:7px var(--mono);letter-spacing:.8px;color:#898b93;margin-top:14px;padding-top:10px;width:100%;border-top:1px solid #34353b}
 .rogue-card-selected .rogue-card-pick{color:#ff8b83}
 .rarity-rare:before{background:#5d9de5}
