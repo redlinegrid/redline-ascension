@@ -703,6 +703,8 @@ export default function App() {
     const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
     next.rivalryWins = { ...(race.rivalryWins ?? {}) };
     next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
+    next.rivalryFeudTeam = race.rivalryFeudTeam;
+    next.rivalryFeudBonus = race.rivalryFeudBonus;
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
     next.teamMorale = race.teamMorale ?? 62;
@@ -894,6 +896,19 @@ export default function App() {
       </section>
 
       <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
+                <section className="rival-intel-panel" aria-label="Rival team intelligence">
+          <div className="rival-intel-heading"><div><span>PADDOCK SCOUTING</span><strong>Rival intelligence</strong></div><small>{rivalIntel.length} TEAM PROFILES</small></div>
+          <div className="rival-intel-grid">{rivalIntel.map((rival) => {
+            const style = RIVAL_STYLE_INFO[rival.style ?? "consistency-expert"];
+            return <article className="rival-intel-card" key={rival.team}>
+              <div className="rival-intel-card-top"><i style={{ background: rival.color }} /><strong>{rival.team}</strong><small>P{String(rival.position).padStart(2, "0")}</small></div>
+              <span>{style.label}</span><p>{style.description}</p>
+              <em>{rival.wins} {rival.wins === 1 ? "WEEKEND" : "WEEKENDS"} BEATEN</em>
+              <em className={race.rivalryFeudTeam === rival.team ? "rival-feud-active" : rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{race.rivalryFeudTeam === rival.team ? "NEMESIS FEUD · RM" + (race.rivalryFeudBonus ?? 100000).toLocaleString("en-MY") + " REWARD" : null}</em>
+              <em className={rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{rival.streak >= 2 ? "RIVAL ALERT · " : "CURRENT STREAK · "}{rival.streak} {rival.streak === 1 ? "WIN" : "WINS"}</em>
+            </article>;
+          })}</div>
+        </section>
       </div>
       <div className="content-column right-column">
       {(race.safetyCarActive || (race.incidentCount ?? 0) > 0) && <section className={"race-control-alert" + (race.safetyCarActive ? " safety-car-alert" : "")} role="status"><span>{race.safetyCarActive ? "SC" : "!"}</span><div><strong>{race.safetyCarActive ? "SAFETY CAR DEPLOYED" : "RACE CONTROL · INCIDENTS"}</strong><p>{race.safetyCarActive ? "Field neutralised. Tyre wear and fuel consumption are reduced; consider pitting if the stop loss is favourable." : (race.incidentCount ?? 0) + " incident(s) reported this race. Monitor component condition and traffic."}</p></div></section>}
@@ -912,18 +927,6 @@ export default function App() {
         <div className="standings-table"><div className="table-header"><span>POS</span><span>DRIVER / TEAM</span><span>GAP</span><span>TYRE</span></div>
           {order.map((car, index) => <div className={"standings-row " + (car.playerCar ? "player-row" : "")} key={car.id}><span className="position">{String(index + 1).padStart(2, "0")}</span><span className="driver-cell"><i style={{ background: car.teamColor }}/><span><strong>{car.driver}</strong><small>{car.team}</small></span>{car.playerCar && <b className="you-tag">YOU</b>}</span><span className="gap-cell">{index === 0 ? "LEADER" : car.finished && order[0].finished ? "+" + ((car.finishTime ?? 0) - (order[0].finishTime ?? 0)).toFixed(1) + "s" : "+" + Math.max(0, (order[0].progress - car.progress) * 91.4).toFixed(1) + "s"}</span><span className={"tyre-mini tyre-" + car.tyre.toLowerCase()}>{car.tyre[0]}</span></div>)}
         </div>
-        <section className="rival-intel-panel" aria-label="Rival team intelligence">
-          <div className="rival-intel-heading"><div><span>PADDOCK SCOUTING</span><strong>Rival intelligence</strong></div><small>{rivalIntel.length} TEAM PROFILES</small></div>
-          <div className="rival-intel-grid">{rivalIntel.map((rival) => {
-            const style = RIVAL_STYLE_INFO[rival.style ?? "consistency-expert"];
-            return <article className="rival-intel-card" key={rival.team}>
-              <div className="rival-intel-card-top"><i style={{ background: rival.color }} /><strong>{rival.team}</strong><small>P{String(rival.position).padStart(2, "0")}</small></div>
-              <span>{style.label}</span><p>{style.description}</p>
-              <em>{rival.wins} {rival.wins === 1 ? "WEEKEND" : "WEEKENDS"} BEATEN</em>
-              <em className={rival.streak >= 2 ? "rival-streak-hot" : "rival-streak-calm"}>{rival.streak >= 2 ? "RIVAL ALERT · " : "CURRENT STREAK · "}{rival.streak} {rival.streak === 1 ? "WIN" : "WINS"}</em>
-            </article>;
-          })}</div>
-        </section>
         <div className="standings-foot"><span><i className="dot red"/> {playerTeamName.toUpperCase()}</span><span>POSITION UPDATES LIVE</span></div>
       </section>
       </div>
