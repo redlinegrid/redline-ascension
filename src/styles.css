@@ -1383,3 +1383,12 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .codex-favourite-button{width:100%;margin-top:8px;padding:8px;border:1px solid #373b45;background:#17191f;color:#b6bdc8;font:700 8px var(--mono);cursor:pointer}
 .codex-favourite-button.active{border-color:#b28d43;color:#f2c76f;background:#292216}
 @media(max-width:760px){.engineering-codex-stats-secondary{margin-top:6px}.engineering-codex-category-progress{gap:5px}.engineering-codex-category-progress span{font-size:6px}}
+
+
+/* Engineering Codex Update B: actual technology evolution recipes */
+.evolution-heading{margin-top:26px}
+.evolution-recipe .evolution-reward{display:block;margin-top:9px;color:#f2c76f;font:700 9px var(--mono);letter-spacing:.04em}
+.evolution-recipe.recipe-ready{border-color:#9b783d;background:linear-gradient(110deg,#282115,#17181d)}
+.evolution-recipe.recipe-ready .engineering-codex-recipe-icon{color:#f2c76f}
+.evolution-recipe.recipe-active .evolution-reward{color:#8ed7a7}
+@media(max-width:760px){.evolution-heading{margin-top:18px}.evolution-recipe .evolution-reward{font-size:8px}}
