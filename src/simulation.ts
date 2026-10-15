@@ -273,7 +273,7 @@ export function stepRace(current: RaceState): RaceState {
     const progressDelta = 5 / lapSeconds;
     car.progress += progressDelta;
     const driverTyreCare = Math.max(0.72, 1 - (car.driverTyreManagement - 80) * 0.004);
-    const traitWearFactor = car.playerCar ? ((state.buildTraits ?? []).includes("tyre-saver") ? 0.85 : 1) * ((state.buildTraits ?? []).includes("risk-reward") ? 1.18 : 1) * ((state.buildTraits ?? []).includes("reliability-first") ? 0.72 : 1) : 1;
+    const traitWearFactor = car.playerCar ? ((state.buildTraits ?? []).includes("tyre-saver") ? 0.85 : 1) * ((state.buildTraits ?? []).includes("risk-reward") ? 1.18 : 1) * ((state.buildTraits ?? []).includes("reliability-first") ? 0.72 : 1) : car.rivalStyle === "tyre-specialist" ? 0.78 : car.rivalStyle === "aggressive-racer" ? 1.22 : car.rivalStyle === "high-risk-attacker" ? 1.32 : 1;
     const wearReduction = (car.playerCar ? Math.max(0.65, 1 - (state.upgradeModules?.suspension ?? 0) * 0.06) : 1) * driverTyreCare * traitWearFactor;
     const aeroTyreLoad = car.playerCar ? 1 + (state.upgradeModules?.aero ?? 0) * 0.025 : 1;
     const enduranceWearBonus = car.playerCar && modules.suspension >= 2 && modules.reliability >= 2 ? 0.9 : 1;
