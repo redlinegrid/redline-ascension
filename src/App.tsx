@@ -111,7 +111,19 @@ const PADDOCK_EVENT_DECK: PaddockEvent[] = [
  {id:"unexpected-bonus",category:"COMMERCIAL",title:"A Sponsor Offers a Survival Bonus",source:"COMMERCIAL DEPARTMENT",story:"A partner offers an emergency payment if the team can provide a strong story for the weekend. You can accept a straightforward exposure package, negotiate a smaller commitment or decline to protect the team's independence.",choices:[
  {id:"take-bonus",label:"Accept the bonus",description:"Bring in cash immediately, with a modest hit to staff time.",cashDelta:240000,moraleDelta:-1,reputationDelta:1},
  {id:"small-deal",label:"Negotiate a smaller deal",description:"Take less money while keeping the workload manageable.",cashDelta:130000,moraleDelta:1,reputationDelta:1},
- {id:"decline-bonus",label:"Decline the offer",description:"Keep full focus on racing and maintain independence.",cashDelta:0,moraleDelta:2,reputationDelta:0}]}
+ {id:"decline-bonus",label:"Decline the offer",description:"Keep full focus on racing and maintain independence.",cashDelta:0,moraleDelta:2,reputationDelta:0}]},
+ {id:"monsoon-forecast",category:"TEAM DRAMA",title:"Monsoon Weather Is Moving In",source:"METEOROLOGY DEPARTMENT",story:"Weather radar predicts heavy rain around race time. Invest in wet-weather preparation, gamble on the forecast or choose a compromise.",choices:[
+ {id:"wet-test",label:"Run the wet-weather package",description:"Spend RM90,000 on setup simulation and tyre data for better pace and tyre control.",cashDelta:-90000,moraleDelta:2,reputationDelta:1,weekendEffect:"wet-prepared"},
+ {id:"dry-gamble",label:"Stick with the dry setup",description:"Save money, but rain could catch the team out and cost pace.",cashDelta:0,moraleDelta:0,reputationDelta:0,weekendEffect:"wet-unprepared"},
+ {id:"mixed-setup",label:"Choose a safe compromise",description:"Spend RM35,000 on a flexible setup with no major advantage or penalty.",cashDelta:-35000,moraleDelta:1,reputationDelta:1}]},
+ {id:"technical-directive",category:"FIA PROTEST",title:"A Late Technical Directive",source:"FIA TECHNICAL DELEGATE",story:"A clarification changes how a key aerodynamic area will be inspected this weekend. Comply early, challenge the interpretation or make a conservative adjustment.",choices:[
+ {id:"comply-early",label:"Comply before scrutineering",description:"Spend RM70,000 on an orderly adjustment and avoid the worst disruption.",cashDelta:-70000,moraleDelta:1,reputationDelta:4,weekendEffect:"directive-compliant"},
+ {id:"fight-directive",label:"Challenge the interpretation",description:"Spend less now, but uncertainty may cost valuable pace.",cashDelta:-25000,moraleDelta:2,reputationDelta:-2,weekendEffect:"directive-restricted"},
+ {id:"quick-adjust",label:"Make a quick adjustment",description:"Pay a smaller fee and take a conservative approach.",cashDelta:-40000,moraleDelta:0,reputationDelta:1}]},
+ {id:"spare-parts-crunch",category:"TEAM DRAMA",title:"The Spare Parts Cabinet Is Nearly Empty",source:"CHIEF MECHANIC",story:"A run of minor failures has depleted spare-parts stock. Emergency delivery protects the cars, while stretching existing components increases the risk of extra wear.",choices:[
+ {id:"secure-spares",label:"Fly in emergency spares",description:"Spend RM110,000 to protect component condition throughout the weekend.",cashDelta:-110000,moraleDelta:2,reputationDelta:1,weekendEffect:"spares-secured"},
+ {id:"stretch-parts",label:"Stretch the existing stock",description:"Keep the cash, but component wear and reliability risk will rise.",cashDelta:0,moraleDelta:-2,reputationDelta:-1,weekendEffect:"parts-shortage"},
+ {id:"borrow-parts",label:"Borrow from a partner team",description:"Pay RM45,000 and keep reliability on neutral footing.",cashDelta:-45000,moraleDelta:1,reputationDelta:1}]}
 ];
 function createPaddockEvent(race: RaceState): PaddockEvent {
  const previous = race.resolvedPaddockEvents ?? [];
@@ -705,6 +717,8 @@ export default function App() {
     next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
     next.rivalryFeudTeam = race.rivalryFeudTeam;
     next.rivalryFeudBonus = race.rivalryFeudBonus;
+    next.weekendEffect = race.nextWeekendEffect;
+    next.weekendEffectTitle = race.nextWeekendEffectTitle;
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
     next.teamMorale = race.teamMorale ?? 62;
@@ -733,7 +747,7 @@ export default function App() {
       const event = current.pendingPaddockEvent;
       const choice = event?.choices.find((item) => item.id === choiceId);
       if (!event || !choice || current.cash + choice.cashDelta < 0) return current;
-      return { ...current, cash: current.cash + choice.cashDelta, teamMorale: Math.max(0, Math.min(100, (current.teamMorale ?? 62) + choice.moraleDelta)), teamReputation: Math.max(0, Math.min(100, (current.teamReputation ?? 45) + choice.reputationDelta)), pendingPaddockEvent: null, resolvedPaddockEvents: [...(current.resolvedPaddockEvents ?? []), event.id].slice(-20), events: [{ id: current.eventSequence + 1, lap: current.totalLaps, message: "PADDOCK: " + event.title + " — " + choice.label + ".", kind: "info" as const }, ...current.events].slice(0, 14), eventSequence: current.eventSequence + 1 };
+      return { ...current, cash: current.cash + choice.cashDelta, teamMorale: Math.max(0, Math.min(100, (current.teamMorale ?? 62) + choice.moraleDelta)), teamReputation: Math.max(0, Math.min(100, (current.teamReputation ?? 45) + choice.reputationDelta)), pendingPaddockEvent: null, nextWeekendEffect: choice.weekendEffect, nextWeekendEffectTitle: choice.weekendEffect ? event.title : undefined, resolvedPaddockEvents: [...(current.resolvedPaddockEvents ?? []), event.id].slice(-20), events: [{ id: current.eventSequence + 1, lap: current.totalLaps, message: "PADDOCK: " + event.title + " — " + choice.label + ".", kind: "info" as const }, ...current.events].slice(0, 14), eventSequence: current.eventSequence + 1 };
     });
   };
   const renewDriverContract = (contractId: string) => {
@@ -895,7 +909,8 @@ export default function App() {
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
 
-      <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
+      {race.weekendEffect && <section className={"weekend-condition-panel condition-" + race.weekendEffect} aria-label="Race weekend condition"><div><span className="section-kicker">WEEKEND BRIEFING · ACTIVE CONDITION</span><h3>{race.weekendEffectTitle ?? "Race weekend conditions"}</h3></div><p>{race.weekendEffect === "wet-prepared" ? "Wet-weather preparation is active: your cars gain pace and tyre control in changing conditions." : race.weekendEffect === "wet-unprepared" ? "The team skipped wet-weather preparation. Rain could cost your cars pace." : race.weekendEffect === "directive-compliant" ? "The technical directive was handled early. A small pace compromise avoids a larger scrutineering disruption." : race.weekendEffect === "directive-restricted" ? "The team challenged the technical directive. The current package is restricted and costs extra pace." : race.weekendEffect === "spares-secured" ? "Emergency spare parts are ready. Component condition loss is significantly reduced." : "Spare parts are running short. Component condition will deteriorate faster this weekend."}</p></section>}
+        <section className="panel event-panel"><div className="panel-heading"><div><div className="section-kicker">RACE RADIO</div><h2>Event log</h2></div><span className="event-count">{race.events.length} EVENTS</span></div><div className="event-list">{race.events.slice(0, 8).map((item) => <div className="event-item" key={item.id}><span className={"event-marker marker-" + item.kind}>{item.kind === "pit" ? "P" : item.kind === "battle" ? "↗" : item.kind === "finish" ? "■" : "·"}</span><div><span className="event-lap">LAP {String(item.lap).padStart(2, "0")} · RACE CONTROL</span><p>{item.message}</p></div></div>)}</div></section>
                 <section className="rival-intel-panel" aria-label="Rival team intelligence">
           <div className="rival-intel-heading"><div><span>PADDOCK SCOUTING</span><strong>Rival intelligence</strong></div><small>{rivalIntel.length} TEAM PROFILES</small></div>
           <div className="rival-intel-grid">{rivalIntel.map((rival) => {
