@@ -1369,3 +1369,17 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .engineering-codex-footer>span{font:8px var(--mono);letter-spacing:.08em;color:#828b9b}
 .engineering-codex-footer>div{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:760px){.engineering-codex-overlay{padding:0}.engineering-codex-shell{max-height:100dvh;border-radius:0;padding:18px 13px}.engineering-codex-page{padding:10px}.engineering-codex-stats>div{padding:10px 8px}.engineering-codex-stats span{font-size:7px}.engineering-codex-stats strong{font-size:18px}.engineering-codex-tools{grid-template-columns:1fr}.engineering-codex-catalogue,.engineering-codex-recipes{grid-template-columns:1fr}.engineering-codex-card p{min-height:0}.engineering-codex-dossiers>article{grid-template-columns:1fr}.engineering-codex-planner-modules{grid-template-columns:repeat(2,minmax(0,1fr))}.engineering-codex-footer{align-items:stretch;flex-direction:column}.engineering-codex-footer>div{display:grid;grid-template-columns:1fr}.engineering-codex-tabs button{padding:12px 10px;font-size:7px}.top-status .save-transfer-trigger:not(.codex-header-trigger){display:none}.codex-header-trigger{display:inline-flex!important;padding:6px 7px;margin-left:0;font-size:7px}}
+
+
+/* Engineering Codex: expanded rarity and progression UI */
+.engineering-codex-card.rarity-uncommon .engineering-codex-card-bottom b{color:#8ed7a7}
+.engineering-codex-card.rarity-legendary{border-color:#a98243;background:linear-gradient(145deg,#292216,#141319)}
+.engineering-codex-card.rarity-legendary .engineering-codex-card-bottom b{color:#f2c76f}
+.engineering-codex-stats-secondary{margin-top:8px}
+.engineering-codex-category-progress{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
+.engineering-codex-category-progress span{display:flex;gap:8px;align-items:center;padding:6px 8px;border:1px solid #303540;background:#15171d;color:#9ba4b2;font:7px var(--mono);letter-spacing:.04em}
+.engineering-codex-category-progress b{color:#f2f4f8}
+.engineering-codex-mastery{display:flex;justify-content:space-between;gap:8px;margin-top:10px;color:#9ba4b2;font:7px var(--mono);letter-spacing:.04em}
+.codex-favourite-button{width:100%;margin-top:8px;padding:8px;border:1px solid #373b45;background:#17191f;color:#b6bdc8;font:700 8px var(--mono);cursor:pointer}
+.codex-favourite-button.active{border-color:#b28d43;color:#f2c76f;background:#292216}
+@media(max-width:760px){.engineering-codex-stats-secondary{margin-top:6px}.engineering-codex-category-progress{gap:5px}.engineering-codex-category-progress span{font-size:6px}}
