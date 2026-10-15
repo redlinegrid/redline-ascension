@@ -164,3 +164,8 @@ Balance, upgrade effects, economy values, and the available event pool may chang
 ## Latest update
 
 Championship runs now track eight achievement milestones, including first points, podiums, wins, points streaks, a 100-point season, a top-three finish, and the world championship. Unlocks award cash, and eligible achievements also grant permanent Research Points.
+
+
+## Engineering Codex
+
+The Engineering Codex is a permanent, local-first knowledge archive for upgrade discoveries, active build synergies, a non-destructive build planner, and completed-run dossiers. Open it from the game header, or visit the companion view at [Engineering Codex](https://redlinegrid.github.io/redline-paddock/?view=codex). The companion shares browser-local records with the game; use Save / Transfer to include Codex discoveries and dossiers in a save code when moving between devices. Existing save codes remain compatible.
