@@ -20,6 +20,25 @@ export type UpgradeType="aero"|"power"|"suspension"|"reliability";
 export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first";
 export interface UpgradeModules{aero:number;power:number;suspension:number;reliability:number;}
 export interface InstalledUpgrade{id:string;title:string;subtitle:string;rarity:UpgradeRarity;effect:string;upgradeType?:UpgradeType;amount?:number;cashBonus?:number;trait?:RunTrait;}
+export interface UpgradeEvolution {
+id:string;
+title:string;
+description:string;
+requiredUpgradeIds:string[];
+rewardText:string;
+moduleBonus?:Partial<UpgradeModules>;
+cashBonus?:number;
+}
+export const UPGRADE_EVOLUTIONS:UpgradeEvolution[]=[
+{id:"aero-deployment-matrix",title:"Aero-Deployment Matrix",description:"Synchronise front-wing balance with the first-generation energy map for a more complete performance package.",requiredUpgradeIds:["front-wing","energy-map"],rewardText:"Aerodynamics +1 · Power unit +1",moduleBonus:{aero:1,power:1}},
+{id:"ground-effect-package",title:"Ground Effect Package",description:"Pair a revised floor edge with detailed underfloor sealing to unlock a more stable ground-effect platform.",requiredUpgradeIds:["floor-edge","underfloor-sealing"],rewardText:"Aerodynamics +2",moduleBonus:{aero:2}},
+{id:"hybrid-efficiency-suite",title:"Hybrid Efficiency Suite",description:"Combine combustion development with torque-vector calibration for stronger and more usable deployment.",requiredUpgradeIds:["combustion","torque-vector-map"],rewardText:"Power unit +2",moduleBonus:{power:2}},
+{id:"endurance-platform-evolution",title:"Endurance Platform Evolution",description:"A tyre-aware suspension package paired with endurance component testing creates a tougher long-run platform.",requiredUpgradeIds:["tyre-whisperer","compliance-test"],rewardText:"Reliability +1",moduleBonus:{reliability:1}},
+{id:"bulletproof-cooling-architecture",title:"Bulletproof Cooling Architecture",description:"Combine the reliability process with an advanced cooling loop to make the whole package more resilient.",requiredUpgradeIds:["bulletproof-process","cooling-loop"],rewardText:"Reliability +2",moduleBonus:{reliability:2}},
+{id:"commercial-flywheel",title:"Commercial Flywheel",description:"A sponsor network and technical partner reinforce each other, converting a broader engineering story into extra budget.",requiredUpgradeIds:["sponsor-relations","technical-partner"],rewardText:"+RM250,000 team funds",cashBonus:250000},
+{id:"high-downforce-qualifying-kit",title:"High-Downforce Qualifying Kit",description:"Pair an extreme airflow concept with the edge-of-grip package for a specialised high-risk qualifying build.",requiredUpgradeIds:["active-flow","edge-of-grip"],rewardText:"Aerodynamics +1",moduleBonus:{aero:1}},
+{id:"tyre-saving-chassis",title:"Tyre-Saving Chassis",description:"Combine the long-run tyre programme with the bulletproof reliability process for a more forgiving race platform.",requiredUpgradeIds:["long-run-programme","bulletproof-process"],rewardText:"Suspension +1 · Reliability +1",moduleBonus:{suspension:1,reliability:1}},
+];
 export function buildSynergies(modules:UpgradeModules):string[]{
 const active:string[]=[];
 if(modules.aero>=2&&modules.power>=2)active.push("AERO + POWER INTEGRATION");
@@ -171,6 +190,7 @@ cash:number;
 upgradeLevel:number;
 upgradeModules:UpgradeModules;
 installedUpgrades?:InstalledUpgrade[];
+activeEvolutions?:string[];
 buildTraits?:RunTrait[];
 permanentPerks?:Record<string,number>;
 weekendNumber:number;
@@ -544,6 +564,25 @@ else if(patch.nextTyre)addEvent(next,car.driver+" will fit "+patch.nextTyre.toLo
 else if(patch.pitLap)addEvent(next,car.driver+" pit window moved to lap "+patch.pitLap+".");
 return next;
 }
+function activateUpgradeEvolutions(state:RaceState):RaceState{
+const installedIds=new Set((state.installedUpgrades??[]).map((upgrade)=>upgrade.id));
+const active=new Set(state.activeEvolutions??[]);
+for(const evolution of UPGRADE_EVOLUTIONS){
+if(active.has(evolution.id)||!evolution.requiredUpgradeIds.every((id)=>installedIds.has(id)))continue;
+state.upgradeModules??={aero:0,power:0,suspension:0,reliability:0};
+if(evolution.moduleBonus){
+state.upgradeModules.aero+=evolution.moduleBonus.aero??0;
+state.upgradeModules.power+=evolution.moduleBonus.power??0;
+state.upgradeModules.suspension+=evolution.moduleBonus.suspension??0;
+state.upgradeModules.reliability+=evolution.moduleBonus.reliability??0;
+}
+if(evolution.cashBonus)state.cash+=evolution.cashBonus;
+active.add(evolution.id);
+addEvent(state,"TECH EVOLUTION UNLOCKED: "+evolution.title+". "+evolution.rewardText,"info");
+}
+state.activeEvolutions=[...active];
+return state;
+}
 export function applyStartingUpgrade(state:RaceState,cardId:string):RaceState{
 if(state.status!=="ready"||state.upgradeLevel!==0||state.weekendNumber!==1)return state;
 const card=draftUpgradeCards(state).find((item)=>item.id===cardId);
@@ -554,6 +593,7 @@ if(card.upgradeType&&card.amount)next.upgradeModules[card.upgradeType]+=card.amo
 if(card.cashBonus)next.cash+=card.cashBonus;
 next.installedUpgrades=[...(next.installedUpgrades??[]),{id:card.id,title:card.title,subtitle:card.subtitle,rarity:card.rarity,effect:card.effect,upgradeType:card.upgradeType,amount:card.amount,cashBonus:card.cashBonus}];
 if(card.trait)next.buildTraits=[...new Set([...(next.buildTraits??[]),card.trait])];
+activateUpgradeEvolutions(next);
 next.upgradeLevel=1;
 addEvent(next,"Pre-season development pick: "+card.title+". "+card.effect);
 return next;
@@ -568,6 +608,7 @@ if(card.upgradeType&&card.amount)next.upgradeModules[card.upgradeType]+=card.amo
 if(card.cashBonus)next.cash+=card.cashBonus;
 next.installedUpgrades=[...(next.installedUpgrades??[]),{id:card.id,title:card.title,subtitle:card.subtitle,rarity:card.rarity,effect:card.effect,upgradeType:card.upgradeType,amount:card.amount,cashBonus:card.cashBonus}];
 if(card.trait)next.buildTraits=[...new Set([...(next.buildTraits??[]),card.trait])];
+activateUpgradeEvolutions(next);
 next.upgradeLevel+=1;
 next.weekendNumber+=1;next.latestChampionshipMilestone=undefined;next.latestChampionshipAchievements=[];next.status="ready";next.lap=1;next.elapsedSeconds=0;
 next.seed=(next.seed+947)>>>0;next.eventSequence=0;next.events=[];
