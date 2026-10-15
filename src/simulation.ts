@@ -352,6 +352,16 @@ export function stepRace(current: RaceState): RaceState {
     state.cash += payout + sponsorBonus;
     if (sponsorBonus) addEvent(state, "Commercial build pays off: sponsor network adds RM120,000 to the race return.", "info");
     state.teamPoints ??= {};
+    state.rivalryWins ??= {};
+    const playerPosition = state.cars.findIndex((car) => car.playerCar) + 1;
+    const beatenTeams = new Set<string>();
+    for (const rival of state.cars.filter((car) => !car.playerCar)) {
+      const rivalPosition = state.cars.findIndex((car) => car.team === rival.team) + 1;
+      if (playerPosition > 0 && rivalPosition > playerPosition) beatenTeams.add(rival.team);
+    }
+    for (const team of beatenTeams) state.rivalryWins[team] = (state.rivalryWins[team] ?? 0) + 1;
+    const rivalryBonus = Math.min(150000, beatenTeams.size * 15000);
+    if (rivalryBonus > 0) { state.cash += rivalryBonus; addEvent(state, "Rivalry bonus: " + beatenTeams.size + " rival teams beaten. Commercial partners add RM" + rivalryBonus.toLocaleString("en-MY") + ".", "info"); }
     state.cars.forEach((car, index) => {
       const points = POINTS_BY_POSITION[index] ?? 0;
       state.teamPoints![car.team] = (state.teamPoints![car.team] ?? 0) + points;
