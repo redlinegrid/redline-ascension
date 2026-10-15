@@ -115,7 +115,7 @@ finishTime:number|null;
 finished:boolean;
 }
 export interface RaceEvent{id:number;lap:number;message:string;kind:"info"|"pit"|"battle"|"warning"|"finish";}
-export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage";}
+export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";}
 export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL";title:string;source:string;story:string;choices:PaddockChoice[];}
 export interface DriverContract{id:string;driverName:string;salaryPerRace:number;expiresAtRound:number;renewed:boolean;loyalty:number;}
 export interface RaceState{
@@ -141,9 +141,9 @@ rivalryWins?:Record<string,number>;
 rivalryBattles?:Record<string,number>;
 rivalryFeudTeam?:string;
 rivalryFeudBonus?:number;
-weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage";
+weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";
 weekendEffectTitle?:string;
-nextWeekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage";
+nextWeekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";
 nextWeekendEffectTitle?:string;
 raceDramaLap?:number;
 raceDramaTriggered?:boolean;
@@ -272,7 +272,7 @@ const rivalryPressure=!car.playerCar?Math.min(0.012,(state.rivalryBattles?.[car.
 const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
 const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
-const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):1;
+const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
 const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
 car.lastLap=lapSeconds;
 car.bestLap=car.bestLap===0?lapSeconds:Math.min(car.bestLap,lapSeconds);
