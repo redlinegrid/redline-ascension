@@ -859,7 +859,7 @@ export default function App() {
   useEffect(() => {
     const unlockedIds = garageMeta.unlockedDriverIds ?? [];
     const standardUnlockCount = DRIVER_MARKET.filter((driver) => driver.unlockCost && unlockedIds.includes(driver.id)).length;
-    const achievementIds = race.status === "finished" ? new Set((race.latestChampionshipAchievements ?? []).map((achievement) => achievement.id)) : new Set<string>();
+    const achievementIds = race.status === "finished" || race.status === "gameover" ? new Set((race.latestChampionshipAchievements ?? []).map((achievement) => achievement.id)) : new Set<string>();
     const eligibleSecrets = DRIVER_MARKET.filter((driver) => driver.secretUnlock && (
       (driver.secretUnlock === "first-win" && achievementIds.has("first-win")) ||
       (driver.secretUnlock === "world-champion" && achievementIds.has("world-champion")) ||
