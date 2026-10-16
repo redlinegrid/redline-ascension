@@ -1730,3 +1730,121 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     animation: none !important;
   }
 }
+
+
+/* Mobile-first game navigation: swap focused screens instead of hunting through one long page. */
+.mobile-play-dock { display: none; }
+@media (max-width: 760px) {
+  .app-shell { padding-bottom: 132px; }
+  .app-shell .topbar {
+    position: sticky; top: 0; z-index: 80; height: 54px; gap: 8px;
+    background: rgba(8, 9, 12, .96); backdrop-filter: blur(14px); border-bottom-color: #292b32;
+  }
+  .app-shell .topbar .brand { flex: 1; }
+  .app-shell .topbar .main-nav { display: none; }
+  .app-shell .top-status { margin-left: 0; max-width: none; flex: 0 0 auto; }
+  .app-shell .top-status > i,
+  .app-shell .top-status > b,
+  .app-shell .top-status > :not(.save-transfer-trigger) { display: none !important; }
+  .app-shell .top-status .save-transfer-trigger { display: inline-flex !important; padding: 7px 8px; font-size: 7px; }
+  .app-shell .top-status .codex-header-trigger { display: none !important; }
+  .app-shell > .page-heading { padding: 15px 0 13px; align-items: center; }
+  .app-shell > .page-heading .heading-copy h1 { font-size: 32px; margin: 5px 0; }
+  .app-shell > .page-heading .heading-copy p,
+  .app-shell > .page-heading .heading-copy .eyebrow,
+  .app-shell > .page-heading .pitwall-art { display: none; }
+  .app-shell > .page-heading .weekend-status { margin: 0; max-width: 46%; }
+  .app-shell > .page-heading .weekend-status strong { font-size: 8px; }
+  .app-shell > .page-heading .weekend-status div span { font-size: 6px; }
+  .app-shell > .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 10px; }
+  .app-shell > .stat-strip .stat-cell { padding: 10px 11px; }
+  .app-shell > .stat-strip .stat-cell > strong { font-size: 19px; margin-top: 5px; }
+  .app-shell > .stat-strip .stat-cell > small { margin-top: 4px; }
+  .app-shell > .current-upgrades-panel { margin-bottom: 10px; }
+  .app-shell.mobile-tab-strategy > .page-heading,
+  .app-shell.mobile-tab-standings > .page-heading,
+  .app-shell.mobile-tab-garage > .page-heading,
+  .app-shell.mobile-tab-more > .page-heading { padding-bottom: 8px; }
+  .app-shell.mobile-tab-strategy > .stat-strip,
+  .app-shell.mobile-tab-standings > .stat-strip,
+  .app-shell.mobile-tab-garage > .stat-strip,
+  .app-shell.mobile-tab-more > .stat-strip,
+  .app-shell.mobile-tab-race > .current-upgrades-panel,
+  .app-shell.mobile-tab-strategy > .current-upgrades-panel,
+  .app-shell.mobile-tab-standings > .current-upgrades-panel,
+  .app-shell.mobile-tab-more > .current-upgrades-panel,
+  .app-shell.mobile-tab-race > .build-intel,
+  .app-shell.mobile-tab-strategy > .build-intel,
+  .app-shell.mobile-tab-standings > .build-intel,
+  .app-shell.mobile-tab-garage > .build-intel { display: none !important; }
+  .app-shell.mobile-tab-race .content-grid .content-column > :not(.race-panel),
+  .app-shell.mobile-tab-race .content-grid > .upgrade-panel,
+  .app-shell.mobile-tab-strategy .content-grid .content-column > :not(.strategy-panel),
+  .app-shell.mobile-tab-strategy .content-grid > .upgrade-panel,
+  .app-shell.mobile-tab-standings .content-grid .content-column > :not(.standings-panel),
+  .app-shell.mobile-tab-standings .content-grid > .upgrade-panel,
+  .app-shell.mobile-tab-garage .content-grid .content-column > *,
+  .app-shell.mobile-tab-more .content-grid .content-column > .race-panel,
+  .app-shell.mobile-tab-more .content-grid .content-column > .strategy-panel,
+  .app-shell.mobile-tab-more .content-grid .content-column > .standings-panel,
+  .app-shell.mobile-tab-more .content-grid > .upgrade-panel { display: none !important; }
+  .app-shell.mobile-tab-garage .content-grid > .upgrade-panel { display: grid !important; }
+  .app-shell.mobile-tab-garage .content-grid { display: block; }
+  .app-shell.mobile-tab-race .content-grid,
+  .app-shell.mobile-tab-strategy .content-grid,
+  .app-shell.mobile-tab-standings .content-grid,
+  .app-shell.mobile-tab-more .content-grid { display: block; }
+  .app-shell.mobile-tab-race .content-grid .race-panel,
+  .app-shell.mobile-tab-strategy .content-grid .strategy-panel,
+  .app-shell.mobile-tab-standings .content-grid .standings-panel { display: block; }
+  .app-shell.mobile-tab-race .content-grid .race-panel .circuit-theme svg { max-height: 225px; }
+  .app-shell.mobile-tab-race .content-grid .race-panel { overflow: hidden; }
+  .app-shell.mobile-tab-race .content-grid .race-panel .panel-heading,
+  .app-shell.mobile-tab-strategy .content-grid .strategy-panel .panel-heading,
+  .app-shell.mobile-tab-standings .content-grid .standings-panel .panel-heading { padding: 13px 12px; }
+  .app-shell.mobile-tab-strategy .strategy-grid { grid-template-columns: 1fr; }
+  .app-shell.mobile-tab-strategy .driver-strategy { padding: 16px 14px; }
+  .app-shell.mobile-tab-strategy .driver-strategy + .driver-strategy { border-left: 0; border-top: 1px solid var(--line); }
+  .app-shell.mobile-tab-standings .content-grid .standings-panel { overflow: hidden; }
+  .app-shell.mobile-tab-standings .content-grid .standings-table { overflow-x: auto; }
+  .app-shell.mobile-tab-more .content-grid .event-panel,
+  .app-shell.mobile-tab-more .content-grid .rival-intel-panel,
+  .app-shell.mobile-tab-more .content-grid .championship-achievements-panel { display: block; }
+  .mobile-play-dock {
+    position: fixed; z-index: 120; left: 0; right: 0; bottom: 0; display: block;
+    padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
+    background: rgba(10, 11, 15, .97); border-top: 1px solid #343640;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.34); backdrop-filter: blur(18px);
+  }
+  .mobile-dock-actions { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .mobile-race-toggle {
+    min-width: 0; flex: 1; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 8px 10px; border: 1px solid #ff453a; border-radius: 7px; background: #ff453a; color: #fff;
+    font: 800 10px var(--mono); letter-spacing: .06em;
+  }
+  .mobile-race-toggle span { font-size: 13px; }
+  .mobile-race-toggle:disabled { opacity: .55; }
+  .mobile-speed-control { display: flex; flex: 0 0 auto; gap: 4px; }
+  .mobile-speed-control button { min-width: 31px; min-height: 36px; padding: 6px; border: 1px solid #343741; border-radius: 6px; background: #191b21; color: #a9afbb; font: 800 9px var(--mono); }
+  .mobile-speed-control button.active { color: #fff; background: #3b201f; border-color: #ff453a; }
+  .mobile-dock-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+  .mobile-dock-tabs button { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 42px; padding: 4px 1px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #8b919e; }
+  .mobile-dock-tabs button > span { font-size: 15px; line-height: 1; }
+  .mobile-dock-tabs button small { font: 700 7px var(--mono); letter-spacing: .04em; }
+  .mobile-dock-tabs button.active { color: #fff; background: #262027; border-color: #63332f; }
+  .mobile-dock-tabs button.active > span { color: #ff6a58; }
+  .app-shell:has(.start-screen) .mobile-play-dock,
+  .app-shell:has(.initial-upgrade-screen) .mobile-play-dock,
+  .app-shell:has(.career-intermission-screen) .mobile-play-dock,
+  .app-shell:has(.engineering-codex-overlay) .mobile-play-dock,
+  .app-shell:has(.save-transfer-overlay) .mobile-play-dock { display: none; }
+}
+@media (max-width: 390px) {
+  .app-shell .top-status .save-transfer-trigger { padding: 6px; font-size: 6px; }
+  .mobile-race-toggle { font-size: 9px; }
+  .mobile-speed-control button { min-width: 28px; }
+  .mobile-dock-tabs button small { font-size: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-play-dock * { scroll-behavior: auto !important; }
+}
