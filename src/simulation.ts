@@ -546,7 +546,8 @@ let selected=risks[risks.length-1];
 for(const item of risks){ticket-=item.risk;if(ticket<=0){selected=item;break;}}
 const candidate=selected.car;
 const risk=selected.risk;
-const incidentCause=candidate.tyreWear>0.8?"on heavily worn tyres":state.weekendEffect==="wet-unprepared"?"in difficult wet conditions":candidate.pace==="PUSH"||candidate.battleMode==="OVERTAKE"?"while pushing or fighting for position":candidate.condition<70?"after repeated component stress":"after losing control";
+const inTraffic=runningCars.some((other)=>other.id!==candidate.id&&Math.abs(other.progress-candidate.progress)<0.055);
+const incidentCause=state.weekendEffect==="wet-unprepared"?"in the slippery conditions":candidate.tyreWear>0.8?"on badly worn tyres":candidate.battleMode==="OVERTAKE"&&inTraffic?"while misjudging an overtaking gap":candidate.pace==="PUSH"?"after braking too late while pushing":inTraffic?"in a wheel-to-wheel battle":candidate.driverConsistency<75?"after a concentration error":"after losing control";
 state.incidentCount=(state.incidentCount??0)+1;
 const reliabilityProtection=candidate.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):candidate.rivalStyle==="reliability-leader"?0.28:0;
 const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
@@ -561,7 +562,7 @@ if(roll<minorLimit){
 const hit=damage(8+Math.floor(random(state)*6));
 candidate.condition=Math.max(35,candidate.condition-hit);
 candidate.progress=Math.max(0,candidate.progress-0.03);
-addEvent(state,"MINOR INCIDENT — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" runs wide under pressure. The floor is damaged; pace and the post-race repair bill will suffer.","warning");
+addEvent(state,"DRIVER ERROR — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" locks up and runs wide "+incidentCause+". The floor is damaged, costing pace and increasing the repair bill.","warning");
 }else if(roll<majorLimit){
 seriousIncident=true;
 const hit=damage(17+Math.floor(random(state)*10));
@@ -571,7 +572,7 @@ candidate.pitDelay=Math.max(candidate.pitDelay,3);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
-addEvent(state,"MAJOR INCIDENT — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" makes contact "+incidentCause+". Heavy damage forces an unscheduled repair stop and costs track position.","warning");
+addEvent(state,"CRASH — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+(candidate.battleMode==="OVERTAKE"||inTraffic?" misjudges the battle and collides with a rival ":" loses control ")+incidentCause+". Heavy damage forces an unscheduled repair stop and costs track position.","warning");
 }else if(roll<mechanicalLimit){
 seriousIncident=true;
 const hit=damage(27+Math.floor(random(state)*14));
@@ -589,7 +590,7 @@ candidate.progress=Math.max(0,candidate.progress-0.15);
 candidate.retired=true;
 candidate.finished=true;
 candidate.finishTime=state.elapsedSeconds+state.totalLaps*180+Math.floor(random(state)*30);
-addEvent(state,"RETIREMENT — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" cannot continue after irreparable damage. The car is classified as a DNF.","warning");
+addEvent(state,"CRASH OUT — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" makes a costly mistake "+incidentCause+" and hits the barriers. The car cannot continue and is classified as a DNF.","warning");
 }
 if(seriousIncident&&random(state)<(candidate.retired?0.72:0.42)){
 state.safetyCarTicks=3;state.safetyCarActive=true;
