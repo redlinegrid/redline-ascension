@@ -422,6 +422,7 @@ const profile=DRIVER_MARKET.find((driver)=>driver.name===car.driver);
 return{
 ...car,
 rivalStyle:car.playerCar?undefined:car.rivalStyle??RIVAL_STYLE_BY_TEAM[car.team],
+scheduledPitCompleted:car.scheduledPitCompleted??(car.pitStops>0&&Math.floor(car.progress)>=car.pitLap),
 driverPace:car.driverPace??profile?.pace??76+(index*7 % 13),
 driverRacecraft:car.driverRacecraft??profile?.racecraft??75+(index*5 % 15),
 driverTyreManagement:car.driverTyreManagement??profile?.tyreManagement??74+(index*3 % 16),
@@ -779,8 +780,8 @@ const gapAhead=ahead?ahead.progress - car.progress:Infinity;
 const behind=state.cars.filter((item)=>!item.finished&&item.id!==car.id&&item.progress<car.progress).sort((a,b)=>b.progress-a.progress)[0];
 const gapBehind=behind?car.progress-behind.progress:Infinity;
 const canPit=!car.scheduledPitCompleted&&remainingLaps>1.2;
-if(canPit&&car.condition<48){
-return{headline:"Damage is becoming a race-ending risk",reason:"The car's condition is critically low. An early stop offers a chance to change tyres and avoid extending a damaged stint; the repair bill still applies after the race.",action:"PIT",actionLabel:"PIT NEXT LAP"};
+if(car.condition<48&&car.pace==="PUSH"){
+return{headline:"Protect the damaged car",reason:"The chassis is in a critical condition and a pit stop cannot repair it mid-race. Backing off reduces further stress and helps protect the car from another incident.",action:"CONSERVE",actionLabel:"PROTECT THE CAR"};
 }
 if(canPit&&state.safetyCarActive&&car.tyreWear>=0.3){
 return{headline:"Use the safety-car window",reason:"The field is neutralised, so this is a lower-loss opportunity to change tyres before green-flag running resumes.",action:"PIT",actionLabel:"PIT NEXT LAP"};
