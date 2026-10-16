@@ -436,6 +436,7 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
           <p className="circuit-timing-note">Last-lap gap to the fastest recorded lap in this field; not a live sector split.</p>
         </section>
       </div>
+    </div>
   </div>;
 }
 
