@@ -1463,6 +1463,7 @@ export default function App() {
     </section>}
 
     <nav className="mobile-play-dock" aria-label="Quick race controls and game screens">
+      {(race.status === "running" || race.status === "paused") && <div className="mobile-dock-timing" aria-label="Live race timing"><div className="mobile-dock-progress"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small> / {race.totalLaps} LAPS</small></strong><div className="mobile-dock-progress-track"><i style={{ width: Math.min(100, Math.max(0, race.lap / race.totalLaps * 100)) + "%" }}/></div></div><div className="mobile-dock-best-lap"><span>YOUR BEST LAP</span><strong>{Number.isFinite(bestLap) ? formatLapTime(bestLap) : "—"}</strong></div></div>}
       <div className="mobile-dock-actions">
         <button className="mobile-race-toggle" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}>
           <span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME" : race.status === "ready" ? "START RACE" : race.status === "finished" || race.status === "gameover" ? "SESSION ENDED" : "START RACE"}
