@@ -3479,7 +3479,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Product identity: keep the roguelite premise clear and the credit at the true bottom. */
 .start-screen{padding-bottom:calc(42px + env(safe-area-inset-bottom))}
-.start-screen:after{content:"REDLINE ASCENSION  /  ROGUELITE MOTORSPORTS MANAGEMENT  ·  POWERED BY REDLINE GRID";position:fixed;z-index:1002;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center;color:#696b74;font:8px var(--mono);letter-spacing:.9px;line-height:1.5;pointer-events:none}
+.start-screen:after{content:"REDLINE ASCENSION  /  ROGUELITE MOTORSPORTS MANAGEMENT  ·  A GAME BY REDLINE GRID";position:fixed;z-index:1002;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center;color:#696b74;font:8px var(--mono);letter-spacing:.9px;line-height:1.5;pointer-events:none}
 .start-screen-footnote{max-width:440px;text-transform:uppercase}
 .footer{align-items:center;flex-wrap:wrap;padding-bottom:calc(27px + env(safe-area-inset-bottom))}
 .footer strong{font-weight:700;color:#a7a8af}
