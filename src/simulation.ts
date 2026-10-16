@@ -19,7 +19,7 @@ export const CHAMPIONSHIP_ACHIEVEMENTS=[
 {id:"world-champion",title:"WORLD CHAMPION",description:"Finish the season first in the championship.",cashReward:500000,researchReward:6},
 ] as const;
 export type UpgradeType="aero"|"power"|"suspension"|"reliability";
-export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first";
+export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first"|"fuel-efficient"|"wet-weather"|"racecraft-specialist"|"durability"|"long-haul"|"qualifying-specialist"|"pit-wall-strategist";
 export interface UpgradeModules{aero:number;power:number;suspension:number;reliability:number;}
 export interface InstalledUpgrade{id:string;title:string;subtitle:string;rarity:UpgradeRarity;effect:string;upgradeType?:UpgradeType;amount?:number;cashBonus?:number;trait?:RunTrait;}
 export interface UpgradeEvolution {
@@ -40,6 +40,12 @@ export const UPGRADE_EVOLUTIONS:UpgradeEvolution[]=[
 {id:"commercial-flywheel",title:"Commercial Flywheel",description:"A sponsor network and technical partner reinforce each other, converting a broader engineering story into extra budget.",requiredUpgradeIds:["sponsor-relations","technical-partner"],rewardText:"+RM250,000 team funds",cashBonus:250000},
 {id:"high-downforce-qualifying-kit",title:"High-Downforce Qualifying Kit",description:"Pair an extreme airflow concept with the edge-of-grip package for a specialised high-risk qualifying build.",requiredUpgradeIds:["active-flow","edge-of-grip"],rewardText:"Aerodynamics +1",moduleBonus:{aero:1}},
 {id:"tyre-saving-chassis",title:"Tyre-Saving Chassis",description:"Combine the long-run tyre programme with the bulletproof reliability process for a more forgiving race platform.",requiredUpgradeIds:["long-run-programme","bulletproof-process"],rewardText:"Suspension +1 · Reliability +1",moduleBonus:{suspension:1,reliability:1}},
+{id:"qualifying-power-package",title:"Qualifying Power Package",description:"Combine precision simulator work with the hybrid leap to deliver a sharper one-lap performance package.",requiredUpgradeIds:["precision-qualifying","hybrid-leap"],rewardText:"Power unit +1 · Aerodynamics +1",moduleBonus:{power:1,aero:1}},
+{id:"endurance-fuel-window",title:"Extended Stint Window",description:"Fuel-flow optimisation and endurance simulation combine to make longer stints easier to manage.",requiredUpgradeIds:["fuel-flow-optimisation","endurance-stint-simulator"],rewardText:"Power unit +1 · Reliability +1",moduleBonus:{power:1,reliability:1}},
+{id:"all-weather-control",title:"All-Weather Control System",description:"Wet-weather correlation and racecraft telemetry give the team a more dependable platform in changing conditions.",requiredUpgradeIds:["wet-weather-correlation","racecraft-telemetry"],rewardText:"Suspension +1 · Reliability +1",moduleBonus:{suspension:1,reliability:1}},
+{id:"pit-wall-command-suite",title:"Pit-Wall Command Suite",description:"Pair a faster decision model with rehearsed pit-crew drills to turn operations into a repeatable advantage.",requiredUpgradeIds:["pit-wall-algorithm","rapid-pit-drills"],rewardText:"Reliability +1 · +RM100,000 team funds",moduleBonus:{reliability:1},cashBonus:100000},
+{id:"durability-endurance-package",title:"Durability Endurance Package",description:"A reinforced survival cell and long-run simulation create a forgiving car built to finish difficult races.",requiredUpgradeIds:["reinforced-survival-cell","endurance-stint-simulator"],rewardText:"Reliability +2",moduleBonus:{reliability:2}},
+{id:"precision-attack-package",title:"Precision Attack Package",description:"Combine aggressive edge-of-grip performance with data-led wheel-to-wheel decisions to turn pace into cleaner overtakes.",requiredUpgradeIds:["edge-of-grip","racecraft-telemetry"],rewardText:"Power unit +1 · Suspension +1",moduleBonus:{power:1,suspension:1}}
 ];
 export function buildSynergies(modules:UpgradeModules):string[]{
 const active:string[]=[];
@@ -105,7 +111,21 @@ export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 {id:"upright-load-analysis",title:"Upright Load Analysis",subtitle:"MECHANICAL GRIP",rarity:"EPIC",description:"Advanced load analysis unlocks a stronger mechanical platform.",effect:"Suspension +2",upgradeType:"suspension",amount:2},
 {id:"fatigue-resistant-alloy",title:"Fatigue-Resistant Alloy",subtitle:"RELIABILITY",rarity:"RARE",description:"A stronger alloy mix increases confidence in high-stress components.",effect:"Reliability +2",upgradeType:"reliability",amount:2},
 {id:"supplier-volume-rebate",title:"Supplier Volume Rebate",subtitle:"COMMERCIAL WIN",rarity:"UNCOMMON",description:"A negotiated parts agreement returns cash to the team's development budget.",effect:"+RM175,000 team funds",cashBonus:175000},
-{id:"component-stress-testing",title:"Component Stress Testing",subtitle:"RELIABILITY",rarity:"EPIC",description:"A more demanding validation programme gives the reliability department a substantial baseline improvement.",effect:"Reliability +2",upgradeType:"reliability",amount:2}
+{id:"component-stress-testing",title:"Component Stress Testing",subtitle:"RELIABILITY",rarity:"EPIC",description:"A more demanding validation programme gives the reliability department a substantial baseline improvement.",effect:"Reliability +2",upgradeType:"reliability",amount:2},
+{id:"precision-qualifying",title:"Precision Qualifying Simulator",subtitle:"QUALIFYING BUILD",rarity:"RARE",description:"A focused simulator programme sharpens the team's baseline lap execution and helps unlock clean, repeatable pace.",effect:"Lap pace +0.7%",trait:"qualifying-specialist",buildPath:"qualifying"},
+{id:"fuel-flow-optimisation",title:"Fuel-Flow Optimisation",subtitle:"EFFICIENCY BUILD",rarity:"UNCOMMON",description:"Combustion and deployment mapping extracts more distance from every unit of fuel, opening up flexible race strategies.",effect:"Fuel use −12%",trait:"fuel-efficient",buildPath:"fuel-economy"},
+{id:"wet-weather-correlation",title:"Wet-Weather Correlation",subtitle:"ALL-WEATHER BUILD",rarity:"RARE",description:"A dedicated wet test programme improves confidence when the circuit turns slippery and conditions become unpredictable.",effect:"Reduced wet-weather pace penalty and incident risk",trait:"wet-weather",buildPath:"all-weather"},
+{id:"racecraft-telemetry",title:"Racecraft Telemetry Suite",subtitle:"BATTLE BUILD",rarity:"RARE",description:"Reviewing overtaking and defensive telemetry helps drivers fight closer battles with fewer costly errors.",effect:"Better pace and lower risk in close battles",trait:"racecraft-specialist",buildPath:"racecraft"},
+{id:"reinforced-survival-cell",title:"Reinforced Survival Cell",subtitle:"SURVIVAL BUILD",rarity:"EPIC",description:"A reinforced chassis structure reduces the cost of mistakes and helps the car survive a punishing season.",effect:"Reduced component wear and incident damage",trait:"durability",buildPath:"durability"},
+{id:"endurance-stint-simulator",title:"Endurance Stint Simulator",subtitle:"ENDURANCE BUILD",rarity:"UNCOMMON",description:"Long-run simulation trains the team to protect its tyres and maintain a stable pace deep into each stint.",effect:"Tyre wear −8%",trait:"long-haul",buildPath:"endurance"},
+{id:"pit-wall-algorithm",title:"Pit-Wall Decision Algorithm",subtitle:"OPERATIONS BUILD",rarity:"EPIC",description:"A faster strategy model and rehearsed call process make routine stops more efficient and reduce the cost of timing mistakes.",effect:"Planned stops are faster; tyre and fuel use fall further under safety car",trait:"pit-wall-strategist",buildPath:"operations"},
+{id:"brake-temperature-map",title:"Brake Temperature Map",subtitle:"MECHANICAL GRIP",rarity:"COMMON",description:"A circuit-specific brake map keeps the car more stable during repeated heavy stops.",effect:"Suspension +1",upgradeType:"suspension",amount:1},
+{id:"low-drag-bodywork",title:"Low-Drag Bodywork",subtitle:"AERO PACKAGE",rarity:"RARE",description:"A tighter bodywork package improves efficiency on long straights without abandoning the core aero platform.",effect:"Aerodynamics +2",upgradeType:"aero",amount:2},
+{id:"high-efficiency-turbo",title:"High-Efficiency Turbo",subtitle:"POWER UNIT",rarity:"EPIC",description:"A more efficient turbo system improves usable power while keeping the package controllable over a full race distance.",effect:"Power unit +2",upgradeType:"power",amount:2},
+{id:"modular-spares-contract",title:"Modular Spares Contract",subtitle:"COMMERCIAL WIN",rarity:"UNCOMMON",description:"A flexible supplier agreement returns cash and improves the team's ability to absorb a difficult weekend.",effect:"+RM200,000 team funds",cashBonus:200000},
+{id:"rapid-repair-workflow",title:"Rapid Repair Workflow",subtitle:"OPERATIONS BUILD",rarity:"RARE",description:"Mechanics standardise the rebuild process so damaged components can be assessed and repaired more efficiently between weekends.",effect:"Reliability +2",upgradeType:"reliability",amount:2},
+{id:"driver-feedback-loop",title:"Driver Feedback Loop",subtitle:"RACECRAFT BUILD",rarity:"UNCOMMON",description:"Structured feedback improves the quality of setup decisions and adds a dependable chassis gain.",effect:"Suspension +1",upgradeType:"suspension",amount:1},
+{id:"sponsor-data-package",title:"Sponsor Data Package",subtitle:"COMMERCIAL BUILD",rarity:"RARE",description:"Clearer performance reporting improves partner confidence and creates a stronger commercial return.",effect:"+RM350,000 team funds",cashBonus:350000}
 ];
 export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number}={}):UpgradeCard[]{
 const pool=[...UPGRADE_CARD_POOL];
@@ -471,11 +491,11 @@ const baseRivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.997:car.
 const rivalryPressure=!car.playerCar?Math.min(0.012,(state.rivalryBattles?.[car.team]??0)*0.003):0;
 const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
-const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
-const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
+const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1)*(traits.includes("qualifying-specialist")?0.993:1):1;
+const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975*(traits.includes("wet-weather")?0.99:1):1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025*(traits.includes("wet-weather")?0.99:1):1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
 const rivalAhead=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress>car.progress&&other.progress-car.progress<0.065);
 const rivalBehind=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress<car.progress&&car.progress-other.progress<0.045);
-const battlePaceFactor=car.battleMode==="OVERTAKE"&&rivalAhead?0.978:car.battleMode==="DEFEND"&&rivalBehind?0.99:1;
+const battlePaceFactor=car.battleMode==="OVERTAKE"&&rivalAhead?0.978*(traits.includes("racecraft-specialist")?0.988:1):car.battleMode==="DEFEND"&&rivalBehind?0.99*(traits.includes("racecraft-specialist")?0.988:1):1;
 const fuelPaceFactor=car.fuelMode==="DEPLOY"?0.985:car.fuelMode==="SAVE"?1.012:1;
 const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor*battlePaceFactor*fuelPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
 car.lastLap=lapSeconds;
@@ -484,26 +504,26 @@ const previousProgress=car.progress;
 const progressDelta=5 / lapSeconds;
 car.progress+=progressDelta;
 const driverTyreCare=Math.max(0.72,1 -(car.driverTyreManagement - 80)*0.004);
-const traitWearFactor=car.playerCar?((state.buildTraits??[]).includes("tyre-saver")?0.85:1)*((state.buildTraits??[]).includes("risk-reward")?1.18:1)*((state.buildTraits??[]).includes("reliability-first")?0.72:1)*(state.mode==="championship"&&state.nemesisTarget==="tyre-management"&&state.nemesisTeam?1.08:1):car.rivalStyle==="tyre-specialist"?0.78:car.rivalStyle==="aggressive-racer"?1.22:car.rivalStyle==="high-risk-attacker"?1.32:1;
+const traitWearFactor=car.playerCar?((state.buildTraits??[]).includes("tyre-saver")?0.85:1)*((state.buildTraits??[]).includes("long-haul")?0.92:1)*((state.buildTraits??[]).includes("risk-reward")?1.18:1)*((state.buildTraits??[]).includes("reliability-first")?0.72:1)*(state.mode==="championship"&&state.nemesisTarget==="tyre-management"&&state.nemesisTeam?1.08:1):car.rivalStyle==="tyre-specialist"?0.78:car.rivalStyle==="aggressive-racer"?1.22:car.rivalStyle==="high-risk-attacker"?1.32:1;
 const wearReduction=(car.playerCar?Math.max(0.65,1 -(state.upgradeModules?.suspension??0)*0.06):1)*driverTyreCare*traitWearFactor;
 const aeroTyreLoad=car.playerCar?1+(state.upgradeModules?.aero??0)*0.025:1;
 const enduranceWearBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
 const strategyWear=(car.pace==="PUSH"?0.095:car.pace==="CONSERVE"?0.05:0.07)*(car.battleMode==="OVERTAKE"&&rivalAhead?1.16:1);
 const weekendWearFactor=state.weekendEffect==="wet-prepared"?0.92:state.weekendEffect==="parts-shortage"?1.08:1;
-car.tyreWear=Math.min(1,car.tyreWear+strategyWear*TYRE_WEAR_RATE[car.tyre]*progressDelta*wearReduction*aeroTyreLoad*enduranceWearBonus*weekendWearFactor*(state.safetyCarActive?0.42:1));
+car.tyreWear=Math.min(1,car.tyreWear+strategyWear*TYRE_WEAR_RATE[car.tyre]*progressDelta*wearReduction*aeroTyreLoad*enduranceWearBonus*weekendWearFactor*(state.safetyCarActive?(traits.includes("pit-wall-strategist")?0.34:0.42):1));
 const powerFuelLoad=car.playerCar?1+(state.upgradeModules?.power??0)*0.025:1;
-const fuelModeFactor=car.fuelMode==="DEPLOY"?1.22:car.fuelMode==="SAVE"?0.68:1;
-car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*fuelModeFactor*(state.safetyCarActive?0.5:1));
+const fuelModeFactor=(car.fuelMode==="DEPLOY"?1.22:car.fuelMode==="SAVE"?0.68:1)*(car.playerCar&&traits.includes("fuel-efficient")?0.88:1);
+car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*fuelModeFactor*(state.safetyCarActive?(traits.includes("pit-wall-strategist")?0.4:0.5):1));
 const reliabilityProtection=car.playerCar?Math.min(0.75,(state.upgradeModules?.reliability??0)*0.005):0;
 const enduranceConditionBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
-const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1):1;
+const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1)*((state.buildTraits??[]).includes("durability")?0.8:1):1;
 const rivalCondition=!car.playerCar&&car.rivalStyle==="reliability-leader"?0.48:!car.playerCar&&car.rivalStyle==="high-risk-attacker"?1.7:1;
 const weekendConditionFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.8:1;
 car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*rivalCondition*weekendConditionFactor);
 if(Math.floor(car.progress)>Math.floor(previousProgress)){
 const completedLap=Math.floor(car.progress);
 if(!car.scheduledPitCompleted&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
-car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;car.scheduledPitCompleted=true;
+car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.buildTraits??[]).includes("pit-wall-strategist")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;car.scheduledPitCompleted=true;
 car.tyre=car.nextTyre;
 addEvent(state,car.playerCar?car.driver+" pits for "+car.tyre.toLowerCase()+" tyres.":car.driver+" ("+car.team+") pits.","pit");
 }
@@ -536,9 +556,9 @@ const battleRisk=car.battleMode==="OVERTAKE"?(nearby?0.55:0.22):car.battleMode==
 const consistencyRisk=Math.max(-0.22,Math.min(0.5,(82-car.driverConsistency)*0.012));
 const racecraftRisk=nearby?Math.max(-0.22,Math.min(0.45,(82-car.driverRacecraft)*0.012)):Math.max(-0.12,Math.min(0.18,(70-car.driverRacecraft)*0.004));
 const tyreCareRisk=car.tyreWear>0.6?Math.max(-0.1,Math.min(0.18,(82-car.driverTyreManagement)*0.005)):0;
-const weatherRisk=state.weekendEffect==="wet-unprepared"?0.3:0;
+const weatherRisk=state.weekendEffect==="wet-unprepared"?(traits.includes("wet-weather")?0.08:0.3):0;
 const partsRisk=state.weekendEffect==="parts-shortage"?0.18:0;
-const buildRisk=traits.includes("risk-reward")?0.48:traits.includes("reliability-first")?-0.3:0;
+const buildRisk=traits.includes("risk-reward")?0.48:traits.includes("reliability-first")?-0.3:traits.includes("durability")?-0.12:traits.includes("racecraft-specialist")&&nearby?-0.12:0;
 const styleRisk=car.rivalStyle==="high-risk-attacker"?0.3:car.rivalStyle==="aggressive-racer"?0.2:car.rivalStyle==="reliability-leader"?-0.2:0;
 const reliabilityProtection=car.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):car.rivalStyle==="reliability-leader"?0.28:0;
 return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+consistencyRisk+racecraftRisk+tyreCareRisk+(nearby?0.18:0)+(inBattle?0.1:0)+weatherRisk+partsRisk+buildRisk+styleRisk-reliabilityProtection);
@@ -559,7 +579,7 @@ const inTraffic=runningCars.some((other)=>other.id!==candidate.id&&Math.abs(othe
 const incidentCause=state.weekendEffect==="wet-unprepared"?"in the slippery conditions":candidate.tyreWear>0.8?"on badly worn tyres":candidate.battleMode==="OVERTAKE"&&inTraffic&&candidate.driverRacecraft<82?"after misjudging an overtaking gap":candidate.pace==="PUSH"?"after braking too late while pushing":inTraffic&&candidate.driverRacecraft<75?"after losing a wheel-to-wheel battle":candidate.driverConsistency<75?"after a concentration error":candidate.battleMode==="OVERTAKE"&&inTraffic?"while fighting for position":"after losing control";
 state.incidentCount=(state.incidentCount??0)+1;
 const reliabilityProtection=candidate.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):candidate.rivalStyle==="reliability-leader"?0.28:0;
-const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
+const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("durability")?0.78:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
 const weekendDamageFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.35:1;
 const damage=(base:number)=>Math.max(2,Math.round(base*(1-reliabilityProtection)*traitDamageFactor*weekendDamageFactor));
 const roll=random(state);
