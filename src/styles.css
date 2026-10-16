@@ -1560,3 +1560,17 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .roguelite-panel .rogue-card>strong{font-size:15px}
 }
 
+/* Consistent selection feedback and keyboard/touch accessibility for all upgrade drafts. */
+.rogue-card{cursor:pointer;appearance:none;-webkit-appearance:none;font:inherit}
+.rogue-card:focus-visible{outline:2px solid #ff6b5e;outline-offset:3px;z-index:2}
+.rogue-card:active{transform:translateY(0)}
+.rogue-card-selected .rogue-card-top>b{color:#ff8b83}
+.rogue-card-selected .rogue-card-art{border-color:#a34a42;box-shadow:0 0 0 2px #ff2a1814}
+.rogue-card-pick{min-height:29px;display:flex;align-items:center}
+@media(hover:none){
+  .rogue-card:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .rogue-card{transition:none}
+}
+
