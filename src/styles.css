@@ -3377,3 +3377,56 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .start-menu-actions .start-new-game-button,
   .start-menu-actions .continue-career-button{min-height:54px;padding:15px;font-size:12px}
 }
+
+
+/* Home menu before starting a new career. */
+.start-screen-content[data-onboarding-step="home"] .onboarding-step-indicator,
+.start-screen-content[data-onboarding-step="home"] .mode-select-section,
+.start-screen-content[data-onboarding-step="home"] .team-name-label,
+.start-screen-content[data-onboarding-step="home"] .team-name-input,
+.start-screen-content[data-onboarding-step="home"] .team-customization,
+.start-screen-content[data-onboarding-step="home"] .start-screen-preview,
+.start-screen-content[data-onboarding-step="home"] .mode-next,
+.start-screen-content[data-onboarding-step="home"] .team-next,
+.start-screen-content[data-onboarding-step="home"] .driver-market,
+.start-screen-content[data-onboarding-step="home"] .start-career-button{display:none!important}
+.start-screen-content[data-onboarding-step="home"] .start-screen-brand{margin-bottom:clamp(24px,5vh,54px)}
+.start-screen-content[data-onboarding-step="home"] .start-screen-intro{max-width:520px}
+.start-menu-actions .start-new-game-button,
+.start-menu-actions .continue-career-button{
+  box-sizing:border-box;
+  width:100%;
+  min-height:66px;
+  padding:20px 22px;
+  flex-shrink:0;
+}
+@media(max-width:760px){
+  .start-screen-content[data-onboarding-step="home"]{
+    justify-content:flex-start;
+    padding:calc(20px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+  }
+  .start-screen-content[data-onboarding-step="home"] .start-screen-brand{
+    margin-bottom:26px;
+  }
+  .start-screen-content[data-onboarding-step="home"] .start-screen-kicker{margin-top:6px}
+  .start-screen-content[data-onboarding-step="home"] h1{
+    margin:10px 0 12px;
+    font-size:clamp(36px,9vw,46px);
+    line-height:1.02;
+  }
+  .start-screen-content[data-onboarding-step="home"] .start-screen-intro{
+    margin:0 0 12px;
+    font-size:11px;
+    line-height:1.5;
+  }
+  .start-screen-content[data-onboarding-step="home"] .research-lab-entry-button{margin-top:12px}
+  .start-menu-actions{width:100%;gap:10px;margin:12px 0 8px}
+  .start-menu-actions .start-new-game-button,
+  .start-menu-actions .continue-career-button{
+    min-height:64px;
+    padding:18px 17px;
+    font-size:12px;
+  }
+  .start-screen-content[data-onboarding-step="home"] .research-lab-panel{display:none!important}
+  .start-screen-content[data-onboarding-step="home"] .start-screen-footnote{margin-top:12px}
+}
