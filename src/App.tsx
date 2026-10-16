@@ -390,7 +390,7 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
           {battleWatch.map((battle, index) => <div key={battle.ahead.id + "-" + battle.behind.id} className={"circuit-battle-row" + (battle.playerInvolved ? " player-battle" : "")}>
             <b>0{index + 1}</b>
             <span className="battle-driver"><i style={{ background: battle.ahead.teamColor }} />{battle.ahead.driver}<small>P{Math.max(1, cars.slice().sort((a, b) => b.progress - a.progress).findIndex((car) => car.id === battle.ahead.id) + 1)}</small></span>
-            <span className="battle-gap">{battle.gapPercent < 0.01 ? "SIDE BY SIDE" : (battle.gapPercent * 1000).toFixed(0) + " m"}<small>{battle.gapPercent < 1.5 ? "ATTACK RANGE" : "GAP"}</small></span>
+            <span className="battle-gap">{battle.gapPercent < 0.01 ? "SIDE BY SIDE" : battle.gapPercent.toFixed(2) + "% LAP"}<small>{battle.gapPercent < 1.5 ? "ATTACK RANGE" : "GAP"}</small></span>
             <span className="battle-driver"><i style={{ background: battle.behind.teamColor }} />{battle.behind.driver}<small>P{Math.max(1, cars.slice().sort((a, b) => b.progress - a.progress).findIndex((car) => car.id === battle.behind.id) + 1)}</small></span>
           </div>)}
         </div> : <p className="circuit-empty">No active battles to track.</p>}
