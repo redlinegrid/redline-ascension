@@ -1171,6 +1171,10 @@ export default function App() {
         {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
       </section>
 
+      {(race.activeEvolutions ?? []).length > 0 && <section className="active-evolution-showcase" aria-label="Active technology evolutions">
+        <div className="active-evolution-showcase-heading"><div><span className="section-kicker">ENGINEERING BREAKTHROUGHS</span><h3>Active Technology Evolutions</h3><p>Your upgrade combinations are now delivering their integrated build bonuses.</p></div><strong>{(race.activeEvolutions ?? []).length} ACTIVE</strong></div>
+        <div className="active-evolution-showcase-grid">{(race.activeEvolutions ?? []).map((id) => UPGRADE_EVOLUTIONS.find((evolution) => evolution.id === id)).filter((evolution): evolution is NonNullable<typeof evolution> => Boolean(evolution)).map((evolution) => <article className="active-evolution-showcase-card" key={evolution.id}><div className="active-evolution-check">✓</div><div className="active-evolution-copy"><h4>{evolution.title}</h4><p>{evolution.description}</p><strong>{evolution.rewardText}</strong></div></article>)}</div>
+      </section>}
       {(race.mode ?? "championship") === "championship" && race.championshipObjective && <section className={"championship-objective-panel" + (race.status === "finished" ? race.championshipObjective.completed ? " objective-complete" : " objective-missed" : "")} aria-label="Championship weekend objective">
         <div className="objective-panel-mark">{race.status === "finished" ? race.championshipObjective.completed ? "✓" : "×" : "◎"}</div>
         <div className="objective-panel-copy"><span className="section-kicker">{race.status === "finished" ? race.championshipObjective.completed ? "BOARD TARGET ACHIEVED" : "BOARD TARGET MISSED" : "CHAMPIONSHIP BRIEFING · ROUND " + race.weekendNumber}</span><h3>{race.championshipObjective.title}</h3><p>{race.championshipObjective.detail}</p></div>
