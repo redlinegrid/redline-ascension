@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
@@ -279,6 +279,27 @@ function smoothTrackPath(points: readonly (readonly [number, number])[]) {
   return path + " Z";
 }
 
+function sampleSmoothTrack(points: readonly (readonly [number, number])[], samplesPerSegment = 16): [number, number][] {
+  const midpoint = (a: readonly [number, number], b: readonly [number, number]): [number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const samples: [number, number][] = [];
+  for (let index = 0; index < points.length; index++) {
+    const previous = points[(index - 1 + points.length) % points.length];
+    const control = points[index];
+    const next = points[(index + 1) % points.length];
+    const start = midpoint(previous, control);
+    const end = midpoint(control, next);
+    for (let step = 0; step < samplesPerSegment; step++) {
+      const t = step / samplesPerSegment;
+      const inverse = 1 - t;
+      samples.push([
+        inverse * inverse * start[0] + 2 * inverse * t * control[0] + t * t * end[0],
+        inverse * inverse * start[1] + 2 * inverse * t * control[1] + t * t * end[1],
+      ]);
+    }
+  }
+  return samples;
+}
+
 function trackPosition(progress: number, points: readonly (readonly [number, number])[]) {
   const segments = points.map((point, index) => Math.hypot(points[(index + 1) % points.length][0] - point[0], points[(index + 1) % points.length][1] - point[1]));
   const totalLength = segments.reduce((total, length) => total + length, 0);
@@ -296,11 +317,15 @@ function trackPosition(progress: number, points: readonly (readonly [number, num
   return { x: points[0][0], y: points[0][1] };
 }
 
-function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Copperhead Ring" }: { cars: CarState[]; lap: number; teamName: string; circuitSeed?: number; circuitName?: string }) {
+function CircuitMap({ cars, lap, teamName, speed = 1, circuitSeed = 8241, circuitName = "Copperhead Ring" }: { cars: CarState[]; lap: number; teamName: string; speed?: number; circuitSeed?: number; circuitName?: string }) {
   const [selectedSector, setSelectedSector] = useState<number | "ALL">("ALL");
   const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
   const trackPoints = useMemo(() => seededTrack(circuitSeed), [circuitSeed]);
   const trackPath = useMemo(() => smoothTrackPath(trackPoints), [trackPoints]);
+  const trackGeometry = useMemo(() => sampleSmoothTrack(trackPoints), [trackPoints]);
+  const [visualPositions, setVisualPositions] = useState<Record<string, { x: number; y: number }>>(() => Object.fromEntries(cars.map((car) => [car.id, trackPosition(car.progress, trackGeometry)])));
+  const visualPositionsRef = useRef(visualPositions);
+  const animationFrameRef = useRef<number | null>(null);
   const nearbyRivalIds = useMemo(() => {
     const playerCars = cars.filter((car) => car.playerCar && !car.finished);
     if (!playerCars.length) return new Set<string>();
@@ -314,8 +339,33 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       return { id: car.id, gap };
     }).sort((a, b) => a.gap - b.gap).slice(0, 4).map((car) => car.id));
   }, [cars]);
-  const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints), nearbyRival: nearbyRivalIds.has(car.id) })), [cars, trackPoints, nearbyRivalIds]);
-  const startFinish = trackPosition(0, trackPoints);
+  const points = useMemo(() => cars.map((car) => ({ ...car, ...(visualPositions[car.id] ?? trackPosition(car.progress, trackGeometry)), nearbyRival: nearbyRivalIds.has(car.id) })), [cars, trackPoints, nearbyRivalIds]);
+  useEffect(() => {
+    const targets = Object.fromEntries(cars.map((car) => [car.id, trackPosition(car.progress, trackGeometry)])) as Record<string, { x: number; y: number }>;
+    const from = visualPositionsRef.current;
+    const startedAt = performance.now();
+    const duration = Math.max(1000 / speed, 120);
+    if (animationFrameRef.current !== null) window.cancelAnimationFrame(animationFrameRef.current);
+    const animate = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = progress * progress * (3 - 2 * progress);
+      const next: Record<string, { x: number; y: number }> = {};
+      for (const [id, target] of Object.entries(targets)) {
+        const origin = from[id] ?? target;
+        next[id] = { x: origin.x + (target.x - origin.x) * eased, y: origin.y + (target.y - origin.y) * eased };
+      }
+      visualPositionsRef.current = next;
+      setVisualPositions(next);
+      if (progress < 1) animationFrameRef.current = window.requestAnimationFrame(animate);
+      else animationFrameRef.current = null;
+    };
+    animationFrameRef.current = window.requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current !== null) window.cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    };
+  }, [cars, trackGeometry, speed]);
+  const startFinish = trackPosition(0, trackGeometry);
   const sectorOne = trackPosition(1 / 3, trackPoints);
   const sectorTwo = trackPosition(2 / 3, trackPoints);
   const turnMarkers = useMemo(() => {
@@ -368,6 +418,7 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       <path d={trackPath} pathLength="300" fill="none" stroke="#ff453a" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="0" strokeLinecap="butt" />
       <path d={trackPath} pathLength="300" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-100" strokeLinecap="butt" />
       <path d={trackPath} pathLength="300" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-200" strokeLinecap="butt" />
+      <path className="track-telemetry-flow" d={trackPath} pathLength="300" fill="none" stroke="#ff645b" strokeWidth="1.5" strokeDasharray="8 292" strokeDashoffset="0" strokeLinecap="round" />
       <g transform={"translate(" + startFinish.x + " " + startFinish.y + ")"}>
         <circle r="7" fill="#050609" stroke="#f4f5f7" strokeWidth="1.4" />
         <path d="M-5 -5h10v10h-10z" fill="#f4f5f7" />
@@ -1272,7 +1323,7 @@ export default function App() {
       <div className="content-column left-column">
       <section className="panel race-panel">
         <div className="panel-heading"><div><div className="section-kicker">LIVE TELEMETRY <i className="tiny-live"/></div><h2>Race overview</h2></div><div className="lap-badge">LAP <strong>{String(Math.min(race.lap, race.totalLaps)).padStart(2, "0")}</strong><span>/ {race.totalLaps}</span></div></div>
-        <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName} circuitSeed={race.circuitSeed ?? race.seed} circuitName={race.circuitName ?? "Copperhead Ring"}/>
+        <CircuitMap cars={race.cars} lap={race.lap} teamName={playerTeamName} speed={speed} circuitSeed={race.circuitSeed ?? race.seed} circuitName={race.circuitName ?? "Copperhead Ring"}/>
 
         {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "Administration called." : "Campaign complete.") : "Race complete."}</h3><p>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "The team could not cover the next weekend’s committed costs. This run ends here." : "The 20-round season is complete. Final championship points are locked.") : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {(race.status === "finished" || race.status === "gameover") && race.latestChampionshipMilestone && <section className="championship-milestone" aria-label="Championship milestone"><div className="milestone-mark">★</div><div className="milestone-copy"><span className="section-kicker">CHAMPIONSHIP MILESTONE · ROUND {race.latestChampionshipMilestone.round}/{CAMPAIGN_LENGTH}</span><h3>{race.latestChampionshipMilestone.title}</h3><p>{race.latestChampionshipMilestone.detail}</p><small>CHAMPIONSHIP POSITION · P{race.latestChampionshipMilestone.position}</small></div><div className="milestone-reward"><span>COMMERCIAL REWARD</span><strong>+{money(race.latestChampionshipMilestone.reward)}</strong></div></section>}
