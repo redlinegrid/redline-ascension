@@ -1700,3 +1700,33 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     animation: none !important;
   }
 }
+
+
+/* High-refresh circuit telemetry: keep the data authoritative, animate only its presentation. */
+@keyframes redline-track-flow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -300; }
+}
+@keyframes redline-car-halo {
+  from { opacity: .48; }
+  to { opacity: .95; }
+}
+.circuit-theme .track-telemetry-flow {
+  pointer-events: none;
+  opacity: .88;
+  animation: redline-track-flow 4.8s linear infinite;
+}
+.circuit-theme .track-car {
+  will-change: transform;
+}
+.circuit-theme .track-car-halo {
+  animation: redline-car-halo 1.8s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .circuit-theme .track-telemetry-flow,
+  .circuit-theme .track-car-halo {
+    animation: none !important;
+  }
+}
