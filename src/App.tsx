@@ -1473,9 +1473,9 @@ export default function App() {
           {[1, 2, 4, 8].map((n) => <button key={n} className={speed === n ? "active" : ""} aria-pressed={speed === n} onClick={() => setSpeed(n)}>{n}×</button>)}
         </div>
       </div>
-      <div className="mobile-dock-tabs">
-        {([{ id: "race", label: "RACE", symbol: "◉" }, { id: "strategy", label: "STRATEGY", symbol: "⌁" }, { id: "standings", label: "GRID", symbol: "≡" }, { id: "garage", label: "GARAGE", symbol: "⚙" }, { id: "more", label: "MORE", symbol: "•••" }] as const).map((tab) =>
-          <button key={tab.id} className={mobileTab === tab.id ? "active" : ""} aria-pressed={mobileTab === tab.id} onClick={() => { setMobileTab(tab.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+      <div className="mobile-dock-tabs" role="group" aria-label="Game navigation">
+        {([{ id: "race", label: "RACE", symbol: "◉", hint: "Race overview" }, { id: "strategy", label: "STRATEGY", symbol: "⌁", hint: "Driver strategy" }, { id: "standings", label: "GRID", symbol: "▤", hint: "Race classification" }, { id: "garage", label: "GARAGE", symbol: "⚙︎", hint: "Car upgrades" }, { id: "more", label: "MORE", symbol: "···", hint: "Events and team intel" }] as const).map((tab) =>
+          <button key={tab.id} type="button" className={mobileTab === tab.id ? "active" : ""} aria-label={tab.hint} aria-pressed={mobileTab === tab.id} onClick={() => { setMobileTab(tab.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
             <span aria-hidden="true">{tab.symbol}</span><small>{tab.label}</small>
           </button>
         )}
