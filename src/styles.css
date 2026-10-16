@@ -2349,3 +2349,25 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .race-session-timing>div>strong{font-size:19px}
   .race-session-best{padding-left:9px}
 }
+
+
+/* Mobile race timing lives in the bottom control dock and only appears after starting. */
+@media(max-width:760px){
+  .strategy-panel .race-session-timing{display:none!important}
+  .mobile-dock-timing{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:12px;padding:3px 3px 10px;margin-bottom:7px;border-bottom:1px solid #343640}
+  .mobile-dock-timing>div{min-width:0}
+  .mobile-dock-timing>div>span{display:block;font:700 7px var(--mono);letter-spacing:.09em;color:#8b919e}
+  .mobile-dock-timing>div>strong{display:block;margin-top:4px;font:700 19px var(--display);color:#f4f5f7;white-space:nowrap}
+  .mobile-dock-timing>div>strong small{font:8px var(--mono);color:#8b919e;font-weight:500}
+  .mobile-dock-progress-track{height:3px;margin-top:5px;background:#303137;overflow:hidden;border-radius:4px}
+  .mobile-dock-progress-track i{display:block;height:100%;background:var(--red);transition:width .2s}
+  .mobile-dock-best-lap{padding-left:12px;border-left:1px solid #343640}
+  .mobile-dock-best-lap>strong{font-size:18px!important}
+}
+@media(max-width:390px){
+  .mobile-dock-timing{gap:8px;padding-bottom:8px;margin-bottom:5px}
+  .mobile-dock-timing>div>strong{font-size:17px}
+  .mobile-dock-timing>div>strong small{font-size:7px}
+  .mobile-dock-best-lap{padding-left:8px}
+  .mobile-dock-best-lap>strong{font-size:16px!important}
+}
