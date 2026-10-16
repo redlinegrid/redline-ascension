@@ -1277,7 +1277,6 @@ export default function App() {
       <div className="career-intermission-topline"><span>REDLINE ASCENSION <i/> BETWEEN RACES</span><span>ROUND {String(race.weekendNumber).padStart(2, "0")} COMPLETE</span></div>
       <nav className="mobile-intermission-steps" aria-label="Post-race steps"><button className={mobileIntermissionStep === "scenario" ? "active" : ""} onClick={() => setMobileIntermissionStep("scenario")}><span>01</span> RANDOM SCENARIO {race.pendingPaddockEvent ? "· ACTION REQUIRED" : "· REVIEW"}</button><button className={mobileIntermissionStep === "upgrade" ? "active" : ""} onClick={() => setMobileIntermissionStep("upgrade")}><span>02</span> UPGRADE PARTS</button></nav>
       <div className="career-intermission-content">
-        <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
         <h1 id="intermission-title">Build your <em>next advantage.</em></h1>
         <p className="career-intermission-intro">Review the weekend, choose one upgrade for this career, then visit the garage before heading to the next circuit.</p>
         <div className="intermission-budget-mobile"><span>TEAM BUDGET REMAINING</span><strong>{money(race.cash)}</strong></div>
