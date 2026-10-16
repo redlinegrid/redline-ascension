@@ -1459,7 +1459,7 @@ export default function App() {
       </div>
       <div className="gameover-lower">
         <div><strong>CHAMPIONSHIP ORDER</strong>{teamRankings.map(([team, points], index) => <div className={"team-points-row " + (team === playerTeamName ? "team-points-player" : "")} key={team}><span>{String(index + 1).padStart(2, "0")} · {team}</span><b>{points} PTS</b></div>)}</div>
-        <div className="gameover-best"><span>PERSONAL BEST · LOCAL RECORD</span><strong>{bestRun ? bestRun.points + " POINTS" : "FIRST RUN"}</strong><p>{bestRun ? "Best championship score: P" + bestRun.position + " team finish. This record survives a new run on this device." : "Finish a campaign to set your first personal-best record."}</p><button className="primary-button" onClick={() => { setTeamNameDraft(playerTeamName); setPrincipalNameDraft(race.playerPrincipalName ?? principalNameDraft); setShowStartScreen(true); setShowResults(false); setSelectedDraftId(""); }}>START NEW RUN ↗</button></div>
+        <div className="gameover-best"><span>PERSONAL BEST · LOCAL RECORD</span><strong>{bestRun ? bestRun.points + " POINTS" : "FIRST RUN"}</strong><p>{bestRun ? "Best championship score: P" + bestRun.position + " team finish. This record survives a new run on this device." : "Finish a campaign to set your first personal-best record."}</p><button className="primary-button" onClick={() => { setTeamNameDraft(playerTeamName); setPrincipalNameDraft(race.playerPrincipalName ?? principalNameDraft); setOnboardingStep("home"); setShowStartScreen(true); setShowResults(false); setSelectedDraftId(""); }}>START NEW RUN ↗</button></div>
       </div>
     </section>}
 
