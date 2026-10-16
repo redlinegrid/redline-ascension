@@ -2214,3 +2214,113 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .intermission-upgrade-grid .rogue-card > strong { font-size: 14px; }
   .intermission-upgrade-grid .rogue-card > p { font-size: 10px; }
 }
+
+
+/* Mobile upgrade selection: compact comparison list + one shared detail preview. */
+.mobile-upgrade-detail { display: none; }
+@media (max-width: 700px) {
+  .mobile-intermission-upgrade .career-intermission-content > .career-intermission-intro,
+  .mobile-intermission-upgrade .career-intermission-content > .intermission-summary,
+  .mobile-intermission-upgrade .career-intermission-content > .contract-desk-panel,
+  .mobile-intermission-upgrade .career-intermission-content > .intermission-finance-strip,
+  .mobile-intermission-upgrade .career-intermission-content > .intermission-research-locked {
+    display: none !important;
+  }
+  .mobile-intermission-upgrade .career-intermission-content > .section-kicker { margin-bottom: 5px; }
+  .mobile-intermission-upgrade .career-intermission-content > h1 { margin-bottom: 10px; font-size: clamp(25px, 7vw, 34px); }
+  .mobile-intermission-upgrade .intermission-section-heading { margin: 12px 0 8px; }
+  .mobile-intermission-upgrade .intermission-section-heading h2 { font-size: 17px; }
+  .mobile-intermission-upgrade .intermission-section-heading .draft-reroll-control small { display: none; }
+  .intermission-upgrade-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+  .intermission-upgrade-grid .rogue-card {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 2px 9px;
+    padding: 9px 10px;
+    min-height: 0;
+    border-radius: 8px;
+  }
+  .intermission-upgrade-grid .rogue-card-top {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 0;
+  }
+  .intermission-upgrade-grid .rogue-card-index { display: none; }
+  .intermission-upgrade-grid .rogue-card-top b { font-size: 8px; }
+  .intermission-upgrade-grid .rogue-card-art {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 32px;
+    height: 32px;
+    align-self: center;
+  }
+  .intermission-upgrade-grid .rogue-card-subtitle {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    align-self: start;
+    font-size: 8px;
+    line-height: 1.1;
+    opacity: .75;
+  }
+  .intermission-upgrade-grid .rogue-card-top { display: contents; }
+  .intermission-upgrade-grid .rogue-card-top b {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .intermission-upgrade-grid .rogue-card-subtitle {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 48px;
+  }
+  .intermission-upgrade-grid .rogue-card > strong {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .intermission-upgrade-grid .rogue-card > p,
+  .intermission-upgrade-grid .rogue-card-effect,
+  .intermission-upgrade-grid .evolution-combo-hint { display: none !important; }
+  .intermission-upgrade-grid .rogue-card-pick {
+    display: none;
+  }
+  .mobile-upgrade-detail {
+    display: block;
+    margin: 8px 0 10px;
+    padding: 13px;
+    border-color: rgba(198, 74, 61, .4);
+  }
+  .mobile-upgrade-detail-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .mobile-upgrade-detail-top .section-kicker { margin: 0; font-size: 8px; }
+  .mobile-upgrade-detail-top b { font-size: 8px; }
+  .mobile-upgrade-detail-title { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .mobile-upgrade-detail-title .rogue-card-art { display: flex; flex: 0 0 36px; width: 36px; height: 36px; align-items: center; justify-content: center; }
+  .mobile-upgrade-detail-title .rogue-card-subtitle { font-size: 9px; }
+  .mobile-upgrade-detail-title h3 { margin: 2px 0 0; font-size: 16px; line-height: 1.2; }
+  .mobile-upgrade-detail > p, .mobile-upgrade-detail-empty p { margin: 0; font-size: 11px; line-height: 1.45; }
+  .mobile-upgrade-detail-effect { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.1); }
+  .mobile-upgrade-detail-effect span { font-size: 8px; letter-spacing: .08em; color: #aaa; }
+  .mobile-upgrade-detail-effect strong { font-size: 11px; line-height: 1.4; }
+  .mobile-upgrade-detail .evolution-combo-hint { display: block; margin-top: 7px; font-size: 10px; line-height: 1.35; }
+  .mobile-upgrade-detail-empty { display: flex; flex-direction: column; gap: 5px; }
+  .mobile-upgrade-detail-empty .section-kicker { font-size: 8px; }
+  .mobile-upgrade-detail-empty strong { font-size: 13px; }
+  .intermission-action-row { margin-top: 8px; gap: 10px; }
+  .intermission-action-row > div p { font-size: 10px; }
+  .intermission-action-row .primary-button { min-height: 42px; }
+}
