@@ -1073,34 +1073,34 @@ export default function App() {
     fresh.cars = fresh.cars.map((car) => car.playerCar ? { ...car, teamColor: primary } : car);
     return applyGarageBonuses(fresh, garageMeta, true);
   };
-  const startNextRace = () => {
-    if (!intermissionUpgradeInstalled || race.status !== "finished" || race.pendingPaddockEvent) return;
-    const playerCars = race.cars.filter((car) => car.playerCar);
-    const contracts = race.driverContracts ?? [];
-    if (contracts.some((contract) => contract.expiresAtRound <= race.weekendNumber)) return;
+  const startNextRace = (currentRace: RaceState = race, upgradeInstalled = intermissionUpgradeInstalled) => {
+    if (!upgradeInstalled || currentRace.status !== "finished" || currentRace.pendingPaddockEvent) return;
+    const playerCars = currentRace.cars.filter((car) => car.playerCar);
+    const contracts = currentRace.driverContracts ?? [];
+    if (contracts.some((contract) => contract.expiresAtRound <= currentRace.weekendNumber)) return;
     const drivers = contracts.length >= 2 ? contracts.map((contract) => contract.driverName) : [playerCars[0]?.driver ?? "Luca Moretti", playerCars[1]?.driver ?? "Emil Novak"];
     const payroll = contracts.reduce((sum, contract) => sum + contract.salaryPerRace, 0);
     const operatingCost = Math.round((215000 + payroll + 65000) * Math.max(0.65, 1 - garageLevel(garageMeta, "repair-efficiency") * 0.015 - garageLevel(garageMeta, "factory-workflow") * 0.01 - garageLevel(garageMeta, "budget-management") * 0.015));
-    const sponsorIncome = Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800 + garageLevel(garageMeta, "sponsor-network") * 20000);
-    if (race.cash + sponsorIncome < operatingCost) {
+    const sponsorIncome = Math.max(0, 65000 + ((currentRace.teamReputation ?? 45) - 45) * 1800 + garageLevel(garageMeta, "sponsor-network") * 20000);
+    if (currentRace.cash + sponsorIncome < operatingCost) {
       setRace((current) => ({ ...current, status: "gameover", endReason: "bankruptcy", pendingPaddockEvent: null, lastOperatingCost: operatingCost, lastSponsorIncome: sponsorIncome }));
       setShowIntermission(false);
       return;
     }
-    const nextCash = race.cash + sponsorIncome - operatingCost;
-    const next = createRace((race.seed + 2654435761 + race.weekendNumber * 97) >>> 0, race.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, race.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], race.playerPrincipalName ?? "Team Principal", race.mode ?? "championship");
-    next.rivalryWins = { ...(race.rivalryWins ?? {}) };
-    next.rivalryBattles = { ...(race.rivalryBattles ?? {}) };
-    next.rivalryHistory = Object.fromEntries(Object.entries(race.rivalryHistory ?? {}).map(([team, history]) => [team, [...history]]));
-    next.rivalryFeudTeam = race.rivalryFeudTeam;
-    if ((race.mode ?? "championship") === "championship") {
-      const rivalTeams = [...new Set(race.cars.filter((car) => !car.playerCar).map((car) => car.team))];
-      const adaptiveRival = race.rivalryFeudTeam ?? rivalTeams
-        .map((team) => ({ team, streak: race.rivalryBattles?.[team] ?? 0 }))
+    const nextCash = currentRace.cash + sponsorIncome - operatingCost;
+    const next = createRace((currentRace.seed + 2654435761 + currentRace.weekendNumber * 97) >>> 0, currentRace.upgradeLevel, nextCash + garageLevel(garageMeta, "prize-money-bonus") * 25000, currentRace.weekendNumber + 1, playerTeamName, drivers[0], drivers[1], currentRace.playerPrincipalName ?? "Team Principal", currentRace.mode ?? "championship");
+    next.rivalryWins = { ...(currentRace.rivalryWins ?? {}) };
+    next.rivalryBattles = { ...(currentRace.rivalryBattles ?? {}) };
+    next.rivalryHistory = Object.fromEntries(Object.entries(currentRace.rivalryHistory ?? {}).map(([team, history]) => [team, [...history]]));
+    next.rivalryFeudTeam = currentRace.rivalryFeudTeam;
+    if ((currentRace.mode ?? "championship") === "championship") {
+      const rivalTeams = [...new Set(currentRace.cars.filter((car) => !car.playerCar).map((car) => car.team))];
+      const adaptiveRival = currentRace.rivalryFeudTeam ?? rivalTeams
+        .map((team) => ({ team, streak: currentRace.rivalryBattles?.[team] ?? 0 }))
         .filter((item) => item.streak >= 2)
         .sort((a, b) => b.streak - a.streak)[0]?.team;
       if (adaptiveRival) {
-        const playerCars = race.cars.filter((car) => car.playerCar);
+        const playerCars = currentRace.cars.filter((car) => car.playerCar);
         const averages = {
           pace: playerCars.reduce((sum, car) => sum + car.driverPace, 0) / Math.max(1, playerCars.length),
           racecraft: playerCars.reduce((sum, car) => sum + car.driverRacecraft, 0) / Math.max(1, playerCars.length),
@@ -1121,25 +1121,25 @@ export default function App() {
       next.nemesisTarget = undefined;
       next.nemesisShowdown = false;
     }
-    next.rivalryFeudBonus = race.rivalryFeudBonus;
-    next.weekendEffect = race.nextWeekendEffect;
-    next.weekendEffectTitle = race.nextWeekendEffectTitle;
+    next.rivalryFeudBonus = currentRace.rivalryFeudBonus;
+    next.weekendEffect = currentRace.nextWeekendEffect;
+    next.weekendEffectTitle = currentRace.nextWeekendEffectTitle;
     next.lastOperatingCost = operatingCost;
     next.lastSponsorIncome = sponsorIncome;
-    next.teamMorale = race.teamMorale ?? 62;
-    next.teamReputation = race.teamReputation ?? 45;
+    next.teamMorale = currentRace.teamMorale ?? 62;
+    next.teamReputation = currentRace.teamReputation ?? 45;
     next.driverContracts = contracts.map((contract) => ({ ...contract }));
-    next.resolvedPaddockEvents = [...(race.resolvedPaddockEvents ?? [])];
-    next.paddockEventRound = race.weekendNumber;
+    next.resolvedPaddockEvents = [...(currentRace.resolvedPaddockEvents ?? [])];
+    next.paddockEventRound = currentRace.weekendNumber;
     next.pendingPaddockEvent = null;
     const moraleModifier = ((next.teamMorale ?? 62) - 60) * 0.055;
     next.cars = next.cars.map((car) => car.playerCar ? { ...car, driverPace: Math.max(55, Math.min(99, car.driverPace + moraleModifier)), driverConsistency: Math.max(55, Math.min(99, car.driverConsistency + moraleModifier * 0.7)) } : car);
-    next.playerTeamColor = race.playerTeamColor ?? playerCars[0]?.teamColor ?? teamPrimaryColor;
-    next.playerTeamSecondaryColor = race.playerTeamSecondaryColor ?? teamSecondaryColor;
+    next.playerTeamColor = currentRace.playerTeamColor ?? playerCars[0]?.teamColor ?? teamPrimaryColor;
+    next.playerTeamSecondaryColor = currentRace.playerTeamSecondaryColor ?? teamSecondaryColor;
     next.cars = next.cars.map((car) => car.playerCar ? { ...car, teamColor: next.playerTeamColor! } : car);
-    next.upgradeModules = { ...(race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }) };
-    next.installedUpgrades = [...(race.installedUpgrades ?? [])];
-    next.teamPoints = { ...(race.teamPoints ?? {}) };
+    next.upgradeModules = { ...(currentRace.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }) };
+    next.installedUpgrades = [...(currentRace.installedUpgrades ?? [])];
+    next.teamPoints = { ...(currentRace.teamPoints ?? {}) };
     const nextWithGarage = applyGarageBonuses(next, garageMeta, false);
     setRace(nextWithGarage);
     setShowIntermission(false);
@@ -1302,10 +1302,10 @@ export default function App() {
         </section>
         <div className="intermission-action-row">
           <div><span className="section-kicker">SELECTED DEVELOPMENT</span><strong>{selectedDraft?.title ?? "Choose one offer above"}</strong><p>{intermissionUpgradeInstalled ? "Upgrade installed. You can now continue to the garage and next race." : "Lock in your choice before moving to the garage."}</p></div>
-          <button className="primary-button" disabled={!selectedDraft || intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound) || race.cash < (selectedDraft?.cashBonus ? 0 : selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)} onClick={() => { if (!selectedDraft || race.pendingPaddockEvent || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)) return; const cost = selectedDraft.cashBonus ? 0 : selectedDraft.rarity === "EPIC" ? 260000 : selectedDraft.rarity === "RARE" ? 165000 : 95000; if (race.cash < cost) return; setRace((current) => ({ ...upgradeCar(current, selectedDraft.id), cash: Math.max(0, current.cash - cost) })); setIntermissionUpgradeInstalled(true); setShowResults(false); setDraftRerolls(0); }}> {intermissionUpgradeInstalled ? "UPGRADE INSTALLED ✓" : "INSTALL UPGRADE · " + (selectedDraft?.cashBonus ? "NO COST" : money(selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)) + " ↗"}</button>
+          <button className="primary-button" disabled={!selectedDraft || intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound) || race.cash < (selectedDraft?.cashBonus ? 0 : selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)} onClick={() => { if (!selectedDraft || race.pendingPaddockEvent || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)) return; const cost = selectedDraft.cashBonus ? 0 : selectedDraft.rarity === "EPIC" ? 260000 : selectedDraft.rarity === "RARE" ? 165000 : 95000; if (race.cash < cost) return; const upgradedRace = { ...upgradeCar(race, selectedDraft.id), cash: Math.max(0, race.cash - cost) }; setDraftRerolls(0); startNextRace(upgradedRace, true); }}> {intermissionUpgradeInstalled ? "UPGRADE INSTALLED ✓" : "INSTALL UPGRADE · " + (selectedDraft?.cashBonus ? "NO COST" : money(selectedDraft?.rarity === "EPIC" ? 260000 : selectedDraft?.rarity === "RARE" ? 165000 : 95000)) + " ↗"}</button>
         </div>
         <div className="intermission-research-locked"><span className="research-counter">✦ {garageMeta.research} RESEARCH BANKED</span><strong>Permanent research is locked during a run.</strong><p>After the run ends, return to the start screen to spend RP before starting your next run.</p></div>
-        <div className="intermission-bottom-row"><span>NEXT RACE · INSTALL UPGRADE FIRST</span><button className="primary-button" disabled={!intermissionUpgradeInstalled || Boolean(race.pendingPaddockEvent) || (race.driverContracts ?? []).some((contract) => race.weekendNumber >= contract.expiresAtRound)} onClick={startNextRace}>NEXT RACE ↗</button></div>
+        <div className="intermission-bottom-row"><span>INSTALLING YOUR UPGRADE WILL START THE NEXT RACE</span></div>
       </div>
     </div>}
     <header className="topbar"><a className="brand" href="#" aria-label="Redline Ascension home"><img className="brand-lockup-icon brand-lockup-icon-header" src="./redline-grid-ascension.svg" alt="" /><span className="brand-lockup-copy"><strong>REDLINE ASCENSION</strong><span>MOTORSPORTS MANAGEMENT</span></span></a><nav className="main-nav"><span className="nav-active">OPERATIONS</span><span>ENGINEERING</span><span>CHAMPIONSHIP</span></nav><div className="top-status"><i className="status-dot"/> PROTOTYPE <b/> {savedAt}<button className="save-transfer-trigger codex-header-trigger" onClick={() => setShowEngineeringCodex(true)}>ENGINEERING CODEX</button><button className="save-transfer-trigger" aria-label="Save or transfer game data" onClick={() => { setShowSaveTransfer(true); setSaveTransferMessage(""); }}>SAVE / TRANSFER</button></div></header>
