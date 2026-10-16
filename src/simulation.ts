@@ -278,6 +278,81 @@ function addEvent(state:RaceState,message:string,kind:RaceEvent["kind"]="info"){
 state.events.unshift({id:++state.eventSequence,lap:Math.min(state.lap,state.totalLaps),message,kind});
 state.events=state.events.slice(0,14);
 }
+function updateRivalStrategy(state:RaceState):void{
+const running=state.cars.filter((car)=>!car.finished).sort((a,b)=>a.progress-b.progress);
+for(const car of running){
+if(car.playerCar)continue;
+const style=car.rivalStyle??RIVAL_STYLE_BY_TEAM[car.team];
+const ahead=running.filter((other)=>other.id!==car.id&&other.progress>car.progress).sort((a,b)=>a.progress-b.progress)[0];
+const behind=running.filter((other)=>other.id!==car.id&&other.progress<car.progress).sort((a,b)=>b.progress-a.progress)[0];
+const gapAhead=ahead?ahead.progress-car.progress:Infinity;
+const gapBehind=behind?car.progress-behind.progress:Infinity;
+const lap=Math.floor(car.progress);
+const remainingLaps=state.totalLaps-car.progress;
+const attacking=gapAhead<0.065;
+const threatened=gapBehind<0.045;
+let pace:Pace="BALANCED";
+let battleMode:BattleMode="STANDARD";
+let fuelMode:FuelMode="NORMAL";
+switch(style){
+case"tyre-specialist":
+pace=car.tyreWear>0.34?"CONSERVE":"BALANCED";
+if(car.pitStops===0&&car.tyreWear<0.52)car.pitLap=Math.max(car.pitLap,8);
+break;
+case"qualifying-ace":
+pace=lap<4&&car.tyreWear<0.48||attacking&&remainingLaps<5?"PUSH":"BALANCED";
+if(lap<3&&car.fuel>45)fuelMode="DEPLOY";
+break;
+case"reliability-leader":
+pace=car.tyreWear>0.38||car.condition<86?"CONSERVE":"BALANCED";
+break;
+case"aggressive-racer":
+pace=car.tyreWear>0.68||car.fuel<16?"CONSERVE":"PUSH";
+if(attacking&&car.fuel>24)fuelMode="DEPLOY";
+break;
+case"strategy-gambler":
+pace=car.tyreWear>0.66?"CONSERVE":"PUSH";
+if(car.pitStops===0)car.pitLap=Math.min(car.pitLap,5);
+if(attacking&&car.fuel>24)fuelMode="DEPLOY";
+break;
+case"defensive-specialist":
+pace=threatened?"PUSH":"BALANCED";
+battleMode=threatened?"DEFEND":attacking?"OVERTAKE":"STANDARD";
+break;
+case"development-team":
+pace=lap<Math.ceil(state.totalLaps*0.4)?"CONSERVE":car.tyreWear<0.64?"PUSH":"BALANCED";
+break;
+case"high-risk-attacker":
+pace=car.tyreWear>0.61||car.condition<76?"CONSERVE":"PUSH";
+if(attacking&&car.fuel>20)fuelMode="DEPLOY";
+break;
+case"consistency-expert":
+pace=remainingLaps<4&&gapAhead>0.07&&car.tyreWear<0.62?"PUSH":"BALANCED";
+break;
+case"opportunist":
+if(state.safetyCarActive){
+pace="CONSERVE";
+fuelMode="SAVE";
+if(car.pitStops===0&&remainingLaps>2&&car.tyreWear>0.3)car.pitLap=Math.min(car.pitLap,Math.max(1,lap+1));
+}else{
+pace=attacking&&car.fuel>24?"PUSH":"BALANCED";
+if(attacking&&car.fuel>24)fuelMode="DEPLOY";
+}
+break;
+default:
+pace=attacking?"PUSH":"BALANCED";
+}
+if(style!=="defensive-specialist"&&attacking&&car.tyreWear<0.74)battleMode="OVERTAKE";
+if(threatened&&style!=="aggressive-racer"&&style!=="high-risk-attacker"&&style!=="strategy-gambler"&&battleMode!=="OVERTAKE")battleMode="DEFEND";
+const pitWearThreshold=style==="high-risk-attacker"?0.58:style==="tyre-specialist"?0.74:0.66;
+if(car.pitStops===0&&remainingLaps>2&&(car.tyreWear>=pitWearThreshold||car.fuel<14)){
+car.pitLap=Math.min(car.pitLap,Math.max(1,lap+1));
+}
+car.pace=pace;
+car.battleMode=battleMode;
+car.fuelMode=fuelMode;
+}
+}
 function makeCar(id:string,driver:string,team:string,teamColor:string,playerCar:boolean,progress:number,n:number,profile?:DriverProfile):CarState{
 const fallbackStats={pace:76+(n*7 % 13),racecraft:75+(n*5 % 15),tyreManagement:74+(n*3 % 16),consistency:75+(n*11 % 14),potential:78+(n*9 % 18)};
 const stats=profile??fallbackStats;
@@ -354,6 +429,7 @@ state.elapsedSeconds+=5;
 state.safetyCarTicks=Math.max(0,state.safetyCarTicks??0);
 state.safetyCarActive=state.safetyCarTicks>0;
 if(state.safetyCarTicks>0){state.safetyCarTicks -=1;if(state.safetyCarTicks===0){state.safetyCarActive=false;addEvent(state,"Race control: safety car in this lap. Racing resumes.","warning");}}
+updateRivalStrategy(state);
 const oldOrder=[...state.cars].sort((a,b)=>b.progress - a.progress);
 const oldPositions=new Map(oldOrder.map((car,index)=>[car.id,index]));
 const oldLap=state.lap;
@@ -370,7 +446,7 @@ const consistencyNoise=1+(80 - car.driverConsistency)*0.012;
 const nemesisConsistencyPenalty=car.playerCar&&state.mode==='championship'&&state.nemesisTarget==='consistency'&&state.nemesisTeam?0.16:0;
  const noise=(random(state)- 0.5)*(0.85+nemesisConsistencyPenalty)*consistencyNoise;
 const racecraftBonus=(car.driverRacecraft - 80)*0.009;
-const baseRivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.991:car.rivalStyle==='aggressive-racer'?0.986:car.rivalStyle==='high-risk-attacker'?0.981:car.rivalStyle==='defensive-specialist'&&state.cars.some((other)=>other.playerCar&&Math.abs(other.progress-car.progress)<0.055)?0.99:car.rivalStyle==='development-team'&&state.weekendNumber>=8?0.988:car.rivalStyle==='opportunist'&&state.safetyCarActive?0.975:1;
+const baseRivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.997:car.rivalStyle==='aggressive-racer'?0.998:car.rivalStyle==='high-risk-attacker'?0.996:car.rivalStyle==='defensive-specialist'&&state.cars.some((other)=>other.playerCar&&Math.abs(other.progress-car.progress)<0.055)?0.998:car.rivalStyle==='development-team'&&state.weekendNumber>=8?0.997:car.rivalStyle==='opportunist'&&state.safetyCarActive?0.994:1;
  const nemesisEngaged=!car.playerCar&&state.mode==='championship'&&car.team===state.nemesisTeam;
  const nemesisPaceFactor=nemesisEngaged?(state.nemesisShowdown?0.965:state.nemesisTarget==='pace'?0.975:0.985):1;
  const nemesisCloseAttack=nemesisEngaged&&state.nemesisTarget==='racecraft'&&state.cars.some((other)=>other.playerCar&&Math.abs(other.progress-car.progress)<0.055)?0.99:1;
