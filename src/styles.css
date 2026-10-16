@@ -4054,3 +4054,33 @@ body {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Keep the remaining team budget visible in both post-race mobile tabs. */
+.intermission-budget-mobile { display: none; }
+@media (max-width: 700px) {
+  .intermission-budget-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    padding: 13px 15px;
+    border: 1px solid #5a302d;
+    border-radius: 9px;
+    background: linear-gradient(110deg, #211719, #12151c 72%);
+  }
+  .intermission-budget-mobile span {
+    color: #c1c5ce;
+    font: 800 10px var(--mono);
+    letter-spacing: .1em;
+  }
+  .intermission-budget-mobile strong {
+    color: #fff;
+    font: 800 18px var(--mono);
+    white-space: nowrap;
+  }
+  .mobile-intermission-scenario .career-intermission-content > :not(.paddock-event-panel):not(.intermission-budget-mobile) {
+    display: none !important;
+  }
+}
