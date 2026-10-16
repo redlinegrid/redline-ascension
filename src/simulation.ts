@@ -229,6 +229,7 @@ events:RaceEvent[];
 cash:number;
 crashContract?:CrashContractId;
 lastRepairBill?:number;
+lastCrashContract?:CrashContractId;
 lastInsurancePayout?:number;
 lastContractPremium?:number;
 upgradeLevel:number;
@@ -628,6 +629,7 @@ const insurancePayout=contract.id==="shared-cover"?Math.round(repairBill*0.45):c
 const contractPremium=contract.premium;
 const teamRepairCost=Math.max(0,repairBill-insurancePayout);
 state.lastRepairBill=repairBill;
+state.lastCrashContract=contract.id;
 state.lastInsurancePayout=insurancePayout;
 state.lastContractPremium=contractPremium;
 state.cash+=payout+sponsorBonus-teamRepairCost-contractPremium;
