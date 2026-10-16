@@ -331,6 +331,16 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
   const visibleTurns = turnMarkers.filter((turn) => selectedSector === "ALL" || turn.sector === selectedSector);
   const sectorCars = [...cars].filter((car) => selectedSector === "ALL" || Math.min(3, Math.floor((((car.progress % 1) + 1) % 1) * 3) + 1) === selectedSector).sort((a, b) => b.progress - a.progress);
   const fastestLastLap = cars.filter((car) => car.lastLap > 0 && !car.finished).reduce((best, car) => Math.min(best, car.lastLap), Infinity);
+  const battleWatch = useMemo(() => {
+    const runningCars = [...cars].filter((car) => !car.finished).sort((a, b) => b.progress - a.progress);
+    return runningCars.slice(0, -1).map((car, index) => {
+      const ahead = car;
+      const behind = runningCars[index + 1];
+      const gapLaps = Math.max(0, ahead.progress - behind.progress);
+      const gapPercent = gapLaps * 100;
+      return { ahead, behind, gapLaps, gapPercent, playerInvolved: ahead.playerCar || behind.playerCar };
+    }).sort((a, b) => a.gapLaps - b.gapLaps).slice(0, 3);
+  }, [cars]);
   return <div className="circuit-wrap circuit-theme">
     <div className="circuit-hud"><span><i /> CIRCUIT TELEMETRY</span><b>SEED {circuitSeed.toString(16).toUpperCase().padStart(6, "0").slice(-6)}</b></div>
     <svg viewBox="0 0 380 220" role="img" aria-label={"Live circuit map for " + circuitName}>
@@ -374,6 +384,18 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       <div className="sector-tabs">
         {(["ALL", 1, 2, 3] as const).map((sector) => <button key={String(sector)} type="button" className={selectedSector === sector ? "sector-tab active" : "sector-tab"} aria-pressed={selectedSector === sector} onClick={() => { setSelectedSector(sector); setSelectedTurn(null); }}>{sector === "ALL" ? "FULL CIRCUIT" : "SECTOR " + sector}</button>)}
       </div>
+      <section className="circuit-battle-watch" aria-label="Closest battles on track">
+        <div className="circuit-battle-heading"><span className="circuit-panel-kicker">BATTLE WATCH</span><small>SMALLEST GAPS · LIVE ORDER</small></div>
+        {battleWatch.length ? <div className="circuit-battle-list">
+          {battleWatch.map((battle, index) => <div key={battle.ahead.id + "-" + battle.behind.id} className={"circuit-battle-row" + (battle.playerInvolved ? " player-battle" : "")}>
+            <b>0{index + 1}</b>
+            <span className="battle-driver"><i style={{ background: battle.ahead.teamColor }} />{battle.ahead.driver}<small>P{Math.max(1, cars.slice().sort((a, b) => b.progress - a.progress).findIndex((car) => car.id === battle.ahead.id) + 1)}</small></span>
+            <span className="battle-gap">{battle.gapPercent < 0.01 ? "SIDE BY SIDE" : (battle.gapPercent * 1000).toFixed(0) + " m"}<small>{battle.gapPercent < 1.5 ? "ATTACK RANGE" : "GAP"}</small></span>
+            <span className="battle-driver"><i style={{ background: battle.behind.teamColor }} />{battle.behind.driver}<small>P{Math.max(1, cars.slice().sort((a, b) => b.progress - a.progress).findIndex((car) => car.id === battle.behind.id) + 1)}</small></span>
+          </div>)}
+        </div> : <p className="circuit-empty">No active battles to track.</p>}
+        <p className="circuit-timing-note">Gap is estimated from lap progress, not a measured distance or guaranteed overtake.</p>
+      </section>
       <div className="circuit-detail-grid">
         <section className="circuit-detail-panel">
           <div className="circuit-panel-kicker">CORNER-BY-CORNER</div>
