@@ -1614,6 +1614,18 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .circuit-battle-row.player-battle .battle-gap{color:#ff756b}
 @media(max-width:760px){.circuit-battle-list{grid-template-columns:1fr}.circuit-battle-row{grid-template-columns:18px minmax(0,1fr) auto minmax(0,1fr)}.battle-driver{font-size:8px}.circuit-battle-heading>small{font-size:6px}}
 
+/* Circuit map: estimated corners that may offer setup or driving-time gains */
+.circuit-time-gain{border:1px solid #252b36;background:linear-gradient(115deg,#101018,#0b0e14);padding:11px;margin:0 0 10px;position:relative;z-index:1}
+.circuit-time-gain-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.circuit-time-gain-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:7px;min-width:0;padding:9px 7px;background:#080a0e;border:1px solid #302735}
+.circuit-time-gain-row>b{color:#8d7da0;font:8px var(--mono)}
+.circuit-time-gain-row>span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.circuit-time-gain-row strong{font:700 8px var(--mono);color:#e7d8ff}
+.circuit-time-gain-row small{font:7px var(--mono);color:#8d96a5}
+.circuit-time-gain-row em{font:700 9px var(--mono);color:#d8b4fe;font-style:normal;white-space:nowrap}
+@media(max-width:760px){.circuit-time-gain-list{grid-template-columns:1fr}.circuit-time-gain-row{padding:8px}}
+@media(prefers-reduced-motion:reduce){.circuit-time-gain-row{transition:none}}
+
 /* Circuit map: persistent team markers and proximity-highlighted rivals */
 .circuit-theme .track-car{pointer-events:none}
 .circuit-theme .track-car-halo{vector-effect:non-scaling-stroke}
