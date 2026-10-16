@@ -1848,3 +1848,8 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @media (prefers-reduced-motion: reduce) {
   .mobile-play-dock * { scroll-behavior: auto !important; }
 }
+
+@media (max-width: 760px) {
+  .app-shell .top-status { font-size: 0; }
+  .app-shell .top-status .save-transfer-trigger { font-size: 7px; }
+}
