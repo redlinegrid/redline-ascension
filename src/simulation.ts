@@ -546,7 +546,7 @@ return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+consistencyRis
 const risks=runningCars.filter((car)=>(car.incidentCooldown??0)<=0).map((car)=>({car,risk:incidentRisk(car)*(car.playerCar?1.8:1)}));
 const highestRisk=risks.reduce((highest,item)=>Math.max(highest,item.risk),0);
 const incidentChance=Math.min(0.009,0.0035+Math.max(0,highestRisk-1)*0.0024);
-if(runningCars.length>0&&random(state)<incidentChance){
+if(risks.length>0&&random(state)<incidentChance){
 const totalWeight=risks.reduce((sum,item)=>sum+item.risk,0);
 let ticket=random(state)*totalWeight;
 let selected=risks[risks.length-1];
