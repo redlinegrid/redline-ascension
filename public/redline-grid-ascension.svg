@@ -1,16 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 260" role="img" aria-labelledby="title desc">
-<title id="title">Redline Ascension</title><desc id="desc">A distinct red and silver apex-chevron racing emblem above REDLINE ASCENSION.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+<title id="title">Redline Ascension racing mark</title>
+<desc id="desc">A compact, angular red and silver racing chevron.</desc>
 <defs>
-<linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff5059"/><stop offset="1" stop-color="#d70e27"/></linearGradient>
-<linearGradient id="s" x1="0" y1="0" x2="0.2" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#aeb4bf"/></linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff5963"/><stop offset="1" stop-color="#d80d28"/></linearGradient>
+  <linearGradient id="silver" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#f7f8fa"/><stop offset="1" stop-color="#8e96a4"/></linearGradient>
 </defs>
-<g transform="translate(0 1)">
-<path fill="url(#r)" d="M184 19h53l-36 59h-53zM246 19h53l-36 59h-53zM308 19h53l-36 59h-53zM149 80h53l-36 59h-53zM211 80h53l-36 59h-53zM273 80h53l-36 59h-53z"/>
-<path fill="url(#r)" d="M181 146 252 27h43l-71 119z"/>
-<path fill="url(#s)" d="M310 26h118l-35 58H342l-37 61h-53z"/>
-<path fill="url(#s)" d="M304 99h51l64 47h-63z"/>
-<path fill="url(#r)" d="M356 99h45l-34 47h-47z"/>
-</g>
-<text x="310" y="211" text-anchor="middle" fill="#f2f3f6" font-family="Arial,Helvetica,sans-serif" font-size="42" font-weight="600" letter-spacing="9">REDLINE</text>
-<text x="310" y="251" text-anchor="middle" fill="#ed2637" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="700" letter-spacing="12">ASCENSION</text>
+<path fill="url(#red)" d="M8 18h21L16 39H0zM35 18h21L43 39H22zM62 18h21L70 39H49z"/>
+<path fill="url(#red)" d="M9 45h21L17 66H0zM36 45h21L44 66H23z"/>
+<path fill="url(#silver)" d="M66 42h25L63 84H38l12-21h14z"/>
+<path fill="url(#silver)" d="M55 45h19L52 83H33z"/>
+<path fill="url(#red)" d="M72 45h20L66 83H47z"/>
+<path fill="#f4f5f7" opacity=".92" d="M20 75h17l-7 10H13z"/>
 </svg>
