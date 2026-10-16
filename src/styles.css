@@ -3475,3 +3475,18 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     padding:22px 18px;
   }
 }
+
+
+/* Product identity: keep the roguelite premise clear and the credit at the true bottom. */
+.start-screen{padding-bottom:calc(42px + env(safe-area-inset-bottom))}
+.start-screen:after{content:"REDLINE ASCENSION  /  ROGUELITE MOTORSPORTS MANAGEMENT  ·  POWERED BY REDLINE GRID";position:fixed;z-index:1002;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center;color:#696b74;font:8px var(--mono);letter-spacing:.9px;line-height:1.5;pointer-events:none}
+.start-screen-footnote{max-width:440px;text-transform:uppercase}
+.footer{align-items:center;flex-wrap:wrap;padding-bottom:calc(27px + env(safe-area-inset-bottom))}
+.footer strong{font-weight:700;color:#a7a8af}
+@media(max-width:760px){
+ .start-screen:after{font-size:7px;letter-spacing:.35px;bottom:calc(8px + env(safe-area-inset-bottom))}
+ .start-screen-content{padding-bottom:calc(76px + env(safe-area-inset-bottom));min-height:100dvh}
+ .start-screen-footnote{font-size:7px;line-height:1.6}
+ .footer{gap:8px;flex-direction:column;align-items:flex-start;padding:18px 0 calc(94px + env(safe-area-inset-bottom))}
+ .footer span{line-height:1.6}
+}
