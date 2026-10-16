@@ -533,6 +533,7 @@ let selected=risks[risks.length-1];
 for(const item of risks){ticket-=item.risk;if(ticket<=0){selected=item;break;}}
 const candidate=selected.car;
 const risk=selected.risk;
+const incidentCause=candidate.tyreWear>0.8?"on heavily worn tyres":state.weekendEffect==="wet-unprepared"?"in difficult wet conditions":candidate.pace==="PUSH"||candidate.battleMode==="OVERTAKE"?"while pushing or fighting for position":candidate.condition<70?"after repeated component stress":"after losing control";
 state.incidentCount=(state.incidentCount??0)+1;
 const reliabilityProtection=candidate.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):candidate.rivalStyle==="reliability-leader"?0.28:0;
 const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
@@ -557,7 +558,7 @@ candidate.pitDelay=Math.max(candidate.pitDelay,3);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
-addEvent(state,"MAJOR INCIDENT — "+candidate.driver+" makes contact while pushing or fighting for position. Heavy damage forces an unscheduled repair stop and costs track position.","warning");
+addEvent(state,"MAJOR INCIDENT — "+candidate.driver+" makes contact "+incidentCause+". Heavy damage forces an unscheduled repair stop and costs track position.","warning");
 }else if(roll<mechanicalLimit){
 seriousIncident=true;
 const hit=damage(27+Math.floor(random(state)*14));
