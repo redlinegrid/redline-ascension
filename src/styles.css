@@ -1442,3 +1442,6 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* Brand lockup matches the Redline Grid Ascension identity. */
 .brand-text>span{color:#f02a37;letter-spacing:.32em;font-size:8px;font-weight:700;margin-top:0}.start-brand-lockup>small{color:#f02a37;letter-spacing:.42em;font-weight:700}
+
+/* Use the supplied Redline Grid Ascension identity as one complete logo lockup. */
+.redline-logo-lockup{display:block;object-fit:contain;flex:none}.redline-logo-header{width:190px;height:80px;max-width:100%}.redline-logo-start{width:min(360px,100%);height:auto;max-height:150px}.start-screen-brand{display:flex;align-items:center;justify-content:flex-start;gap:0}.brand{min-width:190px;gap:0}@media(max-width:760px){.redline-logo-header{width:155px;height:65px}.redline-logo-start{width:min(320px,100%);max-height:135px}.brand{min-width:0}}
