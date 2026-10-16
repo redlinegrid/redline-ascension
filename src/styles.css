@@ -4091,3 +4091,95 @@ body {
     display: flex !important;
   }
 }
+
+
+/* Refine the two post-race screens: less repeated heading space, clearer scenario and upgrade hierarchy. */
+.mobile-intermission-upgrade .career-intermission-content > h1 {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  .mobile-intermission-scenario .career-intermission-content {
+    margin-top: 12px;
+  }
+  .mobile-intermission-scenario .intermission-budget-mobile {
+    margin-bottom: 10px;
+    padding: 11px 13px;
+  }
+  .mobile-intermission-scenario .paddock-event-panel {
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .mobile-intermission-scenario .paddock-event-top h2 {
+    margin-top: 5px;
+    font-size: 20px;
+  }
+  .mobile-intermission-scenario .paddock-event-source {
+    margin-top: 12px;
+    font-size: 9px;
+    line-height: 1.45;
+  }
+  .mobile-intermission-scenario .paddock-event-story {
+    margin: 10px 0 14px;
+    font-size: 12px;
+  }
+  .mobile-intermission-scenario .paddock-choice-grid {
+    margin-top: 12px;
+    gap: 8px;
+  }
+  .mobile-intermission-scenario .paddock-choice {
+    gap: 7px;
+    border-radius: 9px;
+    padding: 11px;
+  }
+  .mobile-intermission-scenario .paddock-choice small {
+    padding-top: 5px;
+    border-top: 1px solid #2d3038;
+  }
+  .mobile-intermission-upgrade .career-intermission-content {
+    margin-top: 12px;
+  }
+  .mobile-intermission-upgrade .career-intermission-content > .section-kicker {
+    margin-bottom: 8px;
+    font-size: 8px;
+    line-height: 1.4;
+  }
+  .mobile-intermission-upgrade .intermission-budget-mobile {
+    margin: 0 0 12px;
+    padding: 11px 13px;
+  }
+  .mobile-intermission-upgrade .intermission-section-heading {
+    align-items: center;
+    margin: 12px 0 8px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #292e38;
+  }
+  .mobile-intermission-upgrade .intermission-section-heading h2 {
+    margin-top: 3px;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+  .mobile-intermission-upgrade .draft-reroll-control .secondary-button {
+    min-height: 34px;
+    padding: 8px 9px;
+  }
+  .mobile-intermission-upgrade .intermission-upgrade-grid .rogue-card {
+    border-radius: 9px;
+    padding: 9px;
+    gap: 5px;
+  }
+  .mobile-intermission-upgrade .intermission-upgrade-grid .rogue-card > strong {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .mobile-intermission-upgrade .intermission-upgrade-grid .rogue-card > p {
+    font-size: 9px;
+    line-height: 1.35;
+  }
+  .mobile-intermission-upgrade .mobile-upgrade-detail {
+    margin-top: 4px;
+    border-radius: 10px;
+  }
+  .mobile-intermission-upgrade .intermission-action-row {
+    border-radius: 10px;
+  }
+}
