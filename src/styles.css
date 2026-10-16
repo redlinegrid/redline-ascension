@@ -2549,3 +2549,105 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     font-size:5px;
   }
 }
+
+
+/* Final mobile top-bar correction: fixed two-sided layout, no squeezed metadata. */
+@media(max-width:760px){
+  .app-shell>.topbar{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    width:100%;
+    min-width:0;
+    height:52px!important;
+    gap:10px!important;
+    padding:0!important;
+    overflow:hidden;
+  }
+  .app-shell>.topbar>.brand{
+    display:flex!important;
+    flex:1 1 auto!important;
+    align-items:center!important;
+    min-width:0!important;
+    width:auto;
+    gap:7px!important;
+    overflow:hidden;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-icon-header{
+    display:block;
+    flex:0 0 28px;
+    width:28px!important;
+    height:28px!important;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-copy{
+    display:block;
+    flex:1 1 auto;
+    min-width:0;
+    overflow:hidden;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-copy strong{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:12px!important;
+    line-height:1.15;
+    letter-spacing:.45px!important;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-copy>span{
+    display:none!important;
+  }
+  .app-shell>.topbar>.top-status{
+    display:flex!important;
+    flex:0 0 auto!important;
+    align-items:center;
+    min-width:0;
+    width:auto;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  .app-shell>.topbar>.top-status .save-transfer-trigger:not(.codex-header-trigger){
+    display:inline-flex!important;
+    flex:0 0 auto;
+    align-items:center;
+    justify-content:center;
+    min-height:31px;
+    min-width:48px;
+    margin:0!important;
+    padding:6px 9px!important;
+    border-radius:5px;
+    font-size:0!important;
+    line-height:1;
+    letter-spacing:0!important;
+    white-space:nowrap;
+  }
+  .app-shell>.topbar>.top-status .save-transfer-trigger:not(.codex-header-trigger)::after{
+    content:"SAVE";
+    font:800 8px var(--mono);
+    letter-spacing:.08em;
+  }
+}
+@media(max-width:390px){
+  .app-shell>.topbar{
+    gap:7px!important;
+  }
+  .app-shell>.topbar>.brand{
+    gap:6px!important;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-icon-header{
+    flex-basis:25px;
+    width:25px!important;
+    height:25px!important;
+  }
+  .app-shell>.topbar>.brand .brand-lockup-copy strong{
+    font-size:11px!important;
+    letter-spacing:.25px!important;
+  }
+  .app-shell>.topbar>.top-status .save-transfer-trigger:not(.codex-header-trigger){
+    min-width:44px;
+    min-height:29px;
+    padding:5px 7px!important;
+  }
+}
