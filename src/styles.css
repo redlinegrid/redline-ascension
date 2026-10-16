@@ -3430,3 +3430,28 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .start-screen-content[data-onboarding-step="home"] .research-lab-panel{display:none!important}
   .start-screen-content[data-onboarding-step="home"] .start-screen-footnote{margin-top:12px}
 }
+
+/* Keep menu actions on the home screen; mode selection is the next onboarding step. */
+.start-screen-content[data-onboarding-step="mode"] .start-menu-actions{display:none!important}
+.start-screen-content[data-onboarding-step="home"] .start-menu-actions{display:flex}
+@media(max-width:760px){
+  .start-screen-content[data-onboarding-step="mode"] .mode-next{
+    align-items:stretch;
+    flex-direction:column;
+    gap:9px;
+  }
+  .start-screen-content[data-onboarding-step="mode"] .mode-next>div{
+    display:grid;
+    grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+    width:100%;
+    gap:8px;
+  }
+  .start-screen-content[data-onboarding-step="mode"] .mode-next .primary-button,
+  .start-screen-content[data-onboarding-step="mode"] .mode-next .secondary-button{
+    min-height:44px;
+    padding:10px 8px;
+    font-size:8px;
+    line-height:1.35;
+    justify-content:center;
+  }
+}
