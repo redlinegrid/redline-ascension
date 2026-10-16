@@ -202,6 +202,7 @@ lastLap:number;
 bestLap:number;
 finishTime:number|null;
 finished:boolean;
+incidentCooldown?:number;
 }
 export interface RaceEvent{id:number;lap:number;message:string;kind:"info"|"pit"|"battle"|"warning"|"finish";}
 export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";}
@@ -448,6 +449,7 @@ const oldPositions=new Map(oldOrder.map((car,index)=>[car.id,index]));
 const oldLap=state.lap;
 for(const car of state.cars){
 if(car.finished)continue;
+if((car.incidentCooldown??0)>0)car.incidentCooldown=Math.max(0,(car.incidentCooldown??0)-1);
 if(car.pitDelay>0){car.pitDelay -=1;car.fuel=Math.max(0,car.fuel - 0.08);continue;}
 const tyrePenalty=car.tyreWear>0.82?(car.tyreWear - 0.82)*13:car.tyreWear>0.58?(car.tyreWear - 0.58)*5:0;
 const fuelPenalty=car.fuel<8?2.4:(100 - car.fuel)*0.009;
@@ -523,20 +525,25 @@ const runningCars=state.cars.filter((car)=>!car.finished);
 const incidentRisk=(car:CarState)=>{
 const traits=car.playerCar?(state.buildTraits??[]):[];
 const nearby=runningCars.some((other)=>other.id!==car.id&&Math.abs(other.progress-car.progress)<0.055);
+const inBattle=nearby&&(car.battleMode==="OVERTAKE"||car.battleMode==="DEFEND");
 const wearRisk=car.tyreWear>0.85?0.5:car.tyreWear>0.65?0.28:0;
 const conditionRisk=car.condition<45?0.65:car.condition<70?0.32:0;
-const paceRisk=car.pace==="PUSH"?0.3:0;
-const battleRisk=car.battleMode==="OVERTAKE"?0.38:0;
-const driverRisk=Math.max(0,(78-car.driverConsistency)*0.012);
-const racecraftProtection=Math.max(0,(car.driverRacecraft-80)*0.008);
+const paceRisk=car.pace==="PUSH"?0.3:car.pace==="CONSERVE"?-0.08:0;
+// Aggressive overtakes are dangerous mainly when there is another car to fight.
+const battleRisk=car.battleMode==="OVERTAKE"?(nearby?0.55:0.22):car.battleMode==="DEFEND"&&nearby?0.18:0;
+const consistencyRisk=Math.max(-0.22,Math.min(0.5,(82-car.driverConsistency)*0.012));
+const racecraftRisk=nearby?Math.max(-0.22,Math.min(0.45,(82-car.driverRacecraft)*0.012)):Math.max(-0.12,Math.min(0.18,(70-car.driverRacecraft)*0.004));
+const tyreCareRisk=car.tyreWear>0.6?Math.max(-0.1,Math.min(0.18,(82-car.driverTyreManagement)*0.005)):0;
 const weatherRisk=state.weekendEffect==="wet-unprepared"?0.3:0;
 const partsRisk=state.weekendEffect==="parts-shortage"?0.18:0;
 const buildRisk=traits.includes("risk-reward")?0.48:traits.includes("reliability-first")?-0.3:0;
+const styleRisk=car.rivalStyle==="high-risk-attacker"?0.3:car.rivalStyle==="aggressive-racer"?0.2:car.rivalStyle==="reliability-leader"?-0.2:0;
 const reliabilityProtection=car.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):car.rivalStyle==="reliability-leader"?0.28:0;
-return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+driverRisk+(nearby?0.28:0)+weatherRisk+partsRisk+buildRisk-racecraftProtection-reliabilityProtection);
+return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+consistencyRisk+racecraftRisk+tyreCareRisk+(nearby?0.18:0)+(inBattle?0.1:0)+weatherRisk+partsRisk+buildRisk+styleRisk-reliabilityProtection);
 };
-// Give the player's two cars a modest visibility boost so incidents can affect the player, not only the AI field.
-const risks=runningCars.map((car)=>({car,risk:incidentRisk(car)*(car.playerCar?1.8:1)}));
+// A short recovery window stops one unlucky car suffering repeated incidents on consecutive simulation ticks.
+// Driver skill, tyre care, weather, condition, traffic and the selected race modes all affect incident exposure.
+const risks=runningCars.filter((car)=>(car.incidentCooldown??0)<=0).map((car)=>({car,risk:incidentRisk(car)*(car.playerCar?1.8:1)}));
 const highestRisk=risks.reduce((highest,item)=>Math.max(highest,item.risk),0);
 const incidentChance=Math.min(0.009,0.0035+Math.max(0,highestRisk-1)*0.0024);
 if(runningCars.length>0&&random(state)<incidentChance){
@@ -547,22 +554,24 @@ for(const item of risks){ticket-=item.risk;if(ticket<=0){selected=item;break;}}
 const candidate=selected.car;
 const risk=selected.risk;
 const inTraffic=runningCars.some((other)=>other.id!==candidate.id&&Math.abs(other.progress-candidate.progress)<0.055);
-const incidentCause=state.weekendEffect==="wet-unprepared"?"in the slippery conditions":candidate.tyreWear>0.8?"on badly worn tyres":candidate.battleMode==="OVERTAKE"&&inTraffic?"while misjudging an overtaking gap":candidate.pace==="PUSH"?"after braking too late while pushing":inTraffic?"in a wheel-to-wheel battle":candidate.driverConsistency<75?"after a concentration error":"after losing control";
+const incidentCause=state.weekendEffect==="wet-unprepared"?"in the slippery conditions":candidate.tyreWear>0.8?"on badly worn tyres":candidate.battleMode==="OVERTAKE"&&inTraffic&&candidate.driverRacecraft<82?"after misjudging an overtaking gap":candidate.pace==="PUSH"?"after braking too late while pushing":inTraffic&&candidate.driverRacecraft<75?"after losing a wheel-to-wheel battle":candidate.driverConsistency<75?"after a concentration error":candidate.battleMode==="OVERTAKE"&&inTraffic?"while fighting for position":"after losing control";
 state.incidentCount=(state.incidentCount??0)+1;
 const reliabilityProtection=candidate.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):candidate.rivalStyle==="reliability-leader"?0.28:0;
 const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
 const weekendDamageFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.35:1;
 const damage=(base:number)=>Math.max(2,Math.round(base*(1-reliabilityProtection)*traitDamageFactor*weekendDamageFactor));
 const roll=random(state);
-const minorLimit=Math.max(0.32,0.54-Math.max(0,risk-1)*0.08);
-const majorLimit=Math.max(minorLimit+0.18,0.84-Math.max(0,risk-1)*0.04);
-const mechanicalLimit=Math.max(majorLimit+0.1,0.97-Math.max(0,risk-1)*0.015);
+const riskPressure=Math.max(-0.5,Math.min(1.8,risk-1));
+const minorLimit=Math.max(0.34,Math.min(0.64,0.56-riskPressure*0.075));
+const majorLimit=Math.max(minorLimit+0.16,Math.min(0.91,0.84-riskPressure*0.045));
+const mechanicalLimit=Math.max(majorLimit+0.06,Math.min(0.985,0.975-riskPressure*0.03));
 let seriousIncident=false;
 if(roll<minorLimit){
 const hit=damage(8+Math.floor(random(state)*6));
 candidate.condition=Math.max(35,candidate.condition-hit);
 candidate.progress=Math.max(0,candidate.progress-0.03);
-addEvent(state,"DRIVER ERROR — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" locks up and runs wide "+incidentCause+". The floor is damaged, costing pace and increasing the repair bill.","warning");
+candidate.incidentCooldown=5;
+addEvent(state,"DRIVER ERROR — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" locks up and runs wide "+incidentCause+". Minor floor damage costs time and adds to the repair bill.","warning");
 }else if(roll<majorLimit){
 seriousIncident=true;
 const hit=damage(17+Math.floor(random(state)*10));
@@ -572,7 +581,8 @@ candidate.pitDelay=Math.max(candidate.pitDelay,3);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
-addEvent(state,"CRASH — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+(candidate.battleMode==="OVERTAKE"||inTraffic?" misjudges the battle and collides with a rival ":" loses control ")+incidentCause+". Heavy damage forces an unscheduled repair stop and costs track position.","warning");
+candidate.incidentCooldown=9;
+addEvent(state,"CRASH — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+(candidate.battleMode==="OVERTAKE"||inTraffic?" misjudges the battle and collides with a rival ":" loses control ")+incidentCause+". Heavy damage forces an unscheduled repair stop, costs track position and raises the repair bill.","warning");
 }else if(roll<mechanicalLimit){
 seriousIncident=true;
 const hit=damage(27+Math.floor(random(state)*14));
@@ -582,6 +592,7 @@ candidate.pitDelay=Math.max(candidate.pitDelay,4);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
+candidate.incidentCooldown=12;
 addEvent(state,"MECHANICAL DAMAGE — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" suffers a component failure after sustained stress. Severe damage triggers a long unscheduled pit stop and lost positions.","warning");
 }else{
 seriousIncident=true;
