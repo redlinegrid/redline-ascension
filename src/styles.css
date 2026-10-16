@@ -1613,3 +1613,14 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .circuit-battle-row.player-battle{border-color:#71312e;background:#1b1012}
 .circuit-battle-row.player-battle .battle-gap{color:#ff756b}
 @media(max-width:760px){.circuit-battle-list{grid-template-columns:1fr}.circuit-battle-row{grid-template-columns:18px minmax(0,1fr) auto minmax(0,1fr)}.battle-driver{font-size:8px}.circuit-battle-heading>small{font-size:6px}}
+
+/* Circuit map: persistent team markers and proximity-highlighted rivals */
+.circuit-theme .track-car{pointer-events:none}
+.circuit-theme .track-car-halo{vector-effect:non-scaling-stroke}
+.circuit-theme .track-car.nearby-rival{filter:drop-shadow(0 0 2px #ffd16655)}
+.circuit-theme .track-car-label{font:700 6px var(--mono);paint-order:stroke;stroke:#07090d;stroke-width:2px;stroke-linejoin:round;fill:#f8fafc}
+.circuit-theme .team-car-label{fill:#fff}
+.circuit-theme .rival-car-label{fill:#ffe3a0;font-size:5.6px}
+.circuit-theme .map-threat-key{color:#e8d3a0}
+.circuit-theme .map-threat-key>i{display:inline-block;width:7px;height:7px;border:1.5px solid #ffd166;border-radius:50%;margin-right:4px;vertical-align:middle}
+@media(prefers-reduced-motion:reduce){.circuit-theme .track-car.nearby-rival{filter:none}}
