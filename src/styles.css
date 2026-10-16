@@ -1853,3 +1853,80 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .app-shell .top-status { font-size: 0; }
   .app-shell .top-status .save-transfer-trigger { font-size: 7px; }
 }
+
+
+/* Mobile post-race upgrade draft: browse offers horizontally and keep each choice compact. */
+@media (max-width: 700px) {
+  .career-intermission-screen {
+    padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
+  }
+  .career-intermission-topline {
+    position: sticky;
+    top: -10px;
+    z-index: 20;
+    margin: -10px -12px 0;
+    padding: 10px 12px;
+    background: rgba(9, 11, 16, .97);
+    backdrop-filter: blur(12px);
+  }
+  .career-intermission-content { margin-top: 14px; }
+  .career-intermission-content > .section-kicker { font-size: 8px; letter-spacing: .1em; }
+  .career-intermission-content > h1 { font-size: 30px; margin: 6px 0; }
+  .career-intermission-intro { font-size: 11px; line-height: 1.45; margin-bottom: 12px; }
+  .intermission-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 10px 0 16px; }
+  .intermission-summary span { min-width: 0; padding: 8px 9px; font-size: 8px; }
+  .intermission-summary b { font-size: 12px; margin-top: 3px; }
+  .intermission-section-heading { flex-direction: row; align-items: center; gap: 8px; margin: 16px 0 10px; }
+  .intermission-section-heading h2 { font-size: 18px; }
+  .intermission-section-heading span, .intermission-section-heading small { font-size: 8px; }
+  .draft-reroll-control { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .draft-reroll-control .secondary-button { padding: 8px 9px; font-size: 8px; white-space: nowrap; }
+  .intermission-upgrade-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 84%);
+    grid-template-columns: none;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 12px;
+    margin: 0 -2px;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .intermission-upgrade-grid .rogue-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    scroll-snap-align: start;
+    padding: 12px;
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 9px;
+  }
+  .intermission-upgrade-grid .rogue-card-top { grid-column: 1 / -1; margin-bottom: 3px; }
+  .intermission-upgrade-grid .rogue-card-art { grid-column: 1; grid-row: 2 / span 3; width: 34px; height: 34px; }
+  .intermission-upgrade-grid .rogue-card-subtitle { grid-column: 2; margin: 0 0 4px; font-size: 8px; line-height: 1.35; }
+  .intermission-upgrade-grid .rogue-card > strong { grid-column: 2; font-size: 15px; line-height: 1.2; }
+  .intermission-upgrade-grid .rogue-card > p { grid-column: 2; font-size: 10px; line-height: 1.4; margin: 5px 0 7px; }
+  .intermission-upgrade-grid .rogue-card-effect,
+  .intermission-upgrade-grid .evolution-combo-hint,
+  .intermission-upgrade-grid .rogue-card-pick { grid-column: 1 / -1; font-size: 8px; line-height: 1.35; }
+  .intermission-upgrade-grid .rogue-card-effect { margin-top: 6px; padding-top: 7px; }
+  .intermission-upgrade-grid .evolution-combo-hint { margin-top: 5px; }
+  .intermission-upgrade-grid .rogue-card-pick { margin-top: 7px; padding-top: 7px; }
+  .intermission-action-row { gap: 10px; padding: 12px; margin-top: 8px; }
+  .intermission-action-row strong { font-size: 15px; }
+  .intermission-action-row p { font-size: 10px; line-height: 1.4; }
+  .intermission-action-row .primary-button,
+  .intermission-bottom-row .primary-button { min-height: 44px; }
+  .intermission-research-locked { margin-top: 12px; }
+  .intermission-bottom-row { gap: 10px; margin-top: 14px; padding-top: 14px; }
+  .intermission-bottom-row > span { font-size: 8px; }
+}
+@media (max-width: 390px) {
+  .career-intermission-topline { font-size: 8px; }
+  .intermission-section-heading h2 { font-size: 16px; }
+  .intermission-upgrade-grid { grid-auto-columns: 90%; }
+}
