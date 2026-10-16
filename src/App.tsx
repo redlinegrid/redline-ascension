@@ -399,6 +399,15 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       <div className="sector-tabs">
         {(["ALL", 1, 2, 3] as const).map((sector) => <button key={String(sector)} type="button" className={selectedSector === sector ? "sector-tab active" : "sector-tab"} aria-pressed={selectedSector === sector} onClick={() => { setSelectedSector(sector); setSelectedTurn(null); }}>{sector === "ALL" ? "FULL CIRCUIT" : "SECTOR " + sector}</button>)}
       </div>
+      <section className="circuit-time-gain" aria-label="Potential time-gain zones">
+        <div className="circuit-battle-heading"><span className="circuit-panel-kicker">TIME-GAIN ZONES</span><small>ESTIMATED HIGH-LOAD CORNERS</small></div>
+        <div className="circuit-time-gain-list">
+          {[...turnMarkers].sort((a, b) => b.deflection - a.deflection).slice(0, 3).map((turn, index) => <div className="circuit-time-gain-row" key={turn.number}>
+            <b>0{index + 1}</b><span><strong>TURN {String(turn.number).padStart(2, "0")}</strong><small>SECTOR {turn.sector}</small></span><em>{Math.round(turn.deflection)}°</em>
+          </div>)}
+        </div>
+        <p className="circuit-timing-note">Focus areas are estimated from track geometry, not measured telemetry or guaranteed lap-time gains.</p>
+      </section>
       <section className="circuit-battle-watch" aria-label="Closest battles on track">
         <div className="circuit-battle-heading"><span className="circuit-panel-kicker">BATTLE WATCH</span><small>SMALLEST GAPS · LIVE ORDER</small></div>
         {battleWatch.length ? <div className="circuit-battle-list">
