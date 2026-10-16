@@ -4084,3 +4084,10 @@ body {
     display: none !important;
   }
 }
+
+/* Explicitly preserve the budget indicator in the random-scenario mobile tab. */
+@media (max-width: 700px) {
+  .mobile-intermission-scenario .career-intermission-content > .intermission-budget-mobile.intermission-budget-mobile {
+    display: flex !important;
+  }
+}
