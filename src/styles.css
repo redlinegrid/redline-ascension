@@ -3284,3 +3284,77 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     gap:7px 9px;
   }
 }
+
+
+/* Mobile Research Lab is a dedicated screen, not an expanding section. */
+.research-lab-entry-button{display:none}
+@media(max-width:760px){
+  .start-screen-content.mobile-research-screen>:not(.research-lab-panel){display:none!important}
+  .start-screen-content.mobile-research-screen .research-lab-panel.mobile-research-expanded{
+    position:fixed!important;
+    inset:env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px)!important;
+    z-index:10020!important;
+    display:block!important;
+    width:100%!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    margin:0!important;
+    padding:calc(14px + env(safe-area-inset-top, 0px)) 14px calc(24px + env(safe-area-inset-bottom, 0px))!important;
+    border:0!important;
+    border-radius:0!important;
+    background:#0b0e14!important;
+    box-shadow:none!important;
+  }
+  .start-screen-content.mobile-research-screen .research-lab-heading{
+    position:sticky;
+    top:0;
+    z-index:3;
+    margin:-2px -2px 12px;
+    padding:8px 2px 12px;
+    background:#0b0e14;
+  }
+  .start-screen-content.mobile-research-screen .research-lab-heading h2{font-size:25px}
+  .start-screen-content.mobile-research-screen .research-lab-mobile-toggle{
+    display:flex!important;
+    position:sticky;
+    top:70px;
+    z-index:4;
+    width:100%;
+    min-height:44px;
+    justify-content:center;
+    align-items:center;
+    margin:0 0 14px;
+    background:#171b24;
+  }
+  .start-screen-content.mobile-research-screen .research-lab-copy{font-size:12px;line-height:1.55}
+  .research-lab-entry-button{
+    display:flex;
+    width:100%;
+    min-height:76px;
+    align-items:center;
+    gap:13px;
+    margin:16px 0 12px;
+    padding:15px;
+    text-align:left;
+    color:#f5f6f8;
+    border:1px solid rgba(255,92,72,.42);
+    border-radius:12px;
+    background:linear-gradient(115deg,rgba(255,69,44,.13),rgba(16,19,27,.98) 70%);
+    box-shadow:0 8px 24px rgba(0,0,0,.18);
+  }
+  .research-entry-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid rgba(255,92,72,.4);border-radius:10px;color:#ff765f;font-size:23px}
+  .research-lab-entry-button>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+  .research-lab-entry-button strong{font-size:12px;letter-spacing:.08em}
+  .research-lab-entry-button small{font-size:10px;line-height:1.4;color:#a8b0bf}
+  .research-entry-arrow{font-size:21px;color:#ff765f}
+  .start-screen-content[data-onboarding-step="mode"] .research-lab-entry-button{margin-top:14px}
+  .start-screen-content[data-onboarding-step="mode"] .research-lab-panel,
+  .start-screen-content[data-onboarding-step="team"] .research-lab-panel,
+  .start-screen-content[data-onboarding-step="drivers"] .research-lab-panel{display:none!important}
+  .start-screen-content.mobile-research-screen .research-lab-panel{display:block!important}
+  .start-screen-content.mobile-research-screen .garage-perk-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px}
+  .start-screen-content.mobile-research-screen .garage-perk-card{padding:14px}
+  .start-screen-content.mobile-research-screen .research-milestone-grid{grid-template-columns:minmax(0,1fr)!important}
+}
