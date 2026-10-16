@@ -301,7 +301,20 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
   const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
   const trackPoints = useMemo(() => seededTrack(circuitSeed), [circuitSeed]);
   const trackPath = useMemo(() => smoothTrackPath(trackPoints), [trackPoints]);
-  const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints) })), [cars, trackPoints]);
+  const nearbyRivalIds = useMemo(() => {
+    const playerCars = cars.filter((car) => car.playerCar && !car.finished);
+    if (!playerCars.length) return new Set<string>();
+    const trackFraction = (progress: number) => ((progress % 1) + 1) % 1;
+    return new Set(cars.filter((car) => !car.playerCar && !car.finished).map((car) => {
+      const rivalProgress = trackFraction(car.progress);
+      const gap = Math.min(...playerCars.map((player) => {
+        const rawGap = Math.abs(rivalProgress - trackFraction(player.progress));
+        return Math.min(rawGap, 1 - rawGap);
+      }));
+      return { id: car.id, gap };
+    }).sort((a, b) => a.gap - b.gap).slice(0, 4).map((car) => car.id));
+  }, [cars]);
+  const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints), nearbyRival: nearbyRivalIds.has(car.id) })), [cars, trackPoints, nearbyRivalIds]);
   const startFinish = trackPosition(0, trackPoints);
   const sectorOne = trackPosition(1 / 3, trackPoints);
   const sectorTwo = trackPosition(2 / 3, trackPoints);
@@ -372,14 +385,16 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
         <text x="190" y="118" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
         <text x="190" y="131" textAnchor="middle" className="track-center-live">● LIVE TIMING</text>
       </g>
-      {points.map((car) => <g key={car.id}>
+      {points.map((car) => <g key={car.id} className={car.playerCar ? "track-car team-car" : car.nearbyRival ? "track-car nearby-rival" : "track-car rival-car"}>
+        {car.playerCar && <circle className="track-car-halo team-halo" cx={car.x} cy={car.y} r="9" fill="none" stroke={car.teamColor} strokeWidth="1.6" opacity=".95" />}
+        {car.nearbyRival && <circle className="track-car-halo rival-halo" cx={car.x} cy={car.y} r="7" fill="none" stroke="#ffd166" strokeWidth="1.4" opacity=".95" />}
         {car.playerCar && <circle cx={car.x} cy={car.y} r="10" fill={car.teamColor} opacity=".2" filter="url(#player-glow)" />}
         {car.playerCar && <circle cx={car.x} cy={car.y} r="7" fill={car.teamColor} opacity=".24" />}
-        <circle cx={car.x} cy={car.y} r={car.playerCar ? 4.5 : 2.8} fill={car.teamColor} stroke={car.playerCar ? "#ffffff" : "#11141a"} strokeWidth={car.playerCar ? 1.3 : .8} />
-        {car.playerCar && <text x={car.x + 8} y={car.y - 7} className="track-car-label">{car.id === "rp-1" ? "07" : "22"}</text>}
+        <circle cx={car.x} cy={car.y} r={car.playerCar ? 4.5 : car.nearbyRival ? 3.8 : 2.5} fill={car.teamColor} stroke={car.playerCar ? "#ffffff" : car.nearbyRival ? "#ffd166" : "#11141a"} strokeWidth={car.playerCar || car.nearbyRival ? 1.3 : .8} />
+        {(car.playerCar || car.nearbyRival) && <text x={car.x + 7} y={car.y - 6} className={car.playerCar ? "track-car-label team-car-label" : "track-car-label rival-car-label"}>{car.playerCar ? (car.id === "rp-1" ? "07" : "22") : car.driver.split(" ").map((part) => part[0]).join("").toUpperCase()}</text>}
       </g>)}
     </svg>
-    <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span><span><i className="dot" style={{ background: "#d8dce4" }} /> TURN NUMBERS</span></div>
+    <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span><span><i className="dot" style={{ background: "#d8dce4" }} /> TURN NUMBERS</span><span className="map-threat-key"><i /> NEAREST RIVALS</span></div>
     <div className="circuit-controls" aria-label="Circuit sector selection">
       <div className="sector-tabs">
         {(["ALL", 1, 2, 3] as const).map((sector) => <button key={String(sector)} type="button" className={selectedSector === sector ? "sector-tab active" : "sector-tab"} aria-pressed={selectedSector === sector} onClick={() => { setSelectedSector(sector); setSelectedTurn(null); }}>{sector === "ALL" ? "FULL CIRCUIT" : "SECTOR " + sector}</button>)}
