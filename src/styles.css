@@ -1439,16 +1439,3 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .market-driver-lock button{grid-column:1/-1;width:100%;padding:10px;border:1px solid #70552c;background:linear-gradient(110deg,#392b18,#252018);color:#ffcf83;font:800 8px var(--mono);letter-spacing:.07em;cursor:pointer}
 .market-driver-lock button:disabled{border-color:#343640;background:#191b21;color:#777e8c;cursor:not-allowed}
 @media(max-width:600px){.driver-market-heading{flex-direction:column}.driver-market-heading-side{align-items:flex-start}.market-driver-lock button{padding:11px}}
-
-
-/* Run mutators: one readable rule that colours an entire roguelite run. */
-.run-mutator-banner{display:grid;grid-template-columns:46px minmax(0,1fr) minmax(170px,.48fr);align-items:center;gap:16px;margin:-7px 0 20px;padding:17px 20px;border:1px solid rgba(255,72,48,.34);border-radius:12px;background:linear-gradient(105deg,rgba(255,48,24,.09),rgba(18,21,28,.96) 48%,rgba(18,21,28,.96))}
-.run-mutator-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid rgba(255,93,69,.38);border-radius:10px;background:rgba(255,54,32,.1);color:#ff7866;font-size:24px}
-.run-mutator-copy>span,.run-mutator-briefing>span{display:block;color:#ff8b75;font:800 9px var(--mono);letter-spacing:.11em}
-.run-mutator-copy>strong,.run-mutator-briefing>strong{display:block;margin-top:5px;color:#f3f5f8;font-size:16px;font-weight:800;letter-spacing:.01em}
-.run-mutator-copy>p,.run-mutator-briefing>p{margin:5px 0 0;color:#aeb7c5;font-size:11px;line-height:1.55}
-.run-mutator-effect{padding:10px 12px;border-left:1px solid rgba(255,255,255,.1);color:#f0c1b8;font:800 9px/1.6 var(--mono);letter-spacing:.04em}
-.run-mutator-briefing{margin:18px 0 22px;padding:17px 18px;border:1px solid rgba(255,72,48,.35);border-radius:12px;background:linear-gradient(110deg,rgba(255,48,24,.1),rgba(17,19,25,.95) 55%)}
-.run-mutator-briefing>small{display:block;margin-top:10px;color:#ffb6a8;font:800 9px var(--mono);letter-spacing:.06em;line-height:1.5}
-.intermission-mutator{margin:18px 0}
-@media(max-width:760px){.run-mutator-banner{grid-template-columns:36px minmax(0,1fr);gap:11px;margin:0 0 13px;padding:13px}.run-mutator-icon{width:34px;height:34px}.run-mutator-copy>strong{font-size:14px}.run-mutator-copy>p{font-size:10px}.run-mutator-effect{grid-column:2;border-left:0;border-top:1px solid rgba(255,255,255,.1);padding:9px 0 0}.run-mutator-briefing{padding:14px;margin:14px 0 18px}}

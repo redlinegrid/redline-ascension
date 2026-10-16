@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS, RUN_MUTATORS, getRunMutator } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
 const BEST_RUN_KEY = "redline-paddock-best-run-v1";
 const GARAGE_META_KEY = "redline-paddock-garage-meta-v1";
-type GarageMeta = { research: number; unlocks: string[]; rewardedRuns: string[]; rewardedMutatorRuns?: string[]; rewardedAchievements?: string[]; rewardedDiscoveries?: string[]; masteryRewards?: string[]; unlockedDriverIds?: string[]; levels: Record<string, number> };
-const EMPTY_GARAGE_META: GarageMeta = { research: 0, unlocks: [], rewardedRuns: [], rewardedMutatorRuns: [], rewardedAchievements: [], rewardedDiscoveries: [], masteryRewards: [], unlockedDriverIds: [], levels: {} };
+type GarageMeta = { research: number; unlocks: string[]; rewardedRuns: string[]; rewardedAchievements?: string[]; rewardedDiscoveries?: string[]; masteryRewards?: string[]; unlockedDriverIds?: string[]; levels: Record<string, number> };
+const EMPTY_GARAGE_META: GarageMeta = { research: 0, unlocks: [], rewardedRuns: [], rewardedAchievements: [], rewardedDiscoveries: [], masteryRewards: [], unlockedDriverIds: [], levels: {} };
 function loadGarageMeta(): GarageMeta {
   try {
     const raw = localStorage.getItem(GARAGE_META_KEY);
@@ -14,7 +14,7 @@ function loadGarageMeta(): GarageMeta {
     const parsed = JSON.parse(raw) as Partial<GarageMeta>;
     const unlocks = Array.isArray(parsed.unlocks) ? parsed.unlocks.filter((id): id is string => typeof id === "string") : [];
     const levels = parsed.levels && typeof parsed.levels === "object" ? Object.fromEntries(Object.entries(parsed.levels).map(([id, level]) => [id, Math.max(0, Math.min(5, Math.floor(Number(level) || 0)))])) : Object.fromEntries(unlocks.map((id) => [id, 1]));
-    return { research: Math.max(0, Number(parsed.research) || 0), unlocks: [...new Set([...unlocks, ...Object.keys(levels).filter((id) => (levels[id] ?? 0) > 0)])], rewardedRuns: Array.isArray(parsed.rewardedRuns) ? parsed.rewardedRuns.filter((id): id is string => typeof id === "string") : [], rewardedMutatorRuns: Array.isArray(parsed.rewardedMutatorRuns) ? parsed.rewardedMutatorRuns.filter((id): id is string => typeof id === "string") : [], rewardedAchievements: Array.isArray(parsed.rewardedAchievements) ? parsed.rewardedAchievements.filter((id): id is string => typeof id === "string") : [], rewardedDiscoveries: Array.isArray(parsed.rewardedDiscoveries) ? parsed.rewardedDiscoveries.filter((id): id is string => typeof id === "string") : [], masteryRewards: Array.isArray(parsed.masteryRewards) ? parsed.masteryRewards.filter((id): id is string => typeof id === "string") : [], unlockedDriverIds: Array.isArray(parsed.unlockedDriverIds) ? [...new Set(parsed.unlockedDriverIds.filter((id): id is string => typeof id === "string"))] : [], levels };
+    return { research: Math.max(0, Number(parsed.research) || 0), unlocks: [...new Set([...unlocks, ...Object.keys(levels).filter((id) => (levels[id] ?? 0) > 0)])], rewardedRuns: Array.isArray(parsed.rewardedRuns) ? parsed.rewardedRuns.filter((id): id is string => typeof id === "string") : [], rewardedAchievements: Array.isArray(parsed.rewardedAchievements) ? parsed.rewardedAchievements.filter((id): id is string => typeof id === "string") : [], rewardedDiscoveries: Array.isArray(parsed.rewardedDiscoveries) ? parsed.rewardedDiscoveries.filter((id): id is string => typeof id === "string") : [], masteryRewards: Array.isArray(parsed.masteryRewards) ? parsed.masteryRewards.filter((id): id is string => typeof id === "string") : [], unlockedDriverIds: Array.isArray(parsed.unlockedDriverIds) ? [...new Set(parsed.unlockedDriverIds.filter((id): id is string => typeof id === "string"))] : [], levels };
   } catch { return EMPTY_GARAGE_META; }
 }
 const GARAGE_PERKS = [
@@ -162,18 +162,6 @@ const PADDOCK_EVENT_DECK: PaddockEvent[] = [
  {id:"feud-attack",label:"Declare war on track",description:"Spend RM60,000 on a targeted performance programme. Gain a stronger pace edge over your nemesis, but push the team harder.",cashDelta:-60000,moraleDelta:2,reputationDelta:2,weekendEffect:"feud-attack"},
  {id:"feud-composed",label:"Keep the response professional",description:"A modest RM20,000 preparation cost. Give up a little peak pace for a more controlled showdown.",cashDelta:-20000,moraleDelta:3,reputationDelta:4,weekendEffect:"feud-composed"},
  {id:"feud-ignore",label:"Refuse to play their game",description:"Spend nothing and avoid the media circus, but your rival gets extra motivation.",cashDelta:0,moraleDelta:1,reputationDelta:-2,weekendEffect:"feud-composed"}]},
- {id:"weather-whiplash",category:"CHAOS WEEKEND",title:"Weather Whiplash",source:"RACE CONTROL",story:"A sudden forecast swing puts the weekend on a knife edge. Prepare the cars for wet conditions, gamble on the dry line, or pay for a flexible compromise.",choices:[
- {id:"weather-prepare",label:"Prepare for the rain",description:"Spend RM90,000 to protect pace and tyre life if conditions turn.",cashDelta:-90000,moraleDelta:2,reputationDelta:1,weekendEffect:"wet-prepared"},
- {id:"weather-gamble",label:"Stay on the dry plan",description:"Keep the cash, but a wet race could cost time.",cashDelta:0,moraleDelta:0,reputationDelta:0,weekendEffect:"wet-unprepared"},
- {id:"weather-compromise",label:"Build a flexible setup",description:"Pay RM35,000 for a balanced compromise.",cashDelta:-35000,moraleDelta:1,reputationDelta:1}]},
- {id:"parts-panic",category:"CHAOS WEEKEND",title:"Pit Lane Parts Panic",source:"CHIEF MECHANIC",story:"A late shipment has left the garage short of critical spares. Pay for emergency stock or stretch what remains and accept the reliability risk.",choices:[
- {id:"parts-airlift",label:"Airlift emergency spares",description:"Spend RM110,000 to reduce component risk this weekend.",cashDelta:-110000,moraleDelta:2,reputationDelta:1,weekendEffect:"spares-secured"},
- {id:"parts-stretch",label:"Stretch existing parts",description:"Keep the budget intact, but component wear and damage risk rise sharply.",cashDelta:0,moraleDelta:-2,reputationDelta:-1,weekendEffect:"parts-shortage"},
- {id:"parts-partner",label:"Borrow from a partner",description:"Pay RM45,000 and keep reliability neutral.",cashDelta:-45000,moraleDelta:1,reputationDelta:1}]},
- {id:"sponsor-bidding-war",category:"CHAOS WEEKEND",title:"A Sponsor Bidding War",source:"COMMERCIAL DEPARTMENT",story:"Two partners want the same branding slot before race day. You can turn the attention into a windfall, split the exposure, or reject the circus and protect team focus.",choices:[
- {id:"sponsor-auction",label:"Auction the prime slot",description:"Earn RM220,000, but the activation distracts the crew.",cashDelta:220000,moraleDelta:-2,reputationDelta:3},
- {id:"sponsor-split",label:"Split the package",description:"Earn RM120,000 while keeping both partners reasonably happy.",cashDelta:120000,moraleDelta:1,reputationDelta:2},
- {id:"sponsor-refuse",label:"Protect race preparation",description:"No payment, but the team gains focus and morale.",cashDelta:0,moraleDelta:3,reputationDelta:0}]},
 ];
 function createPaddockEvent(race: RaceState): PaddockEvent {
  const previous = race.resolvedPaddockEvents ?? [];
@@ -237,7 +225,7 @@ function loadRace(): RaceState {
       const saved = JSON.parse(raw) as RaceState;
       if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length >= 10) {
         const playerDrivers = saved.cars.filter((car) => car.playerCar).slice(0, 2);
-        const migrated: RaceState = { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }, teamMorale: saved.teamMorale ?? 62, teamReputation: saved.teamReputation ?? 45, runMutator: saved.runMutator ?? getRunMutator(saved.seed).id, pendingPaddockEvent: saved.pendingPaddockEvent ?? null, paddockEventRound: saved.paddockEventRound ?? 0, resolvedPaddockEvents: saved.resolvedPaddockEvents ?? [], driverContracts: saved.driverContracts?.length ? saved.driverContracts : playerDrivers.map((car, index) => ({ id: "driver-" + (index + 1), driverName: car.driver, salaryPerRace: driverSalary(car.driver), expiresAtRound: 10, renewed: false, loyalty: 60 })) };
+        const migrated: RaceState = { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }, teamMorale: saved.teamMorale ?? 62, teamReputation: saved.teamReputation ?? 45, pendingPaddockEvent: saved.pendingPaddockEvent ?? null, paddockEventRound: saved.paddockEventRound ?? 0, resolvedPaddockEvents: saved.resolvedPaddockEvents ?? [], driverContracts: saved.driverContracts?.length ? saved.driverContracts : playerDrivers.map((car, index) => ({ id: "driver-" + (index + 1), driverName: car.driver, salaryPerRace: driverSalary(car.driver), expiresAtRound: 10, renewed: false, loyalty: 60 })) };
         return ensureFullGrid(migrated);
       }
     }
@@ -873,14 +861,6 @@ export default function App() {
     });
   }, [race.status, race.seed, race.weekendNumber, race.cars, race.latestChampionshipAchievements, garageMeta.rewardedRuns, garageMeta.rewardedAchievements, garageMeta.levels]);
   useEffect(() => {
-    if (race.status !== "finished" || (race.mode ?? "championship") !== "championship" || race.weekendNumber < CAMPAIGN_LENGTH || !race.runMutator) return;
-    const rewardId = String(race.seed) + ":" + race.runMutator;
-    setGarageMeta((current) => {
-      if ((current.rewardedMutatorRuns ?? []).includes(rewardId)) return current;
-      return { ...current, research: current.research + 2, rewardedMutatorRuns: [...(current.rewardedMutatorRuns ?? []), rewardId].slice(-100) };
-    });
-  }, [race.status, race.mode, race.weekendNumber, race.seed, race.runMutator]);
-  useEffect(() => {
     if (race.status !== "running") return;
     const id = window.setInterval(() => setRace((current) => stepRace(current)), Math.max(120, 1000 / speed));
     return () => window.clearInterval(id);
@@ -903,7 +883,6 @@ export default function App() {
   }, [race, order]);
   const finishedCount = race.cars.filter((car) => car.finished).length;
   const modules = race.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 };
-  const runMutator = RUN_MUTATORS.find((mutator) => mutator.id === (race.runMutator ?? getRunMutator(race.seed).id)) ?? RUN_MUTATORS[0];
   const isInitialDraft = showInitialDraft;
   const discoveredTechnologyCount = codexMeta.discoveredUpgradeIds.length;
   const masteredTechnologyCount = UPGRADE_CARD_POOL.filter((card) => (codexMeta.usageCounts[card.id] ?? 0) >= 3).length;
@@ -912,7 +891,6 @@ export default function App() {
   const setStrategy = (car: CarState, patch: Partial<Pick<CarState, "pace" | "nextTyre" | "pitLap" | "battleMode" | "fuelMode">>) => setRace((current) => setDriverStrategy(current, car.id, patch));
   const createMetaCareer = (seed: number, name: string, principal: string, driverOne: string, driverTwo: string, primary = teamPrimaryColor, secondary = teamSecondaryColor, mode: GameMode = selectedMode) => {
     const fresh = createRace(seed, 0, 2500000, 1, name, driverOne, driverTwo, principal, mode);
-    fresh.runMutator = getRunMutator(seed).id;
     fresh.teamMorale = 62;
     fresh.teamReputation = 45;
     fresh.driverContracts = [driverOne, driverTwo].map((driverName, index) => ({ id: "driver-" + (index + 1), driverName, salaryPerRace: driverSalary(driverName), expiresAtRound: 10, renewed: false, loyalty: 60 }));
@@ -931,8 +909,8 @@ export default function App() {
     if (contracts.some((contract) => contract.expiresAtRound <= race.weekendNumber)) return;
     const drivers = contracts.length >= 2 ? contracts.map((contract) => contract.driverName) : [playerCars[0]?.driver ?? "Luca Moretti", playerCars[1]?.driver ?? "Emil Novak"];
     const payroll = contracts.reduce((sum, contract) => sum + contract.salaryPerRace, 0);
-    const operatingCost = Math.round((215000 + payroll + 65000) * Math.max(0.65, 1 - garageLevel(garageMeta, "repair-efficiency") * 0.015 - garageLevel(garageMeta, "factory-workflow") * 0.01 - garageLevel(garageMeta, "budget-management") * 0.015) * (race.runMutator === "budget-crunch" ? 1.15 : 1));
-    const sponsorIncome = Math.round(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800 + garageLevel(garageMeta, "sponsor-network") * 20000) * (race.runMutator === "sponsor-boom" ? 1.35 : 1));
+    const operatingCost = Math.round((215000 + payroll + 65000) * Math.max(0.65, 1 - garageLevel(garageMeta, "repair-efficiency") * 0.015 - garageLevel(garageMeta, "factory-workflow") * 0.01 - garageLevel(garageMeta, "budget-management") * 0.015));
+    const sponsorIncome = Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800 + garageLevel(garageMeta, "sponsor-network") * 20000);
     if (race.cash + sponsorIncome < operatingCost) {
       setRace((current) => ({ ...current, status: "gameover", endReason: "bankruptcy", pendingPaddockEvent: null, lastOperatingCost: operatingCost, lastSponsorIncome: sponsorIncome }));
       setShowIntermission(false);
@@ -973,7 +951,6 @@ export default function App() {
       next.nemesisShowdown = false;
     }
     next.rivalryFeudBonus = race.rivalryFeudBonus;
-    next.runMutator = race.runMutator ?? getRunMutator(race.seed).id;
     next.weekendEffect = race.nextWeekendEffect;
     next.weekendEffectTitle = race.nextWeekendEffectTitle;
     next.lastOperatingCost = operatingCost;
@@ -1070,7 +1047,7 @@ export default function App() {
       setRace(restored);
       const importedUnlocks = payload.garageMeta.unlocks.filter((id: unknown): id is string => typeof id === "string");
       const importedLevels = payload.garageMeta.levels && typeof payload.garageMeta.levels === "object" ? Object.fromEntries(Object.entries(payload.garageMeta.levels).map(([id, level]) => [id, Math.max(0, Math.min(5, Math.floor(Number(level) || 0)))])) : Object.fromEntries(importedUnlocks.map((id: string) => [id, 1]));
-      setGarageMeta({ research: Math.max(0, Number(payload.garageMeta.research) || 0), unlocks: importedUnlocks, levels: importedLevels, rewardedRuns: Array.isArray(payload.garageMeta.rewardedRuns) ? payload.garageMeta.rewardedRuns.filter((id: unknown): id is string => typeof id === "string") : [], rewardedMutatorRuns: Array.isArray(payload.garageMeta.rewardedMutatorRuns) ? payload.garageMeta.rewardedMutatorRuns.filter((id: unknown): id is string => typeof id === "string") : [], rewardedAchievements: Array.isArray(payload.garageMeta.rewardedAchievements) ? payload.garageMeta.rewardedAchievements.filter((id: unknown): id is string => typeof id === "string") : [], rewardedDiscoveries: Array.isArray(payload.garageMeta.rewardedDiscoveries) ? payload.garageMeta.rewardedDiscoveries.filter((id: unknown): id is string => typeof id === "string") : [], masteryRewards: Array.isArray(payload.garageMeta.masteryRewards) ? payload.garageMeta.masteryRewards.filter((id: unknown): id is string => typeof id === "string") : [] });
+      setGarageMeta({ research: Math.max(0, Number(payload.garageMeta.research) || 0), unlocks: importedUnlocks, levels: importedLevels, rewardedRuns: Array.isArray(payload.garageMeta.rewardedRuns) ? payload.garageMeta.rewardedRuns.filter((id: unknown): id is string => typeof id === "string") : [], rewardedAchievements: Array.isArray(payload.garageMeta.rewardedAchievements) ? payload.garageMeta.rewardedAchievements.filter((id: unknown): id is string => typeof id === "string") : [], rewardedDiscoveries: Array.isArray(payload.garageMeta.rewardedDiscoveries) ? payload.garageMeta.rewardedDiscoveries.filter((id: unknown): id is string => typeof id === "string") : [], masteryRewards: Array.isArray(payload.garageMeta.masteryRewards) ? payload.garageMeta.masteryRewards.filter((id: unknown): id is string => typeof id === "string") : [] });
       if (payload.codexMeta && Array.isArray(payload.codexMeta.discoveredUpgradeIds) && Array.isArray(payload.codexMeta.dossiers)) {
         const importedDiscoveredIds: string[] = payload.codexMeta.discoveredUpgradeIds.filter((id: unknown): id is string => typeof id === "string");
         const importedDossiers: CodexDossier[] = payload.codexMeta.dossiers.filter((item: unknown) => Boolean(item && typeof item === "object" && typeof (item as { id?: unknown }).id === "string" && Array.isArray((item as { upgrades?: unknown }).upgrades))).map((item: unknown) => { const record = item as Record<string, unknown>; return { id: String(record.id), team: typeof record.team === "string" ? record.team : "Unknown team", mode: typeof record.mode === "string" ? record.mode : "championship", round: Number(record.round) || 0, position: Number(record.position) || 0, points: Number(record.points) || 0, cash: Number(record.cash) || 0, upgrades: (record.upgrades as unknown[]).filter((id): id is string => typeof id === "string"), endedAt: typeof record.endedAt === "string" ? record.endedAt : "Imported" }; }).slice(0, 50);
@@ -1110,7 +1087,7 @@ export default function App() {
       <div className="initial-upgrade-content">
         <div className="initial-upgrade-kicker">YOUR RUN STARTS HERE · DEVELOPMENT PICK 01</div>
         <h1 id="initial-upgrade-title">Define your <em>advantage.</em></h1>
-        <p className="initial-upgrade-intro">Before the lights go out, your engineers have secured three development opportunities. Choose one permanent upgrade to shape your run. Every pick has a trade-off, and your build will evolve from here.</p><div className="run-mutator-briefing"><span>RUN MUTATOR · {runMutator.tag}</span><strong>{runMutator.title}</strong><p>{runMutator.description}</p><small>{(race.mode ?? "championship") === "championship" ? "COMPLETE ALL 20 ROUNDS FOR +2 BONUS RESEARCH POINTS." : "ENDLESS MODE · SURVIVE AS LONG AS POSSIBLE."}</small></div>
+        <p className="initial-upgrade-intro">Before the lights go out, your engineers have secured three development opportunities. Choose one permanent upgrade to shape your run. Every pick has a trade-off, and your build will evolve from here.</p>
         <div className="rogue-draft-grid initial-rogue-grid">
           {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => setSelectedDraftId(card.id)}>
             <span className="rogue-card-top"><span className="rogue-card-index">0{index + 1} / OFFER</span><b>{card.rarity}</b></span>
@@ -1131,10 +1108,10 @@ export default function App() {
         <div className="section-kicker">ENGINEERING DEPARTMENT · POST-RACE DEVELOPMENT</div>
         <h1 id="intermission-title">Build your <em>next advantage.</em></h1>
         <p className="career-intermission-intro">Review the weekend, choose one upgrade for this career, then visit the garage before heading to the next circuit.</p>
-        <div className="run-mutator-briefing intermission-mutator"><span>RUN MUTATOR · {runMutator.tag}</span><strong>{runMutator.title}</strong><p>{runMutator.description}</p><small>{(race.mode ?? "championship") === "championship" ? "FULL-SEASON CHALLENGE REWARD · +2 RP" : "ENDLESS SURVIVAL · KEEP YOUR BANKED RESEARCH"}</small></div><div className="intermission-summary"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>TEAM MORALE <b>{race.teamMorale ?? 62}/100</b></span><span>PADDOCK REPUTATION <b>{race.teamReputation ?? 45}/100</b></span><span>RESEARCH BANK <b>✦ {garageMeta.research} RP</b></span></div>
+        <div className="intermission-summary"><span>TEAM BUDGET <b>{money(race.cash)}</b></span><span>TEAM MORALE <b>{race.teamMorale ?? 62}/100</b></span><span>PADDOCK REPUTATION <b>{race.teamReputation ?? 45}/100</b></span><span>RESEARCH BANK <b>✦ {garageMeta.research} RP</b></span></div>
         {race.pendingPaddockEvent && <section className="panel paddock-event-panel" aria-label="Paddock incident"><div className="paddock-event-top"><div><div className="section-kicker">{race.pendingPaddockEvent.category} · PRE-RACE BRIEFING</div><h2>{race.pendingPaddockEvent.title}</h2></div><span className="paddock-alert-badge">PADDOCK ALERT</span></div><div className="paddock-event-source">{race.pendingPaddockEvent.source}</div><p className="paddock-event-story">{race.pendingPaddockEvent.story}</p><div className="paddock-choice-grid">{race.pendingPaddockEvent.choices.map((choice) => <button className="paddock-choice" key={choice.id} disabled={race.cash + choice.cashDelta < 0} onClick={() => resolvePaddockChoice(choice.id)}><strong>{choice.label}</strong><span>{choice.description}</span><small className={choice.cashDelta < 0 ? "paddock-cost" : choice.cashDelta > 0 ? "paddock-income" : ""}>{choice.cashDelta > 0 ? "+" : choice.cashDelta < 0 ? "−" : ""}{choice.cashDelta ? money(Math.abs(choice.cashDelta)) : "NO DIRECT COST"} · MORALE {choice.moraleDelta > 0 ? "+" : ""}{choice.moraleDelta} · REPUTATION {choice.reputationDelta > 0 ? "+" : ""}{choice.reputationDelta}</small></button>)}</div></section>}
         <section className="panel contract-desk-panel"><div className="panel-heading"><div><div className="section-kicker">TEAM MANAGEMENT · SEASON CONTRACTS</div><h2>Driver contract desk</h2></div><span className="contract-review-tag">{race.weekendNumber >= 10 ? "MID-SEASON REVIEW" : "REVIEW AT ROUND 10"}</span></div><p className="contract-desk-intro">Driver salaries are paid every race weekend. Contracts come up for renewal after Round 10. Renew to protect continuity, or terminate and recruit a replacement before the next race.</p><div className="contract-desk-grid">{(race.driverContracts ?? []).map((contract, index) => { const due = race.weekendNumber >= contract.expiresAtRound; const replacementDriver = index === 0 ? replacementDriverOne : replacementDriverTwo; const other = (race.driverContracts ?? []).find((item) => item.id !== contract.id)?.driverName; const candidates = DRIVER_MARKET.filter((driver) => driver.name !== other && (!driver.unlockCost || (garageMeta.unlockedDriverIds ?? []).includes(driver.id))); return <article className="contract-card" key={contract.id}><div className="contract-card-top"><span>DRIVER {index + 1}</span><b>{due ? "RENEWAL DUE" : contract.renewed ? "RENEWED" : "ACTIVE CONTRACT"}</b></div><h3>{contract.driverName}</h3><p>{money(contract.salaryPerRace)} <small>/ race weekend</small></p><div className="contract-progress"><span>TERM</span><strong>{due ? "REVIEW REQUIRED" : "THROUGH ROUND " + contract.expiresAtRound}</strong></div>{due && <><button className="contract-action" disabled={race.cash < 125000} onClick={() => renewDriverContract(contract.id)}>RENEW · RM125K SIGNING FEE</button><label className="contract-replacement-label">REPLACEMENT DRIVER<select value={replacementDriver} onChange={(event) => index === 0 ? setReplacementDriverOne(event.target.value) : setReplacementDriverTwo(event.target.value)}>{candidates.map((driver) => <option key={driver.id} value={driver.name}>{driver.name} · {driver.role}</option>)}</select></label><button className="contract-release-action" onClick={() => replaceDriverContract(contract.id, replacementDriver)}>TERMINATE & REPLACE · UP TO {money(contract.salaryPerRace * 2)} SEVERANCE</button></>}</article>; })}</div></section>
-        <div className="intermission-finance-strip"><div><span>EST. NEXT WEEKEND COST</span><strong>{money(Math.round((215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000) * (race.runMutator === "budget-crunch" ? 1.15 : 1)))}</strong><small>OPERATIONS + DRIVER PAYROLL + STAFF</small></div><div><span>SPONSOR INCOME FORECAST</span><strong>{money(Math.round(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) * (race.runMutator === "sponsor-boom" ? 1.35 : 1)))}</strong><small>BASED ON PADDOCK REPUTATION</small></div><div><span>PROJECTED CASH AFTER COSTS</span><strong className={race.cash + Math.round(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) * (race.runMutator === "sponsor-boom" ? 1.35 : 1)) < Math.round((215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000) * (race.runMutator === "budget-crunch" ? 1.15 : 1)) ? "finance-danger" : ""}>{money(race.cash + Math.round(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) * (race.runMutator === "sponsor-boom" ? 1.35 : 1)) - Math.round((215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000) * (race.runMutator === "budget-crunch" ? 1.15 : 1)))}</strong><small>BEFORE OPTIONAL SPENDING</small></div></div>
+        <div className="intermission-finance-strip"><div><span>EST. NEXT WEEKEND COST</span><strong>{money(215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000)}</strong><small>OPERATIONS + DRIVER PAYROLL + STAFF</small></div><div><span>SPONSOR INCOME FORECAST</span><strong>{money(Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800))}</strong><small>BASED ON PADDOCK REPUTATION</small></div><div><span>PROJECTED CASH AFTER COSTS</span><strong className={race.cash + Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) < (215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000) ? "finance-danger" : ""}>{money(race.cash + Math.max(0, 65000 + ((race.teamReputation ?? 45) - 45) * 1800) - (215000 + (race.driverContracts ?? []).reduce((sum, contract) => sum + contract.salaryPerRace, 0) + 65000))}</strong><small>BEFORE OPTIONAL SPENDING</small></div></div>
         <div className="intermission-section-heading"><div><span>STEP 01</span><h2>Choose your next upgrade</h2></div><small>ONE PICK · THIS CAREER</small></div>
         <div className="rogue-draft-grid intermission-upgrade-grid">
           {draftCards.map((card, index) => <button key={card.id} className={"rogue-card " + "rarity-" + card.rarity.toLowerCase() + (selectedDraft?.id === card.id ? " rogue-card-selected" : "")} onClick={() => { setSelectedDraftId(card.id); setIntermissionUpgradeInstalled(false); }}>
@@ -1158,7 +1135,6 @@ export default function App() {
       <div className="stat-cell"><span>RACE PROGRESS</span><strong>{Math.min(race.lap, race.totalLaps)}<small className="inline-unit"> / {race.totalLaps} LAPS</small></strong><small>{finishedCount}/22 CARS FINISHED</small></div>
       <div className="stat-cell"><span>YOUR BEST LAP</span><strong>{formatLapTime(bestLap)}</strong><small>SESSION TIMING</small></div>
     </section>
-    <section className="run-mutator-banner" aria-label="Current run mutator"><div className="run-mutator-icon">↯</div><div className="run-mutator-copy"><span>RUN MUTATOR · {runMutator.tag}</span><strong>{runMutator.title}</strong><p>{runMutator.description}</p></div><div className="run-mutator-effect">{runMutator.effect}</div></section>
     <section className="panel current-upgrades-panel" aria-label="Current team upgrades">
       <div className="panel-heading"><div><div className="section-kicker">CAR DEVELOPMENT · CURRENT SPEC</div><h2>Installed upgrades</h2></div><span className="upgrade-count-badge">{(race.installedUpgrades ?? []).length} FITTED</span></div>
       <div className="upgrade-module-strip">

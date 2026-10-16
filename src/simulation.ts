@@ -1,24 +1,10 @@
-import{RIVAL_STYLE_BY_TEAM,type RivalStyle,}from "./rivals";
 export type Tyre="SOFT"|"MEDIUM"|"HARD";
 export type Pace="CONSERVE"|"BALANCED"|"PUSH";
 export type BattleMode="STANDARD"|"OVERTAKE"|"DEFEND";
 export type FuelMode="NORMAL"|"SAVE"|"DEPLOY";
 export type RaceStatus="ready"|"running"|"paused"|"finished"|"gameover";
 export type GameMode="championship"|"endless";
-export type RunMutatorId="tyre-stress"|"power-surge"|"rival-rush"|"sponsor-boom"|"fragile-components"|"budget-crunch";
-export interface RunMutator { id: RunMutatorId; title: string; tag: string; description: string; effect: string; }
-export const RUN_MUTATORS: RunMutator[] = [
-{id:"tyre-stress",title:"Tyre Stress Test",tag:"HIGH DEGRADATION",description:"Tyres wear 25% faster. The Tyre Saver build softens the penalty, making endurance upgrades especially valuable.",effect:"TYRE WEAR +25% · TYRE-SAVER SYNERGY"},
-{id:"power-surge",title:"Power Surge",tag:"PERFORMANCE WINDOW",description:"Your cars gain a 1.5% pace advantage for the whole run. Stack it with power-unit upgrades to push your advantage.",effect:"PLAYER PACE +1.5%"},
-{id:"rival-rush",title:"Rival Rush",tag:"GRID PRESSURE",description:"Every rival gets a 1.5% pace boost. Overtaking and smart fuel deployment matter more than ever.",effect:"RIVAL PACE +1.5%"},
-{id:"sponsor-boom",title:"Sponsor Boom",tag:"COMMERCIAL UPSIDE",description:"Sponsor income rises by 35% between race weekends. Use the extra breathing room to invest in your build.",effect:"SPONSOR INCOME +35%"},
-{id:"fragile-components",title:"Fragile Components",tag:"RELIABILITY CHALLENGE",description:"Your cars lose condition faster. Reliability-first upgrades reduce the extra wear.",effect:"PLAYER COMPONENT WEAR +55% · RELIABILITY SYNERGY"},
-{id:"budget-crunch",title:"Budget Crunch",tag:"SURVIVAL ECONOMY",description:"Operating costs are 15% higher. Commercial upgrades and consistent results can keep the team afloat.",effect:"OPERATING COSTS +15%"}
-];
-export function getRunMutator(seed:number):RunMutator {
-const mixed=(Math.imul(seed>>>0,2246822519) ^ (seed>>>13) ^ 0x9e3779b9)>>>0;
-return RUN_MUTATORS[mixed % RUN_MUTATORS.length];
-}
+import{RIVAL_STYLE_BY_TEAM,type RivalStyle,}from "./rivals";
 export const CAMPAIGN_LENGTH=20;
 export const POINTS_BY_POSITION=[25,18,15,12,10,8,6,4,2,1]as const;
 export interface ChampionshipAchievement { id:string; title:string; detail:string; round:number; cashReward:number; researchReward:number; }
@@ -218,12 +204,11 @@ finished:boolean;
 }
 export interface RaceEvent{id:number;lap:number;message:string;kind:"info"|"pit"|"battle"|"warning"|"finish";}
 export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";}
-export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL"|"CHAOS WEEKEND";title:string;source:string;story:string;choices:PaddockChoice[];}
+export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL";title:string;source:string;story:string;choices:PaddockChoice[];}
 export interface DriverContract{id:string;driverName:string;salaryPerRace:number;expiresAtRound:number;renewed:boolean;loyalty:number;}
 export interface ChampionshipObjective{id:"score-points"|"podium"|"double-points"|"beat-nemesis";title:string;detail:string;targetTeam?:string;reward:number;completed?:boolean;}
 export interface RaceState{
 version:1;
-runMutator?:RunMutatorId;
 mode?:GameMode;
 status:RaceStatus;
 lap:number;
@@ -395,12 +380,11 @@ const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
 const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
 const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
-const mutatorPaceFactor=state.runMutator==="power-surge"&&car.playerCar?0.985:state.runMutator==="rival-rush"&&!car.playerCar?0.985:1;
 const rivalAhead=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress>car.progress&&other.progress-car.progress<0.065);
 const rivalBehind=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress<car.progress&&car.progress-other.progress<0.045);
 const battlePaceFactor=car.battleMode==="OVERTAKE"&&rivalAhead?0.978:car.battleMode==="DEFEND"&&rivalBehind?0.99:1;
 const fuelPaceFactor=car.fuelMode==="DEPLOY"?0.985:car.fuelMode==="SAVE"?1.012:1;
-const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor*mutatorPaceFactor*battlePaceFactor*fuelPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
+const lapSeconds=Math.max(85,car.lapTime*(state.circuitLengthFactor??1)*PACE_FACTOR[car.pace]*TYRE_PACE_FACTOR[car.tyre]*safetyCarFactor*traitPaceFactor*rivalPace*(1-rivalryPressure)*weekendPaceFactor*battlePaceFactor*fuelPaceFactor+tyrePenalty+fuelPenalty+reliabilityPenalty - upgradeBonus - racecraftBonus+noise);
 car.lastLap=lapSeconds;
 car.bestLap=car.bestLap===0?lapSeconds:Math.min(car.bestLap,lapSeconds);
 const previousProgress=car.progress;
@@ -413,18 +397,16 @@ const aeroTyreLoad=car.playerCar?1+(state.upgradeModules?.aero??0)*0.025:1;
 const enduranceWearBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
 const strategyWear=(car.pace==="PUSH"?0.095:car.pace==="CONSERVE"?0.05:0.07)*(car.battleMode==="OVERTAKE"&&rivalAhead?1.16:1);
 const weekendWearFactor=state.weekendEffect==="wet-prepared"?0.92:state.weekendEffect==="parts-shortage"?1.08:1;
-const mutatorWearFactor=state.runMutator==="tyre-stress"?((state.buildTraits??[]).includes("tyre-saver")?1.05:1.25):1;
-car.tyreWear=Math.min(1,car.tyreWear+strategyWear*TYRE_WEAR_RATE[car.tyre]*progressDelta*wearReduction*aeroTyreLoad*enduranceWearBonus*weekendWearFactor*mutatorWearFactor*(state.safetyCarActive?0.42:1));
+car.tyreWear=Math.min(1,car.tyreWear+strategyWear*TYRE_WEAR_RATE[car.tyre]*progressDelta*wearReduction*aeroTyreLoad*enduranceWearBonus*weekendWearFactor*(state.safetyCarActive?0.42:1));
 const powerFuelLoad=car.playerCar?1+(state.upgradeModules?.power??0)*0.025:1;
 const fuelModeFactor=car.fuelMode==="DEPLOY"?1.22:car.fuelMode==="SAVE"?0.68:1;
 car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*fuelModeFactor*(state.safetyCarActive?0.5:1));
 const reliabilityProtection=car.playerCar?Math.min(0.75,(state.upgradeModules?.reliability??0)*0.005):0;
 const enduranceConditionBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
 const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1):1;
-const mutatorConditionFactor=car.playerCar&&state.runMutator==="fragile-components"?((state.buildTraits??[]).includes("reliability-first")?1.2:1.55):1;
 const rivalCondition=!car.playerCar&&car.rivalStyle==="reliability-leader"?0.48:!car.playerCar&&car.rivalStyle==="high-risk-attacker"?1.7:1;
 const weekendConditionFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.8:1;
-car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*mutatorConditionFactor*rivalCondition*weekendConditionFactor);
+car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*rivalCondition*weekendConditionFactor);
 if(Math.floor(car.progress)>Math.floor(previousProgress)){
 const completedLap=Math.floor(car.progress);
 if(car.pitStops===0&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
