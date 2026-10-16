@@ -194,6 +194,7 @@ pace:Pace;
 battleMode:BattleMode;
 fuelMode:FuelMode;
 pitLap:number;
+scheduledPitCompleted?:boolean;
 pitStops:number;
 pitDelay:number;
 condition:number;
@@ -500,8 +501,8 @@ const weekendConditionFactor=state.weekendEffect==="spares-secured"?0.55:state.w
 car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*rivalCondition*weekendConditionFactor);
 if(Math.floor(car.progress)>Math.floor(previousProgress)){
 const completedLap=Math.floor(car.progress);
-if(car.pitStops===0&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
-car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;
+if(!car.scheduledPitCompleted&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
+car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;car.scheduledPitCompleted=true;
 car.tyre=car.nextTyre;
 addEvent(state,car.playerCar?car.driver+" pits for "+car.tyre.toLowerCase()+" tyres.":car.driver+" ("+car.team+") pits.","pit");
 }
@@ -777,7 +778,10 @@ const ahead=state.cars
 const gapAhead=ahead?ahead.progress - car.progress:Infinity;
 const behind=state.cars.filter((item)=>!item.finished&&item.id!==car.id&&item.progress<car.progress).sort((a,b)=>b.progress-a.progress)[0];
 const gapBehind=behind?car.progress-behind.progress:Infinity;
-const canPit=car.pitStops===0&&remainingLaps>1.2;
+const canPit=!car.scheduledPitCompleted&&remainingLaps>1.2;
+if(canPit&&car.condition<48){
+return{headline:"Damage is becoming a race-ending risk",reason:"The car's condition is critically low. An early stop offers a chance to change tyres and avoid extending a damaged stint; the repair bill still applies after the race.",action:"PIT",actionLabel:"PIT NEXT LAP"};
+}
 if(canPit&&state.safetyCarActive&&car.tyreWear>=0.3){
 return{headline:"Use the safety-car window",reason:"The field is neutralised, so this is a lower-loss opportunity to change tyres before green-flag running resumes.",action:"PIT",actionLabel:"PIT NEXT LAP"};
 }
@@ -809,6 +813,7 @@ const next=structuredClone(state);
 const car=next.cars.find((item)=>item.id===carId);
 if(!car||!car.playerCar||next.status==="finished")return state;
 Object.assign(car,patch);
+if(patch.pitLap!==undefined)car.scheduledPitCompleted=false;
 if(patch.pace)addEvent(next,car.driver+" switches to "+patch.pace.toLowerCase()+" pace: "+(patch.pace==="PUSH"?"more speed, higher tyre wear and fuel use.":patch.pace==="CONSERVE"?"protecting tyres and fuel at the cost of lap time.":"balanced pace and resource use."));
 else if(patch.nextTyre)addEvent(next,car.driver+" will fit "+patch.nextTyre.toLowerCase()+" tyres at the next stop.");
 else if(patch.pitLap)addEvent(next,car.driver+" pit window moved to lap "+patch.pitLap+".");
