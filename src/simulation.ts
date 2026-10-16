@@ -129,9 +129,9 @@ export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 {id:"lightweight-components",title:"Lightweight Component Set",subtitle:"MECHANICAL GRIP",rarity:"EPIC",description:"A lighter component package sharpens the mechanical platform while preserving structural strength.",effect:"Suspension +2",upgradeType:"suspension",amount:2},
 {id:"opponent-telemetry",title:"Opponent Telemetry Analysis",subtitle:"RACE STRATEGY",rarity:"RARE",description:"Rival data reveals where the car can gain time through its setup and deployment.",effect:"Power unit +1",upgradeType:"power",amount:1}
 ];
-export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number}={}):UpgradeCard[]{
+export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number;rerollCount?:number}={}):UpgradeCard[]{
 const pool=[...UPGRADE_CARD_POOL];
-let seed=(state.seed ^ Math.imul(state.weekendNumber+17,2654435761))>>>0;
+let seed=(state.seed ^ Math.imul(state.weekendNumber+17,2654435761) ^ Math.imul(Math.max(0,Math.floor(progression.rerollCount??0))+1,2246822519))>>>0;
 const nextRandom=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed / 4294967296;};
 for(let i=pool.length - 1;i>0;i--){
 const j=Math.floor(nextRandom()*(i+1));
