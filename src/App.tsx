@@ -1496,7 +1496,7 @@ export default function App() {
         <div className="save-transfer-footnote"><span><i/> LOCAL AUTOSAVE ACTIVE</span><span>Keep your code private to your own backups; anyone with it can restore that save.</span></div>
       </section>
     </div>}
-    <footer className="footer"><span>REDLINE ASCENSION · ROGUELITE MOTORSPORTS MANAGEMENT</span><span>POWERED BY <strong>REDLINE GRID</strong></span></footer>
+    <footer className="footer"><span>REDLINE ASCENSION · ROGUELITE MOTORSPORTS MANAGEMENT</span><span>A GAME BY <strong>REDLINE GRID</strong></span></footer>
   </main>;
 }
 
