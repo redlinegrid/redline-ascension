@@ -1930,3 +1930,95 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .intermission-section-heading h2 { font-size: 16px; }
   .intermission-upgrade-grid { grid-auto-columns: 90%; }
 }
+
+
+/* Mobile intermission is a deliberate two-screen flow: incident first, upgrades second. */
+.mobile-intermission-steps { display: none; }
+@media (max-width: 700px) {
+  .mobile-intermission-steps {
+    position: sticky;
+    top: 38px;
+    z-index: 19;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 7px;
+    margin: 0 -12px;
+    padding: 9px 12px;
+    border-bottom: 1px solid #282d36;
+    background: rgba(9, 11, 16, .97);
+    backdrop-filter: blur(12px);
+  }
+  .mobile-intermission-steps button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 8px 6px;
+    border: 1px solid #343944;
+    border-radius: 7px;
+    background: #12151c;
+    color: #9ba2af;
+    font: 800 8px var(--mono);
+    letter-spacing: .035em;
+    line-height: 1.3;
+  }
+  .mobile-intermission-steps button span {
+    color: #ff655b;
+    font-size: 10px;
+  }
+  .mobile-intermission-steps button.active {
+    border-color: #a53b34;
+    background: linear-gradient(135deg, #321b1b, #1a171b);
+    color: #fff;
+  }
+  .mobile-intermission-scenario .career-intermission-content > :not(.paddock-event-panel) {
+    display: none !important;
+  }
+  .mobile-intermission-scenario .career-intermission-content {
+    max-width: 620px;
+    margin-top: 18px;
+  }
+  .mobile-intermission-scenario .paddock-event-panel {
+    display: block;
+    margin: 0;
+    padding: 16px;
+  }
+  .mobile-intermission-scenario .paddock-event-top {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .mobile-intermission-scenario .paddock-event-top h2 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+  .mobile-intermission-scenario .paddock-event-story {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .mobile-intermission-scenario .paddock-choice-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .mobile-intermission-scenario .paddock-choice {
+    min-height: 78px;
+    padding: 12px;
+    text-align: left;
+  }
+  .mobile-intermission-scenario .paddock-choice strong { font-size: 12px; }
+  .mobile-intermission-scenario .paddock-choice span {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .mobile-intermission-scenario .paddock-choice small {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .mobile-intermission-upgrade .career-intermission-content > .paddock-event-panel {
+    display: none !important;
+  }
+  .mobile-intermission-upgrade .career-intermission-content {
+    margin-top: 14px;
+  }
+}
