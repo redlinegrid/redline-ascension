@@ -194,6 +194,7 @@ pace:Pace;
 battleMode:BattleMode;
 fuelMode:FuelMode;
 pitLap:number;
+scheduledPitCompleted?:boolean;
 pitStops:number;
 pitDelay:number;
 condition:number;
@@ -421,6 +422,7 @@ const profile=DRIVER_MARKET.find((driver)=>driver.name===car.driver);
 return{
 ...car,
 rivalStyle:car.playerCar?undefined:car.rivalStyle??RIVAL_STYLE_BY_TEAM[car.team],
+scheduledPitCompleted:car.scheduledPitCompleted??(car.pitStops>0&&Math.floor(car.progress)>=car.pitLap),
 driverPace:car.driverPace??profile?.pace??76+(index*7 % 13),
 driverRacecraft:car.driverRacecraft??profile?.racecraft??75+(index*5 % 15),
 driverTyreManagement:car.driverTyreManagement??profile?.tyreManagement??74+(index*3 % 16),
@@ -500,8 +502,8 @@ const weekendConditionFactor=state.weekendEffect==="spares-secured"?0.55:state.w
 car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*rivalCondition*weekendConditionFactor);
 if(Math.floor(car.progress)>Math.floor(previousProgress)){
 const completedLap=Math.floor(car.progress);
-if(car.pitStops===0&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
-car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;
+if(!car.scheduledPitCompleted&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
+car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;car.scheduledPitCompleted=true;
 car.tyre=car.nextTyre;
 addEvent(state,car.playerCar?car.driver+" pits for "+car.tyre.toLowerCase()+" tyres.":car.driver+" ("+car.team+") pits.","pit");
 }
@@ -777,7 +779,10 @@ const ahead=state.cars
 const gapAhead=ahead?ahead.progress - car.progress:Infinity;
 const behind=state.cars.filter((item)=>!item.finished&&item.id!==car.id&&item.progress<car.progress).sort((a,b)=>b.progress-a.progress)[0];
 const gapBehind=behind?car.progress-behind.progress:Infinity;
-const canPit=car.pitStops===0&&remainingLaps>1.2;
+const canPit=!car.scheduledPitCompleted&&remainingLaps>1.2;
+if(car.condition<48&&car.pace==="PUSH"){
+return{headline:"Protect the damaged car",reason:"The chassis is in a critical condition and a pit stop cannot repair it mid-race. Backing off reduces further stress and helps protect the car from another incident.",action:"CONSERVE",actionLabel:"PROTECT THE CAR"};
+}
 if(canPit&&state.safetyCarActive&&car.tyreWear>=0.3){
 return{headline:"Use the safety-car window",reason:"The field is neutralised, so this is a lower-loss opportunity to change tyres before green-flag running resumes.",action:"PIT",actionLabel:"PIT NEXT LAP"};
 }
@@ -809,6 +814,7 @@ const next=structuredClone(state);
 const car=next.cars.find((item)=>item.id===carId);
 if(!car||!car.playerCar||next.status==="finished")return state;
 Object.assign(car,patch);
+if(patch.pitLap!==undefined)car.scheduledPitCompleted=false;
 if(patch.pace)addEvent(next,car.driver+" switches to "+patch.pace.toLowerCase()+" pace: "+(patch.pace==="PUSH"?"more speed, higher tyre wear and fuel use.":patch.pace==="CONSERVE"?"protecting tyres and fuel at the cost of lap time.":"balanced pace and resource use."));
 else if(patch.nextTyre)addEvent(next,car.driver+" will fit "+patch.nextTyre.toLowerCase()+" tyres at the next stop.");
 else if(patch.pitLap)addEvent(next,car.driver+" pit window moved to lap "+patch.pitLap+".");

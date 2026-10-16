@@ -606,8 +606,8 @@ function PitWallGraphic() {
   </div>;
 }
 
-function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, onTyre, onPitLap, onBattleMode, onFuelMode }: {
-  car: CarState; status: RaceState["status"]; teamName: string; advice: StrategyAdvice | null; onApplyAdvice: () => void; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void; onBattleMode: (mode: BattleMode) => void; onFuelMode: (mode: FuelMode) => void;
+function DriverStrategy({ car, status, totalLaps, teamName, advice, onApplyAdvice, onPace, onTyre, onPitLap, onBattleMode, onFuelMode }: {
+  car: CarState; status: RaceState["status"]; totalLaps: number; teamName: string; advice: StrategyAdvice | null; onApplyAdvice: () => void; onPace: (pace: Pace) => void; onTyre: (tyre: Tyre) => void; onPitLap: (lap: number) => void; onBattleMode: (mode: BattleMode) => void; onFuelMode: (mode: FuelMode) => void;
 }) {
   const disabled = status === "finished" || status === "gameover";
   return <div className="driver-strategy">
@@ -628,7 +628,7 @@ function DriverStrategy({ car, status, teamName, advice, onApplyAdvice, onPace, 
     <div className="segmented">{(["SAVE", "NORMAL", "DEPLOY"] as FuelMode[]).map((mode) => <button key={mode} disabled={disabled} className={(car.fuelMode ?? "NORMAL") === mode ? "selected" : ""} onClick={() => onFuelMode(mode)}>{mode}</button>)}</div>
     <div className="strategy-row">
       <label>Next tyre<select disabled={disabled} value={car.nextTyre} onChange={(e) => onTyre(e.target.value as Tyre)}><option value="SOFT">Soft</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></label>
-      <label>Pit target<select disabled={disabled} value={car.pitLap} onChange={(e) => onPitLap(Number(e.target.value))}>{Array.from({ length: 12 }, (_, i) => i + 3).map((lap) => <option key={lap} value={lap}>Lap {lap}</option>)}</select></label>
+      <label>Pit target<select disabled={disabled} value={car.pitLap} onChange={(e) => onPitLap(Number(e.target.value))}>{Array.from(new Set([...Array.from({ length: Math.max(1, totalLaps - 3) }, (_, i) => i + 3), car.pitLap])).sort((a, b) => a - b).map((lap) => <option key={lap} value={lap}>Lap {lap}{lap >= totalLaps ? " · no scheduled stop" : ""}</option>)}</select></label>
     </div>
   </div>;
 }
@@ -1214,11 +1214,11 @@ export default function App() {
         <div className="race-controls pitwall-race-controls"><div className="control-left"><button className="primary-button" disabled={race.status === "finished" || race.status === "gameover"} onClick={() => setRace((current) => ({ ...current, status: current.status === "running" ? "paused" : "running" }))}><span>{race.status === "running" ? "Ⅱ" : "▶"}</span>{race.status === "running" ? "PAUSE" : race.status === "paused" ? "RESUME RACE" : "START RACE"}</button>{race.status === "running" && <span className="running-copy">● RACE RUNNING</span>}{race.status === "paused" && <span className="paused-copy">RACE PAUSED</span>}</div><div className="speed-control"><span>SIM SPEED</span>{[1, 2, 4].map((n) => <button key={n} className={speed === n ? "speed-active" : ""} onClick={() => setSpeed(n)}>{n}×</button>)}</div></div>
         <div className="strategy-grid">{race.cars.filter((car) => car.playerCar).map((car) => {
           const advice = getStrategyAdvice(race, car.id);
-          return <DriverStrategy key={car.id} car={car} status={race.status} teamName={playerTeamName} advice={advice}
+          return <DriverStrategy key={car.id} car={car} status={race.status} totalLaps={race.totalLaps} teamName={playerTeamName} advice={advice}
             onApplyAdvice={() => { if (!advice) return; if (advice.action === "PIT") setStrategy(car, { pitLap: Math.max(3, Math.min(race.totalLaps - 1, Math.floor(car.progress) + 1)) }); else if (advice.action === "OVERTAKE") setStrategy(car, { battleMode: "OVERTAKE" }); else if (advice.action === "DEFEND") setStrategy(car, { battleMode: "DEFEND" }); else if (advice.action === "FUEL_SAVE") setStrategy(car, { fuelMode: "SAVE" }); else setStrategy(car, { pace: advice.action }); }}
             onPace={(pace) => setStrategy(car, { pace })} onTyre={(nextTyre) => setStrategy(car, { nextTyre })} onPitLap={(pitLap) => setStrategy(car, { pitLap })} onBattleMode={(battleMode) => setStrategy(car, { battleMode })} onFuelMode={(fuelMode) => setStrategy(car, { fuelMode })}/>;
         })}</div>
-        <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.safetyCarActive ? "Safety car conditions reduce tyre wear and fuel use. This can be a low-cost pit window, but calling both cars together may cost track position." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. CONSERVE protects the stint; PUSH trades tyre life and fuel for lap time. Adjust each car independently." : "Tyre life is manageable. PUSH gains pace but burns more fuel and rubber; CONSERVE extends the stint. Watch traffic and avoid exposing both cars to the same strategy."}</p></div></div>
+        <div className="engineer-note"><span className="engineer-icon">i</span><div><strong>ENGINEER'S NOTE</strong><p>{race.status === "finished" ? "Review the report, then fit an upgrade to prepare for the next weekend." : race.safetyCarActive ? "Safety car conditions reduce tyre wear and fuel use. This can be a low-cost pit window, but calling both cars together may cost track position." : race.cars.some((car) => car.playerCar && car.condition < 48) ? "A car is critically damaged. Back off the pace to protect it; an incident pit stop does not repair the chassis, and the planned tyre stop remains available." : race.cars.some((car) => car.playerCar && car.tyreWear > .7) ? "Tyre wear is high. CONSERVE protects the stint; PUSH trades tyre life and fuel for lap time. Adjust each car independently." : "Tyre life is manageable. PUSH gains pace but burns more fuel and rubber; CONSERVE extends the stint. Watch traffic and avoid exposing both cars to the same strategy."}</p></div></div>
       </section>
 
       <section className="panel standings-panel"><div className="panel-heading"><div><div className="section-kicker">TIMING TOWER</div><h2>Race classification</h2></div><span className="field-count">22 CARS</span></div>
