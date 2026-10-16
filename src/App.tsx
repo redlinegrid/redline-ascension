@@ -297,6 +297,8 @@ function trackPosition(progress: number, points: readonly (readonly [number, num
 }
 
 function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Copperhead Ring" }: { cars: CarState[]; lap: number; teamName: string; circuitSeed?: number; circuitName?: string }) {
+  const [selectedSector, setSelectedSector] = useState<number | "ALL">("ALL");
+  const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
   const trackPoints = useMemo(() => seededTrack(circuitSeed), [circuitSeed]);
   const trackPath = useMemo(() => smoothTrackPath(trackPoints), [trackPoints]);
   const points = useMemo(() => cars.map((car) => ({ ...car, ...trackPosition(car.progress, trackPoints) })), [cars, trackPoints]);
@@ -323,8 +325,12 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       })) selected.push(candidate);
       if (selected.length === 8) break;
     }
-    return selected.sort((a, b) => a.index - b.index).map((point, index) => ({ ...point, number: index + 1 }));
+    return selected.sort((a, b) => a.index - b.index).map((point, index) => ({ ...point, number: index + 1, sector: Math.min(3, Math.floor(point.index / trackPoints.length * 3) + 1) }));
   }, [trackPoints]);
+  const activeTurn = turnMarkers.find((turn) => turn.number === selectedTurn) ?? null;
+  const visibleTurns = turnMarkers.filter((turn) => selectedSector === "ALL" || turn.sector === selectedSector);
+  const sectorCars = [...cars].filter((car) => selectedSector === "ALL" || Math.min(3, Math.floor((((car.progress % 1) + 1) % 1) * 3) + 1) === selectedSector).sort((a, b) => b.progress - a.progress);
+  const fastestLastLap = cars.filter((car) => car.lastLap > 0 && !car.finished).reduce((best, car) => Math.min(best, car.lastLap), Infinity);
   return <div className="circuit-wrap circuit-theme">
     <div className="circuit-hud"><span><i /> CIRCUIT TELEMETRY</span><b>SEED {circuitSeed.toString(16).toUpperCase().padStart(6, "0").slice(-6)}</b></div>
     <svg viewBox="0 0 380 220" role="img" aria-label={"Live circuit map for " + circuitName}>
@@ -347,8 +353,8 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       <text x={startFinish.x + 12} y={startFinish.y - 12} className="track-marker-label">START / FINISH</text>
       <g className="track-sector sector-one" transform={"translate(" + sectorOne.x + " " + sectorOne.y + ")"}><circle r="7" /><text y="2.5">S1</text></g>
       <g className="track-sector sector-two" transform={"translate(" + sectorTwo.x + " " + sectorTwo.y + ")"}><circle r="7" /><text y="2.5">S2</text></g>
-      {turnMarkers.map((turn) => <g key={turn.number} className="track-turn" transform={"translate(" + turn.x + " " + turn.y + ")"} aria-label={"Turn " + turn.number}>
-        <circle r="5.4" fill="#050609" stroke="#d8dce4" strokeWidth="1" />
+      {turnMarkers.map((turn) => <g key={turn.number} className={"track-turn" + (selectedSector !== "ALL" && turn.sector !== selectedSector ? " turn-dimmed" : "") + (selectedTurn === turn.number ? " turn-selected" : "")} transform={"translate(" + turn.x + " " + turn.y + ")"} aria-label={"Turn " + turn.number + ", sector " + turn.sector}>
+        <circle r={selectedTurn === turn.number ? 7 : 5.4} fill={selectedTurn === turn.number ? "#ff453a" : "#050609"} stroke={selectedTurn === turn.number ? "#ffb0aa" : "#d8dce4"} strokeWidth="1" />
         <text y="1.9" textAnchor="middle" fill="#f2f4f8" fontSize="5.5" fontWeight="700">{turn.number}</text>
       </g>)}
       <g className="track-core">
@@ -364,6 +370,35 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       </g>)}
     </svg>
     <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span><span><i className="dot" style={{ background: "#d8dce4" }} /> TURN NUMBERS</span></div>
+    <div className="circuit-controls" aria-label="Circuit sector selection">
+      <div className="sector-tabs">
+        {(["ALL", 1, 2, 3] as const).map((sector) => <button key={String(sector)} type="button" className={selectedSector === sector ? "sector-tab active" : "sector-tab"} aria-pressed={selectedSector === sector} onClick={() => { setSelectedSector(sector); setSelectedTurn(null); }}>{sector === "ALL" ? "FULL CIRCUIT" : "SECTOR " + sector}</button>)}
+      </div>
+      <div className="circuit-detail-grid">
+        <section className="circuit-detail-panel">
+          <div className="circuit-panel-kicker">CORNER-BY-CORNER</div>
+          <div className="circuit-turn-list">
+            {visibleTurns.map((turn) => <button type="button" key={turn.number} className={selectedTurn === turn.number ? "circuit-turn-row active" : "circuit-turn-row"} onClick={() => setSelectedTurn(turn.number)} aria-pressed={selectedTurn === turn.number}>
+              <b>T{String(turn.number).padStart(2, "0")}</b><span>Sector {turn.sector}</span><i style={{ width: Math.max(18, Math.min(100, turn.deflection)) + "%" }} /><small>{Math.round(turn.deflection)}°</small>
+            </button>)}
+            {visibleTurns.length === 0 && <p className="circuit-empty">No numbered corners in this sector for this layout.</p>}
+          </div>
+          {activeTurn && <div className="selected-turn-note"><b>TURN {String(activeTurn.number).padStart(2, "0")}</b><span>Estimated direction change: {Math.round(activeTurn.deflection)}° · Sector {activeTurn.sector}</span></div>}
+        </section>
+        <section className="circuit-detail-panel">
+          <div className="circuit-panel-kicker">{selectedSector === "ALL" ? "LIVE TRACK ORDER" : "SECTOR " + selectedSector + " TRACK ORDER"}</div>
+          <div className="circuit-timing-head"><span>CAR / DRIVER</span><span>LAST LAP Δ</span></div>
+          <div className="circuit-timing-list">
+            {sectorCars.slice(0, 8).map((car, index) => {
+              const delta = car.lastLap > 0 && Number.isFinite(fastestLastLap) ? car.lastLap - fastestLastLap : null;
+              return <div className={"circuit-timing-row" + (car.playerCar ? " player-timing" : "")} key={car.id}>
+                <b>{index + 1}</b><i style={{ background: car.teamColor }} /><span>{car.driver}{car.playerCar ? " · YOU" : ""}</span><strong>{delta === null ? "—" : delta < 0.005 ? "FASTEST" : "+" + delta.toFixed(2) + "s"}</strong>
+              </div>;
+            })}
+          </div>
+          <p className="circuit-timing-note">Last-lap gap to the fastest recorded lap in this field; not a live sector split.</p>
+        </section>
+      </div>
   </div>;
 }
 
