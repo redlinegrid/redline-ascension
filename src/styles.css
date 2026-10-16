@@ -1574,3 +1574,25 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .rogue-card{transition:none}
 }
 
+
+
+/* Interactive circuit engineering panel */
+.circuit-controls{position:relative;z-index:2;margin-top:10px;border-top:1px solid #1b1e25;padding-top:10px}
+.sector-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sector-tab{border:1px solid #2a2f39;background:#080a0e;color:#8e98a8;border-radius:4px;padding:7px 10px;font:600 8px var(--mono);letter-spacing:.06em;transition:background .15s,border-color .15s,color .15s}
+.sector-tab.active{background:#211011;border-color:#ff453a;color:#fff}
+.sector-tab:focus-visible,.circuit-turn-row:focus-visible{outline:2px solid #ff746b;outline-offset:2px}
+.circuit-detail-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.circuit-detail-panel{min-width:0;border:1px solid #1b2029;background:#07090d;padding:10px}
+.circuit-panel-kicker{color:#8e98a8;font:600 8px var(--mono);letter-spacing:.1em;margin-bottom:8px}
+.circuit-turn-list,.circuit-timing-list{display:flex;flex-direction:column;gap:4px}
+.circuit-turn-row{display:grid;grid-template-columns:32px 54px minmax(20px,1fr) 34px;align-items:center;gap:7px;text-align:left;border:1px solid transparent;border-radius:3px;background:#0d1016;color:#c5ccd7;padding:6px;font:8px var(--mono)}
+.circuit-turn-row b{color:#f1f3f6}.circuit-turn-row span{color:#838da0}.circuit-turn-row i{height:3px;background:linear-gradient(90deg,#ff453a,#f5c451);display:block;border-radius:4px}.circuit-turn-row small{text-align:right;color:#a9b2c1;font-size:8px}
+.circuit-turn-row.active{border-color:#ff453a;background:#1a0e10}
+.selected-turn-note{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #1c222b;color:#9aa4b3;font:8px var(--mono)}.selected-turn-note b{color:#ff746b}
+.circuit-timing-head{display:flex;justify-content:space-between;padding:0 5px 5px;color:#626d7e;font:7px var(--mono);letter-spacing:.06em}
+.circuit-timing-row{display:grid;grid-template-columns:18px 4px minmax(0,1fr) auto;align-items:center;gap:7px;background:#0d1016;padding:7px 5px;color:#aeb7c5;font:8px var(--mono);min-width:0}
+.circuit-timing-row>b{color:#7f8999}.circuit-timing-row>i{height:14px;border-radius:2px}.circuit-timing-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.circuit-timing-row>strong{font-size:7px;color:#9da7b5;font-weight:600}.circuit-timing-row.player-timing{background:#211011;color:#fff}.circuit-timing-row.player-timing>strong{color:#ffaaa4}
+.circuit-timing-note,.circuit-empty{color:#6f7a8a;font:8px/1.5 var(--mono);margin:8px 0 0}
+@media(max-width:760px){.circuit-detail-grid{grid-template-columns:1fr}.sector-tabs{gap:4px}.sector-tab{padding:7px 8px;font-size:7px}.circuit-detail-panel{padding:8px}.circuit-turn-row{grid-template-columns:30px 50px minmax(20px,1fr) 30px}}
+@media(prefers-reduced-motion:reduce){.sector-tab{transition:none}}
