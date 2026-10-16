@@ -3358,3 +3358,22 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .start-screen-content.mobile-research-screen .garage-perk-card{padding:14px}
   .start-screen-content.mobile-research-screen .research-milestone-grid{grid-template-columns:minmax(0,1fr)!important}
 }
+
+
+/* Main menu actions live directly after the Research Lab. */
+.start-menu-actions{display:flex;flex-direction:column;gap:10px;margin:18px 0 10px}
+.start-menu-actions .start-new-game-button,
+.start-menu-actions .continue-career-button{display:flex;width:100%;min-height:52px;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:10px;font-size:12px;font-weight:850;letter-spacing:.07em}
+.start-menu-actions .start-new-game-button{border:1px solid rgba(255,106,83,.7);background:linear-gradient(110deg,#ed543f,#b92f2d);color:#fff;box-shadow:0 8px 22px rgba(218,65,49,.16)}
+.start-menu-actions .continue-career-button{border:1px solid rgba(153,164,181,.3);background:linear-gradient(110deg,rgba(255,255,255,.07),rgba(17,21,29,.96));color:#eef1f6}
+.start-menu-actions .start-new-game-button span,.start-menu-actions .continue-career-button span{font-size:17px}
+.start-screen-content[data-onboarding-step="team"] .start-menu-actions,
+.start-screen-content[data-onboarding-step="drivers"] .start-menu-actions{display:none!important}
+.start-screen-content[data-onboarding-step="team"] .research-lab-entry-button,
+.start-screen-content[data-onboarding-step="drivers"] .research-lab-entry-button{display:none!important}
+.start-screen-content[data-onboarding-step="mode"] .start-menu-actions{display:flex}
+@media(max-width:760px){
+  .start-menu-actions{gap:9px;margin:14px 0 8px}
+  .start-menu-actions .start-new-game-button,
+  .start-menu-actions .continue-career-button{min-height:54px;padding:15px;font-size:12px}
+}
