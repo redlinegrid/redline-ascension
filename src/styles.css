@@ -2939,3 +2939,348 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   .start-screen-content[data-onboarding-step="mode"] .research-lab-balance strong{font-size:12px}
   .start-screen-content[data-onboarding-step="mode"] .garage-perk-card{padding:10px}
 }
+
+
+/* Mobile onboarding polish: team creation and driver selection steps. */
+@media(max-width:760px){
+  .start-screen-content[data-onboarding-step="team"],
+  .start-screen-content[data-onboarding-step="drivers"]{
+    padding:calc(14px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-brand,
+  .start-screen-content[data-onboarding-step="drivers"] .start-screen-brand{
+    margin-bottom:15px;
+    gap:9px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .brand-lockup-icon-start,
+  .start-screen-content[data-onboarding-step="drivers"] .brand-lockup-icon-start{
+    width:34px;
+    height:34px;
+    flex-basis:34px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .brand-lockup-copy-start strong,
+  .start-screen-content[data-onboarding-step="drivers"] .brand-lockup-copy-start strong{
+    font-size:16px;
+    letter-spacing:.025em;
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-kicker,
+  .start-screen-content[data-onboarding-step="drivers"] .start-screen-kicker{
+    font-size:8px;
+    letter-spacing:.12em;
+  }
+  .start-screen-content[data-onboarding-step="team"] h1,
+  .start-screen-content[data-onboarding-step="drivers"] h1{
+    margin:8px 0;
+    font-size:clamp(32px,8.7vw,42px);
+    line-height:1.02;
+    letter-spacing:-.045em;
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-intro,
+  .start-screen-content[data-onboarding-step="drivers"] .start-screen-intro{
+    margin:0 0 13px;
+    font-size:11px;
+    line-height:1.5;
+  }
+  .start-screen-content[data-onboarding-step="team"] .onboarding-step-indicator,
+  .start-screen-content[data-onboarding-step="drivers"] .onboarding-step-indicator{
+    justify-content:space-between;
+    gap:0;
+    margin-bottom:14px;
+    padding-bottom:10px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .onboarding-step-indicator span,
+  .start-screen-content[data-onboarding-step="drivers"] .onboarding-step-indicator span{
+    font-size:7px;
+    letter-spacing:.07em;
+  }
+  /* Team setup: input fields, colour tools and preview become one clean mobile form. */
+  .start-screen-content[data-onboarding-step="team"] .team-name-label{
+    width:100%;
+    margin:13px 0 7px;
+    font-size:8px;
+    letter-spacing:.09em;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-name-input{
+    width:100%;
+    min-height:48px;
+    padding:12px;
+    border-radius:7px;
+    font-size:16px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization{
+    width:100%;
+    box-sizing:border-box;
+    margin-top:18px;
+    padding:13px;
+    border-radius:11px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization-heading{
+    align-items:flex-start;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization-heading h2{
+    margin-top:4px;
+    font-size:20px;
+    line-height:1.15;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization-note{
+    max-width:95px;
+    font-size:6px;
+    line-height:1.4;
+    text-align:right;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization>p{
+    margin:0 0 13px;
+    font-size:10px;
+    line-height:1.5;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-controls{
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-picker{
+    gap:5px;
+    font-size:7px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-picker>div{
+    min-height:43px;
+    padding:6px 9px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-picker input[type="color"]{
+    width:36px;
+    height:30px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-picker code{
+    font-size:10px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-presets{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    margin-top:12px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-preset{
+    min-width:0;
+    min-height:54px;
+    padding:7px 4px;
+    border-radius:7px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-preset small{
+    font-size:8px;
+    overflow-wrap:anywhere;
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-preview{
+    width:100%;
+    margin-top:12px;
+    padding:12px;
+    gap:9px;
+    border-radius:9px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-preview small{
+    font-size:7px;
+    line-height:1.35;
+  }
+  .start-screen-content[data-onboarding-step="team"] .start-screen-preview strong{
+    font-size:14px;
+    line-height:1.2;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-preview-number{
+    flex:0 0 auto;
+    font-size:9px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-next{
+    margin:16px 0 8px;
+    padding-top:12px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-next>div{
+    display:grid;
+    grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);
+    gap:8px;
+    width:100%;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-next .primary-button,
+  .start-screen-content[data-onboarding-step="team"] .team-next .secondary-button{
+    width:100%;
+    min-height:46px;
+    padding:10px 8px;
+    justify-content:center;
+    font-size:8px;
+    line-height:1.35;
+  }
+  /* Driver market: keep seat status visible and make the selection controls easy to tap. */
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market{
+    width:100%;
+    max-width:none;
+    margin-top:0;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading{
+    gap:9px;
+    margin-bottom:12px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading h2{
+    margin:5px 0;
+    font-size:22px;
+    line-height:1.12;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading .market-eyebrow{
+    font-size:7px;
+    letter-spacing:.09em;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-copy{
+    margin:7px 0 0;
+    font-size:10px;
+    line-height:1.5;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading-side{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    width:100%;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading-side>*{
+    min-width:0;
+    padding:8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:rgba(255,255,255,.025);
+    font-size:7px;
+    line-height:1.4;
+    overflow-wrap:anywhere;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading-side .market-seat-count{
+    grid-column:1 / -1;
+    color:#ff8c7a;
+    border-color:rgba(255,70,42,.35);
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-seats{
+    position:sticky;
+    top:-1px;
+    z-index:5;
+    gap:7px;
+    margin:0 -2px 12px;
+    padding:5px 2px 7px;
+    background:rgba(12,14,19,.96);
+    backdrop-filter:blur(10px);
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-seats>div{
+    gap:4px;
+    padding:8px 9px;
+    border-radius:7px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-seats small{
+    font-size:7px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-seats strong{
+    font-size:11px;
+    line-height:1.25;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:9px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-card{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    padding:12px;
+    border-radius:10px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-top{
+    gap:8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-identity{
+    gap:10px;
+    margin:9px 0 10px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-portrait{
+    flex:0 0 58px;
+    width:58px;
+    height:62px;
+    border-radius:7px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-nameplate h3{
+    margin:0 0 4px;
+    font-size:16px;
+    line-height:1.15;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-role{
+    font-size:8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-stats{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px 12px;
+    margin:8px 0 12px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-stat{
+    grid-template-columns:minmax(0,1fr) 20px;
+    gap:4px 6px;
+    min-width:0;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-stat>span{
+    grid-column:1;
+    font-size:7px;
+    line-height:1.25;
+    letter-spacing:.04em;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-stat>div{
+    grid-column:1;
+    grid-row:2;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-stat>b{
+    grid-column:2;
+    grid-row:1 / span 2;
+    align-self:center;
+    font-size:9px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-actions button{
+    min-height:42px;
+    padding:9px 6px;
+    border-radius:6px;
+    font-size:8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-lock{
+    gap:8px;
+    padding-top:8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-lock button{
+    min-height:42px;
+    padding:10px;
+    font-size:8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .start-career-button{
+    position:sticky;
+    bottom:calc(8px + env(safe-area-inset-bottom));
+    z-index:6;
+    width:100%;
+    min-height:48px;
+    margin:14px 0 10px;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    font-size:9px;
+  }
+}
+@media(max-width:390px){
+  .start-screen-content[data-onboarding-step="team"],
+  .start-screen-content[data-onboarding-step="drivers"]{
+    padding-left:11px;
+    padding-right:11px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization{
+    padding:10px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-next>div{
+    grid-template-columns:minmax(0,.65fr) minmax(0,1.35fr);
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-heading-side>*{
+    padding:7px 6px;
+    font-size:6px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-stats{
+    gap:7px 9px;
+  }
+}
