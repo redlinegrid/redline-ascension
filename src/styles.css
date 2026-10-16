@@ -1481,3 +1481,82 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .active-evolution-copy p{margin:0 0 8px;color:#aeb6c4;font-size:9px;line-height:1.6}
 .active-evolution-copy>strong{display:block;color:#f2c76f;font:800 8px/1.6 var(--mono);letter-spacing:.025em}
 @media(max-width:600px){.active-evolution-showcase{padding:12px}.active-evolution-showcase-heading h3{font-size:15px}.active-evolution-showcase-grid{grid-template-columns:1fr}.active-evolution-showcase-card{padding:10px}}
+
+/* Unified upgrade-card layout: consistent hierarchy across pre-season, intermission and race-control drafts. */
+.rogue-draft-grid{align-items:stretch}
+.rogue-card{box-sizing:border-box;height:100%;min-width:0}
+.rogue-card-top{min-height:12px}
+.rogue-card-subtitle{display:block;max-width:100%;overflow-wrap:anywhere}
+.rogue-card>strong{display:block;max-width:100%;overflow-wrap:anywhere}
+.rogue-card>p{width:100%;min-width:0;overflow-wrap:anywhere}
+.rogue-card-effect{display:block;width:100%;min-width:0;overflow-wrap:anywhere}
+.evolution-combo-hint{box-sizing:border-box;min-width:0}
+.rogue-card-pick{display:block;box-sizing:border-box;margin-top:auto}
+.rarity-legendary:before{background:#e6bd64}
+.rarity-legendary .rogue-card-art{color:#f2c76f;border-color:#8a6a35;background:#302719}
+.rarity-legendary .rogue-card-top>b{color:#f2c76f}
+.rogue-card.rarity-legendary{border-color:#6e5935;background:linear-gradient(155deg,#282319,#17181c 72%)}
+.rogue-card.rarity-legendary.rogue-card-selected{border-color:#f2c76f;background:linear-gradient(155deg,#3a2d19,#1b1b20 72%)}
+@media(max-width:760px){
+  .initial-rogue-grid .rogue-card,
+  .intermission-upgrade-grid .rogue-card,
+  .roguelite-panel .rogue-card{
+    display:grid;
+    grid-template-columns:42px minmax(0,1fr);
+    grid-auto-flow:row;
+    align-items:start;
+    align-content:start;
+    column-gap:11px;
+    row-gap:0;
+    width:100%;
+    min-height:0;
+    height:auto;
+    padding:13px 12px;
+  }
+  .initial-rogue-grid .rogue-card-top,
+  .intermission-upgrade-grid .rogue-card-top,
+  .roguelite-panel .rogue-card-top{grid-column:1/-1;grid-row:auto;margin-bottom:10px}
+  .initial-rogue-grid .rogue-card-art,
+  .intermission-upgrade-grid .rogue-card-art,
+  .roguelite-panel .rogue-card-art{
+    grid-column:1;
+    grid-row:2/span 3;
+    width:38px;
+    height:38px;
+    margin:0;
+    align-self:start;
+  }
+  .initial-rogue-grid .rogue-card-subtitle,
+  .intermission-upgrade-grid .rogue-card-subtitle,
+  .roguelite-panel .rogue-card-subtitle{grid-column:2;grid-row:auto;margin:0 0 5px;line-height:1.4}
+  .initial-rogue-grid .rogue-card>strong,
+  .intermission-upgrade-grid .rogue-card>strong,
+  .roguelite-panel .rogue-card>strong{grid-column:2;grid-row:auto;font-size:16px;line-height:1.25;margin:0;min-height:0}
+  .initial-rogue-grid .rogue-card>p,
+  .intermission-upgrade-grid .rogue-card>p,
+  .roguelite-panel .rogue-card>p{grid-column:2;grid-row:auto;width:100%;font-size:11px;line-height:1.5;margin:6px 0 9px;min-height:0}
+  .initial-rogue-grid .rogue-card-effect,
+  .intermission-upgrade-grid .rogue-card-effect,
+  .roguelite-panel .rogue-card-effect{grid-column:1/-1;grid-row:auto;margin-top:10px;padding-top:9px;border-top:1px solid #34353b;font-size:9px;line-height:1.5}
+  .initial-rogue-grid .evolution-combo-hint,
+  .intermission-upgrade-grid .evolution-combo-hint,
+  .roguelite-panel .evolution-combo-hint{grid-column:1/-1;grid-row:auto;margin-top:7px;font-size:8px;line-height:1.45}
+  .initial-rogue-grid .rogue-card-pick,
+  .intermission-upgrade-grid .rogue-card-pick,
+  .roguelite-panel .rogue-card-pick{grid-column:1/-1;grid-row:auto;margin-top:10px;padding-top:9px;font-size:8px}
+  .initial-rogue-grid .rogue-card:before,
+  .intermission-upgrade-grid .rogue-card:before,
+  .roguelite-panel .rogue-card:before{width:3px;height:100%;right:auto;left:0}
+}
+@media(max-width:390px){
+  .initial-rogue-grid .rogue-card,
+  .intermission-upgrade-grid .rogue-card,
+  .roguelite-panel .rogue-card{grid-template-columns:38px minmax(0,1fr);column-gap:9px;padding:12px 10px}
+  .initial-rogue-grid .rogue-card-art,
+  .intermission-upgrade-grid .rogue-card-art,
+  .roguelite-panel .rogue-card-art{width:34px;height:34px}
+  .initial-rogue-grid .rogue-card>strong,
+  .intermission-upgrade-grid .rogue-card>strong,
+  .roguelite-panel .rogue-card>strong{font-size:15px}
+}
+
