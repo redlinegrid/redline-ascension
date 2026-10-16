@@ -1439,3 +1439,6 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .market-driver-lock button{grid-column:1/-1;width:100%;padding:10px;border:1px solid #70552c;background:linear-gradient(110deg,#392b18,#252018);color:#ffcf83;font:800 8px var(--mono);letter-spacing:.07em;cursor:pointer}
 .market-driver-lock button:disabled{border-color:#343640;background:#191b21;color:#777e8c;cursor:not-allowed}
 @media(max-width:600px){.driver-market-heading{flex-direction:column}.driver-market-heading-side{align-items:flex-start}.market-driver-lock button{padding:11px}}
+
+/* Brand lockup matches the Redline Grid Ascension identity. */
+.brand-text>span{color:#f02a37;letter-spacing:.32em;font-size:8px;font-weight:700;margin-top:0}.start-brand-lockup>small{color:#f02a37;letter-spacing:.42em;font-weight:700}
