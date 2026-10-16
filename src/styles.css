@@ -3824,3 +3824,233 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     letter-spacing: .02em;
   }
 }
+
+
+/* Final responsive cleanup: fluid sizing, overflow containment and consistent small-screen rhythm. */
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  overflow-x: clip;
+}
+#root {
+  min-width: 0;
+  width: 100%;
+}
+.app-shell,
+.app-shell * {
+  min-width: 0;
+}
+.app-shell {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+.app-shell img,
+.app-shell svg,
+.app-shell canvas,
+.app-shell video {
+  max-width: 100%;
+}
+.app-shell input,
+.app-shell select,
+.app-shell textarea {
+  max-width: 100%;
+}
+.app-shell .content-grid,
+.app-shell .panel,
+.app-shell .panel-heading,
+.app-shell .page-heading,
+.app-shell .upgrade-panel,
+.app-shell .report-box,
+.app-shell .save-transfer-panel {
+  min-width: 0;
+}
+.app-shell .panel-heading > *,
+.app-shell .page-heading > *,
+.app-shell .footer > * {
+  min-width: 0;
+}
+.app-shell .page-heading h1 {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: .98;
+  overflow-wrap: normal;
+}
+.app-shell .page-heading p,
+.app-shell .upgrade-copy p,
+.app-shell .engineer-note p,
+.app-shell .report-note {
+  overflow-wrap: anywhere;
+}
+.app-shell button,
+.app-shell select,
+.app-shell input,
+.app-shell textarea {
+  touch-action: manipulation;
+}
+.app-shell button:focus-visible,
+.app-shell select:focus-visible,
+.app-shell input:focus-visible,
+.app-shell textarea:focus-visible {
+  outline: 2px solid #ff786d;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .app-shell { padding-left: 20px; padding-right: 20px; }
+  .app-shell .topbar { gap: 18px; }
+  .app-shell .content-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+    gap: 14px;
+  }
+  .app-shell .stat-cell > strong { font-size: clamp(19px, 2.3vw, 25px); }
+  .app-shell .page-heading { gap: 14px; }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: calc(190px + env(safe-area-inset-bottom));
+  }
+  .app-shell .topbar {
+    min-width: 0;
+    gap: 8px;
+  }
+  .app-shell .brand { flex: 0 1 auto; }
+  .app-shell .top-status {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.4;
+    text-align: right;
+  }
+  .app-shell .page-heading {
+    min-height: 0;
+    padding: 22px 0 18px;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .app-shell .page-heading h1 {
+    font-size: clamp(34px, 8.8vw, 43px);
+    line-height: .98;
+    margin-top: 9px;
+  }
+  .app-shell .page-heading p {
+    max-width: 100%;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .app-shell .weekend-status {
+    max-width: 42%;
+    margin-top: 12px;
+    gap: 6px;
+  }
+  .app-shell .weekend-status strong { line-height: 1.4; }
+  .app-shell .weekend-status div span { line-height: 1.45; }
+  .app-shell .hero-art { pointer-events: none; }
+  .app-shell .stat-strip { min-width: 0; }
+  .app-shell .stat-cell { min-width: 0; }
+  .app-shell .stat-cell > strong {
+    font-size: clamp(18px, 5.8vw, 23px);
+    font-variant-numeric: tabular-nums;
+  }
+  .app-shell .content-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .app-shell .panel-heading {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 13px;
+  }
+  .app-shell .panel-heading h2 {
+    font-size: clamp(17px, 4.8vw, 21px);
+    line-height: 1.15;
+  }
+  .app-shell .circuit-wrap { padding-left: 6px; padding-right: 6px; }
+  .app-shell .circuit-wrap svg { width: 100%; height: auto; }
+  .app-shell .map-legend {
+    justify-content: flex-start;
+    padding-left: 8px;
+    padding-right: 8px;
+    line-height: 1.5;
+  }
+  .app-shell .race-controls {
+    align-items: stretch;
+    gap: 10px;
+  }
+  .app-shell .control-left { min-width: 0; flex-wrap: wrap; }
+  .app-shell .speed-control { min-width: 0; flex-wrap: wrap; }
+  .app-shell .strategy-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .app-shell .driver-strategy { min-width: 0; }
+  .app-shell .driver-ident strong,
+  .app-shell .driver-ident span { overflow-wrap: anywhere; }
+  .app-shell .driver-metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .app-shell .strategy-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .app-shell .standings-table {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .app-shell .upgrade-panel { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .upgrade-copy,
+  .app-shell .upgrade-action { min-width: 0; padding-left: 16px; padding-right: 16px; }
+  .app-shell .upgrade-meta { gap: 12px; }
+  .app-shell .mobile-play-dock {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .app-shell .mobile-dock-tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .app-shell .mobile-dock-tabs button { min-width: 0; }
+  .app-shell .mobile-dock-tabs button small {
+    font-size: clamp(6px, 1.8vw, 8px);
+    letter-spacing: 0;
+  }
+  .app-shell .footer { padding-bottom: 8px; }
+}
+
+@media (max-width: 390px) {
+  .app-shell {
+    padding-left: max(9px, env(safe-area-inset-left));
+    padding-right: max(9px, env(safe-area-inset-right));
+    padding-bottom: calc(186px + env(safe-area-inset-bottom));
+  }
+  .app-shell .brand-text>b { font-size: 15px; letter-spacing: .8px; }
+  .app-shell .brand-text>span { letter-spacing: .06em; }
+  .app-shell .top-status { max-width: 44%; font-size: 7px; }
+  .app-shell .page-heading { gap: 5px; }
+  .app-shell .page-heading h1 { font-size: clamp(31px, 9vw, 36px); }
+  .app-shell .weekend-status { max-width: 39%; }
+  .app-shell .stat-cell { padding: 11px 9px; }
+  .app-shell .stat-cell > span { font-size: 7px; letter-spacing: .6px; }
+  .app-shell .stat-cell > strong { font-size: 19px; }
+  .app-shell .strategy-grid { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .driver-strategy + .driver-strategy {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .app-shell .driver-strategy { padding: 14px 12px; }
+  .app-shell .report-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-shell .mobile-speed-control {
+    grid-template-columns: 42px repeat(4, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .app-shell .mobile-speed-control button { padding-left: 1px; padding-right: 1px; }
+  .app-shell .mobile-dock-tabs { gap: 1px; }
+  .app-shell .mobile-dock-tabs button { padding-left: 0; padding-right: 0; }
+  .app-shell .mobile-dock-tabs button small { font-size: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
