@@ -4235,3 +4235,16 @@ body {
     padding: 14px;
   }
 }
+
+
+/* Add a clearer gap between the post-race tabs and the team budget indicator. */
+@media (max-width: 700px) {
+  .app-shell .mobile-intermission-scenario .career-intermission-content,
+  .app-shell .mobile-intermission-upgrade .career-intermission-content {
+    margin-top: 24px;
+  }
+  .app-shell .mobile-intermission-scenario .intermission-budget-mobile,
+  .app-shell .mobile-intermission-upgrade .intermission-budget-mobile {
+    margin-top: 4px;
+  }
+}
