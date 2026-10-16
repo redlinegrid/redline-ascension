@@ -3490,3 +3490,130 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
  .footer{gap:8px;flex-direction:column;align-items:flex-start;padding:18px 0 calc(94px + env(safe-area-inset-bottom))}
  .footer span{line-height:1.6}
 }
+
+
+/* Mobile polish pass: clearer race data, safer touch targets and less cramped reports. */
+@media (max-width: 760px) {
+  .app-shell {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
+  }
+
+  .app-shell .panel,
+  .app-shell .stat-cell,
+  .app-shell .current-upgrades-panel {
+    min-width: 0;
+    scroll-margin-top: 66px;
+  }
+
+  .app-shell .panel-heading {
+    gap: 10px;
+    min-width: 0;
+  }
+  .app-shell .panel-heading > div { min-width: 0; }
+  .app-shell .panel-heading h2 {
+    font-size: clamp(16px, 4.5vw, 20px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  /* Make race classification feel like a readable timing tower, not a tiny spreadsheet. */
+  .app-shell.mobile-tab-standings .content-grid .standings-table {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #575963 #17181d;
+    padding-bottom: 3px;
+  }
+  .app-shell .standings-row,
+  .app-shell .table-header { min-width: 355px; }
+  .app-shell .standings-row {
+    min-height: 48px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  .app-shell .standings-row.player-row {
+    background: linear-gradient(90deg, rgba(255,69,58,.15), rgba(255,69,58,.035));
+    box-shadow: inset 2px 0 #ff453a;
+  }
+  .app-shell .standings-row .position { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .app-shell .standings-row .driver-cell strong { font-size: 11px; }
+  .app-shell .standings-row .driver-cell small { font-size: 8px; }
+  .app-shell .standings-row .gap-cell { font-size: 9px; font-variant-numeric: tabular-nums; }
+  .app-shell .standings-foot {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    font-size: 7px;
+    line-height: 1.5;
+    padding: 10px 12px;
+  }
+
+  /* Post-race report metrics get room to breathe on narrow displays. */
+  .app-shell .report-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+  }
+  .app-shell .report-stats > div { min-width: 0; padding: 11px 9px; }
+  .app-shell .report-stats span,
+  .app-shell .report-stats small {
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+  }
+  .app-shell .report-stats strong {
+    font-size: clamp(15px, 4.5vw, 19px);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+  .app-shell .report-box { padding: 12px; }
+  .app-shell .report-box h3 { font-size: 18px; line-height: 1.2; }
+  .app-shell .report-box > p { font-size: 12px; line-height: 1.55; }
+
+  /* Strategy inputs are easier to hit and remain inside their driver cards. */
+  .app-shell .segmented button {
+    min-height: 38px;
+    padding: 9px 3px;
+    font-size: 9px;
+    touch-action: manipulation;
+  }
+  .app-shell .strategy-row select {
+    min-height: 42px;
+    padding: 9px 7px;
+    font-size: 11px;
+  }
+  .app-shell .mobile-dock-tabs button {
+    min-height: 46px;
+    touch-action: manipulation;
+  }
+  .app-shell .mobile-dock-tabs button small {
+    font-size: 8px;
+    line-height: 1.2;
+  }
+  .app-shell .mobile-race-toggle,
+  .app-shell .mobile-speed-control button {
+    min-height: 42px;
+    touch-action: manipulation;
+  }
+  .app-shell button:focus-visible,
+  .app-shell select:focus-visible {
+    outline: 2px solid #ff786d;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 390px) {
+  .app-shell {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: calc(148px + env(safe-area-inset-bottom));
+  }
+  .app-shell .standings-row,
+  .app-shell .table-header { min-width: 340px; }
+  .app-shell .report-box { padding: 10px; }
+  .app-shell .report-stats > div { padding: 10px 7px; }
+  .app-shell .mobile-dock-actions { gap: 6px; }
+  .app-shell .mobile-speed-control { gap: 3px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .standings-table { scroll-behavior: auto; }
+}
