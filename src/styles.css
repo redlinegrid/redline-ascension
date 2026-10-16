@@ -4183,3 +4183,55 @@ body {
     border-radius: 10px;
   }
 }
+
+
+/* Give both post-race mobile screens a little more breathing room. */
+@media (max-width: 700px) {
+  .app-shell .mobile-intermission-steps {
+    margin-bottom: 18px;
+  }
+  .app-shell .mobile-intermission-scenario .career-intermission-content,
+  .app-shell .mobile-intermission-upgrade .career-intermission-content {
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-top: 16px;
+  }
+  .app-shell .mobile-intermission-scenario .intermission-budget-mobile {
+    margin-bottom: 14px;
+  }
+  .app-shell .mobile-intermission-scenario .paddock-event-panel {
+    padding: 16px;
+  }
+  .app-shell .mobile-intermission-scenario .paddock-event-story {
+    margin-top: 13px;
+    margin-bottom: 17px;
+  }
+  .app-shell .mobile-intermission-scenario .paddock-choice-grid {
+    gap: 11px;
+    margin-top: 15px;
+  }
+  .app-shell .mobile-intermission-scenario .paddock-choice {
+    padding: 13px;
+  }
+  .app-shell .mobile-intermission-upgrade .intermission-budget-mobile {
+    margin-bottom: 16px;
+  }
+  .app-shell .mobile-intermission-upgrade .intermission-section-heading {
+    margin-top: 18px;
+    margin-bottom: 12px;
+  }
+  .app-shell .mobile-intermission-upgrade .intermission-upgrade-grid {
+    gap: 11px;
+  }
+  .app-shell .mobile-intermission-upgrade .intermission-upgrade-grid .rogue-card {
+    padding: 11px;
+    gap: 7px;
+  }
+  .app-shell .mobile-intermission-upgrade .mobile-upgrade-detail {
+    margin-top: 8px;
+  }
+  .app-shell .mobile-intermission-upgrade .intermission-action-row {
+    margin-top: 18px;
+    padding: 14px;
+  }
+}
