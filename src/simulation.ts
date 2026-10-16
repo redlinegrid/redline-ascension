@@ -208,6 +208,13 @@ export interface PaddockChoice{id:string;label:string;description:string;cashDel
 export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL";title:string;source:string;story:string;choices:PaddockChoice[];}
 export interface DriverContract{id:string;driverName:string;salaryPerRace:number;expiresAtRound:number;renewed:boolean;loyalty:number;}
 export interface ChampionshipObjective{id:"score-points"|"podium"|"double-points"|"beat-nemesis";title:string;detail:string;targetTeam?:string;reward:number;completed?:boolean;}
+export type CrashContractId="team-cover"|"shared-cover"|"catastrophe-cover";
+export interface CrashLiabilityContract{id:CrashContractId;title:string;description:string;premium:number;coverage:string;}
+export const CRASH_LIABILITY_CONTRACTS:CrashLiabilityContract[]=[
+{id:"team-cover",title:"TEAM ACCEPTS LIABILITY",description:"No insurance premium. Your team pays the full repair and rebuild bill.",premium:0,coverage:"0% covered"},
+{id:"shared-cover",title:"SHARED LIABILITY",description:"Pay RM65,000 per race weekend; the insurer covers 45% of eligible repair costs.",premium:65000,coverage:"45% of repairs covered"},
+{id:"catastrophe-cover",title:"CATASTROPHE COVER",description:"Pay RM25,000 per weekend. The team pays the first RM250,000; insurance covers 70% of the remainder.",premium:25000,coverage:"70% above RM250,000"},
+];
 export interface RaceState{
 version:1;
 mode?:GameMode;
@@ -220,6 +227,10 @@ eventSequence:number;
 cars:CarState[];
 events:RaceEvent[];
 cash:number;
+crashContract?:CrashContractId;
+lastRepairBill?:number;
+lastInsurancePayout?:number;
+lastContractPremium?:number;
 upgradeLevel:number;
 upgradeModules:UpgradeModules;
 installedUpgrades?:InstalledUpgrade[];
@@ -371,7 +382,7 @@ const circuitSeed=(seed ^ Math.imul(weekendNumber+37,2246822519))>>>0;
 const circuitNames=["Copperhead Ring","Monsoon Park","Granite Valley","Nightfall Circuit","Cobalt Coast","Redwood Raceway","Sundown Autodrome","Ironclad Park","Tempest Circuit","Silver Basin","Emberstone GP","Highland Loop","Mirage International","Blackstone Raceway","Aurora Park","Thunder Ridge","Mariner Circuit","Crimson Dunes","Summit Ring","Neon Harbour"];
 const circuitName=circuitNames[(circuitSeed>>>8)% circuitNames.length];
 const circuitLengthFactor=0.94+((circuitSeed>>>16)% 1200)/ 10000;
-const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},championshipObjective:mode!=="championship"?undefined:weekendNumber%4===0?{id:"podium",title:"Podium Push",detail:"Finish in the top three to impress the board and commercial partners.",reward:170000}:weekendNumber%3===0?{id:"double-points",title:"Double Points",detail:"Get both of your drivers into the top ten.",reward:145000}:{id:"score-points",title:"Score Points",detail:"Bring at least one car home in the top ten.",reward:100000},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
+const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,crashContract:"team-cover",upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},championshipObjective:mode!=="championship"?undefined:weekendNumber%4===0?{id:"podium",title:"Podium Push",detail:"Finish in the top three to impress the board and commercial partners.",reward:170000}:weekendNumber%3===0?{id:"double-points",title:"Double Points",detail:"Get both of your drivers into the top ten.",reward:145000}:{id:"score-points",title:"Score Points",detail:"Bring at least one car home in the top ten.",reward:100000},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
 const roster:Array<{id:string;driver:string;team:string;color:string;player:boolean;progress:number}>=[
 {id:"rp-1",driver:firstDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0.025},
 {id:"rp-2",driver:secondDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0},
@@ -612,12 +623,18 @@ const payout=firstPlayer===1?1100000:firstPlayer<=3?750000:firstPlayer<=6?520000
 const sponsorBonus=(state.buildTraits??[]).includes("sponsor-network")?120000:0;
 const playerCars=state.cars.filter((car)=>car.playerCar);
 const repairBill=playerCars.reduce((sum,car)=>sum+Math.round(Math.max(0,100-car.condition)*4500)+(car.retired?300000:0),0);
-state.cash+=payout+sponsorBonus-repairBill;
-if(repairBill>0){
-state.teamMorale=Math.max(0,(state.teamMorale??62)-(playerCars.some((car)=>car.retired)?12:Math.min(8,Math.ceil(repairBill/100000))));
-addEvent(state,"REPAIR BILL — "+(playerCars.some((car)=>car.retired)?"A retired car requires a major rebuild. ":"") +"Damage repairs and replacement parts cost RM"+repairBill.toLocaleString("en-MY")+". The bill is deducted from prize income and team reserves.","warning");
-}
-if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
+const contract=CRASH_LIABILITY_CONTRACTS.find((item)=>item.id===(state.crashContract??"team-cover"))??CRASH_LIABILITY_CONTRACTS[0];
+const insurancePayout=contract.id==="shared-cover"?Math.round(repairBill*0.45):contract.id==="catastrophe-cover"?Math.round(Math.max(0,repairBill-250000)*0.7):0;
+const contractPremium=contract.premium;
+const teamRepairCost=Math.max(0,repairBill-insurancePayout);
+state.lastRepairBill=repairBill;
+state.lastInsurancePayout=insurancePayout;
+state.lastContractPremium=contractPremium;
+state.cash+=payout+sponsorBonus-teamRepairCost-contractPremium;
+if(repairBill>0||contractPremium>0){
+state.teamMorale=Math.max(0,(state.teamMorale??62)-(playerCars.some((car)=>car.retired)?12:repairBill>0?Math.min(8,Math.ceil(teamRepairCost/100000)):0));
+addEvent(state,"REPAIR & LIABILITY — "+(playerCars.some((car)=>car.retired)?"A retired car requires a major rebuild. ":"")+"Gross repairs: RM"+repairBill.toLocaleString("en-MY")+". "+(insurancePayout>0?"Insurance covers RM"+insurancePayout.toLocaleString("en-MY")+". ":"")+"Team pays RM"+teamRepairCost.toLocaleString("en-MY")+(contractPremium>0?" plus RM"+contractPremium.toLocaleString("en-MY")+" contract premium":"")+".","warning");
+}if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
 state.teamPoints??={};
 state.rivalryWins??={};
 state.rivalryBattles??={};
@@ -838,6 +855,14 @@ next.cars=fresh.cars;
 next.cars.forEach((car)=>{car.condition=Math.max(72,car.condition -(car.playerCar?2.5:0));if(car.playerCar){car.tyre="MEDIUM";car.nextTyre="HARD";car.tyreWear=0.02;car.fuel=100;car.pitLap=7;}});
 addEvent(next,"Weekend "+(next.weekendNumber - 1)+": drafted "+card.title+". "+card.effect);
 for(const evolutionId of next.activeEvolutions??[]){if(previouslyActiveEvolutions.has(evolutionId))continue;const evolution=UPGRADE_EVOLUTIONS.find((item)=>item.id===evolutionId);if(evolution)addEvent(next,"TECH EVOLUTION UNLOCKED: "+evolution.title+". "+evolution.rewardText,"info");}
+return next;
+}
+export function setCrashContract(state:RaceState,contractId:CrashContractId):RaceState{
+if(state.status!=="finished"||!CRASH_LIABILITY_CONTRACTS.some((contract)=>contract.id===contractId)||state.crashContract===contractId)return state;
+const next=structuredClone(state);
+next.crashContract=contractId;
+const contract=CRASH_LIABILITY_CONTRACTS.find((item)=>item.id===contractId)!;
+addEvent(next,"LIABILITY AGREEMENT SIGNED — "+contract.title+". This agreement applies from the next race weekend; premium and coverage are settled after that race.","info");
 return next;
 }
 export function standings(state:RaceState):CarState[]{return[...state.cars].sort((a,b)=>{if(!!a.retired!==!!b.retired)return a.retired?1:-1;if(a.finished&&b.finished)return(a.finishTime??Infinity)-(b.finishTime??Infinity);if(a.finished)return -1;if(b.finished)return 1;return b.progress - a.progress;});}
