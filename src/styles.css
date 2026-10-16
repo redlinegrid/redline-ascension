@@ -4248,3 +4248,41 @@ body {
     margin-top: 4px;
   }
 }
+
+
+/* Keep the post-race reroll action beside the offers it refreshes, not in the heading corner. */
+.intermission-reroll-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 10px 0 16px;
+}
+.intermission-reroll-row > span {
+  color: #7f8999;
+  font-size: 8px;
+  letter-spacing: .1em;
+}
+.intermission-reroll-row .secondary-button {
+  min-height: 34px;
+  padding: 8px 11px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .mobile-intermission-upgrade .intermission-reroll-row {
+    justify-content: space-between;
+    gap: 8px;
+    margin: 10px 0 14px;
+  }
+  .mobile-intermission-upgrade .intermission-reroll-row > span {
+    max-width: 45%;
+    line-height: 1.4;
+  }
+  .mobile-intermission-upgrade .intermission-reroll-row .secondary-button {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    font-size: 8px;
+  }
+}
