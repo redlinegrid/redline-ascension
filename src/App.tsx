@@ -303,6 +303,28 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
   const startFinish = trackPosition(0, trackPoints);
   const sectorOne = trackPosition(1 / 3, trackPoints);
   const sectorTwo = trackPosition(2 / 3, trackPoints);
+  const turnMarkers = useMemo(() => {
+    const candidates = trackPoints.map((point, index) => {
+      const previous = trackPoints[(index - 1 + trackPoints.length) % trackPoints.length];
+      const next = trackPoints[(index + 1) % trackPoints.length];
+      const incoming = [point[0] - previous[0], point[1] - previous[1]];
+      const outgoing = [next[0] - point[0], next[1] - point[1]];
+      const inLength = Math.hypot(incoming[0], incoming[1]) || 1;
+      const outLength = Math.hypot(outgoing[0], outgoing[1]) || 1;
+      const cosine = Math.max(-1, Math.min(1, (incoming[0] * outgoing[0] + incoming[1] * outgoing[1]) / (inLength * outLength)));
+      const deflection = 180 - Math.acos(cosine) * 180 / Math.PI;
+      return { x: point[0], y: point[1], index, deflection };
+    }).filter((point) => point.deflection >= 18).sort((a, b) => b.deflection - a.deflection);
+    const selected: typeof candidates = [];
+    for (const candidate of candidates) {
+      if (selected.every((point) => {
+        const distance = Math.abs(point.index - candidate.index);
+        return Math.min(distance, trackPoints.length - distance) >= 2;
+      })) selected.push(candidate);
+      if (selected.length === 8) break;
+    }
+    return selected.sort((a, b) => a.index - b.index).map((point, index) => ({ ...point, number: index + 1 }));
+  }, [trackPoints]);
   return <div className="circuit-wrap circuit-theme">
     <div className="circuit-hud"><span><i /> CIRCUIT TELEMETRY</span><b>SEED {circuitSeed.toString(16).toUpperCase().padStart(6, "0").slice(-6)}</b></div>
     <svg viewBox="0 0 380 220" role="img" aria-label={"Live circuit map for " + circuitName}>
@@ -325,6 +347,10 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
       <text x={startFinish.x + 12} y={startFinish.y - 12} className="track-marker-label">START / FINISH</text>
       <g className="track-sector sector-one" transform={"translate(" + sectorOne.x + " " + sectorOne.y + ")"}><circle r="7" /><text y="2.5">S1</text></g>
       <g className="track-sector sector-two" transform={"translate(" + sectorTwo.x + " " + sectorTwo.y + ")"}><circle r="7" /><text y="2.5">S2</text></g>
+      {turnMarkers.map((turn) => <g key={turn.number} className="track-turn" transform={"translate(" + turn.x + " " + turn.y + ")"} aria-label={"Turn " + turn.number}>
+        <circle r="5.4" fill="#050609" stroke="#d8dce4" strokeWidth="1" />
+        <text y="1.9" textAnchor="middle" fill="#f2f4f8" fontSize="5.5" fontWeight="700">{turn.number}</text>
+      </g>)}
       <g className="track-core">
         <text x="190" y="105" textAnchor="middle" className="track-center-label">LAP {String(lap).padStart(2, "0")}</text>
         <text x="190" y="118" textAnchor="middle" className="track-center-sub">{circuitName.toUpperCase()}</text>
@@ -337,7 +363,7 @@ function CircuitMap({ cars, lap, teamName, circuitSeed = 8241, circuitName = "Co
         {car.playerCar && <text x={car.x + 8} y={car.y - 7} className="track-car-label">{car.id === "rp-1" ? "07" : "22"}</text>}
       </g>)}
     </svg>
-    <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span></div>
+    <div className="map-legend"><span><i className="dot red" /> {teamName.toUpperCase()}</span><span><i className="dot teal" /> VORTEX</span><span><i className="dot purple" /> APEX</span><span><i className="dot gold" /> NORTHSTAR</span><span><i className="dot blue" /> VELOCITY</span><span><i className="dot" style={{ background: "#d8dce4" }} /> TURN NUMBERS</span></div>
   </div>;
 }
 
