@@ -3434,6 +3434,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 /* Keep menu actions on the home screen; mode selection is the next onboarding step. */
 .start-screen-content[data-onboarding-step="mode"] .start-menu-actions{display:none!important}
 .start-screen-content[data-onboarding-step="home"] .start-menu-actions{display:flex}
+.start-screen-content[data-onboarding-step="mode"] .mode-select-section{display:block!important;width:100%;box-sizing:border-box}
 @media(max-width:760px){
   .start-screen-content[data-onboarding-step="mode"] .mode-next{
     align-items:stretch;
@@ -3453,5 +3454,24 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     font-size:8px;
     line-height:1.35;
     justify-content:center;
+  }
+}
+
+
+/* Give both home-menu actions a longer, more substantial tap target. */
+.start-menu-actions{width:100%;align-self:stretch}
+.start-menu-actions .start-new-game-button,
+.start-menu-actions .continue-career-button{
+  width:100%;
+  min-height:78px;
+  padding:24px 22px;
+  box-sizing:border-box;
+  align-self:stretch;
+}
+@media(max-width:760px){
+  .start-menu-actions .start-new-game-button,
+  .start-menu-actions .continue-career-button{
+    min-height:76px;
+    padding:22px 18px;
   }
 }
