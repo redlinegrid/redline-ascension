@@ -549,6 +549,7 @@ addEvent(state,"SAFETY CAR — Race control neutralises the field after the inci
 }
 }
 }
+order.sort((a,b)=>b.progress-a.progress);
 const leader=order[0];
 state.lap=Math.min(state.totalLaps,Math.max(1,Math.floor(leader.progress)+1));
 if(!state.raceDramaTriggered&&state.lap>=(state.raceDramaLap??8)&&state.lap<state.totalLaps){
@@ -803,7 +804,7 @@ addEvent(next,"Weekend "+(next.weekendNumber - 1)+": drafted "+card.title+". "+c
 for(const evolutionId of next.activeEvolutions??[]){if(previouslyActiveEvolutions.has(evolutionId))continue;const evolution=UPGRADE_EVOLUTIONS.find((item)=>item.id===evolutionId);if(evolution)addEvent(next,"TECH EVOLUTION UNLOCKED: "+evolution.title+". "+evolution.rewardText,"info");}
 return next;
 }
-export function standings(state:RaceState):CarState[]{return[...state.cars].sort((a,b)=>{if(a.finished&&b.finished)return(a.finishTime??Infinity)-(b.finishTime??Infinity);if(a.finished)return -1;if(b.finished)return 1;return b.progress - a.progress;});}
+export function standings(state:RaceState):CarState[]{return[...state.cars].sort((a,b)=>{if(!!a.retired!==!!b.retired)return a.retired?1:-1;if(a.finished&&b.finished)return(a.finishTime??Infinity)-(b.finishTime??Infinity);if(a.finished)return -1;if(b.finished)return 1;return b.progress - a.progress;});}
 export function formatLapTime(seconds:number):string{
 if(!seconds||!Number.isFinite(seconds))return "—";
 const minutes=Math.floor(seconds / 60);
