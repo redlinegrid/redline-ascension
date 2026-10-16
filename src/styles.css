@@ -2022,3 +2022,106 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     margin-top: 14px;
   }
 }
+
+
+/* Post-race mobile draft: show all three offers side by side without oversized card copy. */
+@media (max-width: 700px) {
+  .intermission-upgrade-grid {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    overflow: visible;
+    padding: 2px 0 8px;
+    margin: 0;
+    scroll-snap-type: none;
+  }
+  .intermission-upgrade-grid .rogue-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 6px;
+    border-radius: 7px;
+    text-align: left;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .intermission-upgrade-grid .rogue-card-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin: 0;
+  }
+  .intermission-upgrade-grid .rogue-card-index {
+    font-size: 6px;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+  .intermission-upgrade-grid .rogue-card-top b {
+    font-size: 6px;
+    line-height: 1.2;
+  }
+  .intermission-upgrade-grid .rogue-card-art {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+  }
+  .intermission-upgrade-grid .rogue-card-subtitle {
+    margin: 0;
+    font-size: 7px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .intermission-upgrade-grid .rogue-card > strong {
+    font-size: 11px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .intermission-upgrade-grid .rogue-card > p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+    margin: 0;
+    font-size: 8px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .intermission-upgrade-grid .rogue-card-effect {
+    margin: 0;
+    padding-top: 5px;
+    font-size: 7px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .intermission-upgrade-grid .evolution-combo-hint {
+    display: none;
+  }
+  .intermission-upgrade-grid .rogue-card-pick {
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 7px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .intermission-section-heading {
+    align-items: center;
+    flex-direction: row;
+  }
+}
+@media (max-width: 390px) {
+  .intermission-upgrade-grid { gap: 5px; }
+  .intermission-upgrade-grid .rogue-card { padding: 7px 5px; gap: 5px; }
+  .intermission-upgrade-grid .rogue-card > strong { font-size: 10px; }
+  .intermission-upgrade-grid .rogue-card > p { font-size: 7px; -webkit-line-clamp: 4; }
+  .intermission-upgrade-grid .rogue-card-art { width: 26px; height: 26px; }
+}
