@@ -1596,3 +1596,20 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .circuit-timing-note,.circuit-empty{color:#6f7a8a;font:8px/1.5 var(--mono);margin:8px 0 0}
 @media(max-width:760px){.circuit-detail-grid{grid-template-columns:1fr}.sector-tabs{gap:4px}.sector-tab{padding:7px 8px;font-size:7px}.circuit-detail-panel{padding:8px}.circuit-turn-row{grid-template-columns:30px 50px minmax(20px,1fr) 30px}}
 @media(prefers-reduced-motion:reduce){.sector-tab{transition:none}}
+
+/* Circuit map update: compact live battle watch */
+.circuit-battle-watch{border:1px solid #252b36;background:linear-gradient(115deg,#0b0e14,#10131a);padding:11px;margin:0 0 10px;position:relative;z-index:1}
+.circuit-battle-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.circuit-battle-heading>small{font:7px var(--mono);letter-spacing:.06em;color:#707b8b}
+.circuit-battle-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.circuit-battle-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;min-width:0;padding:8px 6px;background:#080a0e;border:1px solid #1c222c}
+.circuit-battle-row>b{font:8px var(--mono);color:#687487}
+.battle-driver{display:flex;align-items:center;gap:4px;min-width:0;font:8px var(--mono);color:#c4ccd7;white-space:nowrap}
+.battle-driver>i{width:4px;height:15px;flex:none;border-radius:2px}
+.battle-driver>small{display:none}
+.battle-driver:last-child{justify-content:flex-end}
+.battle-gap{text-align:center;color:#ffaaa4;font:700 8px var(--mono);white-space:nowrap}
+.battle-gap>small{display:block;margin-top:3px;color:#737f90;font-size:6px;font-weight:400}
+.circuit-battle-row.player-battle{border-color:#71312e;background:#1b1012}
+.circuit-battle-row.player-battle .battle-gap{color:#ff756b}
+@media(max-width:760px){.circuit-battle-list{grid-template-columns:1fr}.circuit-battle-row{grid-template-columns:18px minmax(0,1fr) auto minmax(0,1fr)}.battle-driver{font-size:8px}.circuit-battle-heading>small{font-size:6px}}
