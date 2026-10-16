@@ -131,7 +131,7 @@ export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 ];
 export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number;rerollCount?:number}={}):UpgradeCard[]{
 const pool=[...UPGRADE_CARD_POOL];
-let seed=(state.seed ^ Math.imul(state.weekendNumber+17,2654435761) ^ Math.imul(Math.max(0,Math.floor(progression.rerollCount??0))+1,2246822519))>>>0;
+let seed=(state.seed ^ Math.imul(state.weekendNumber+17,2654435761) ^ Math.imul(Math.max(0,Math.floor(progression.rerollCount??0)),2246822519))>>>0;
 const nextRandom=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed / 4294967296;};
 for(let i=pool.length - 1;i>0;i--){
 const j=Math.floor(nextRandom()*(i+1));
