@@ -1320,12 +1320,12 @@ function RaceReport({ race, onSignContract }: { race: RaceState; onSignContract:
       <div><span>INSURANCE PAYOUT</span><strong className="liability-positive">−{money(race.lastInsurancePayout ?? 0)}</strong></div>
       <div><span>CONTRACT PREMIUM</span><strong>{money(race.lastContractPremium ?? 0)}</strong></div>
     </div>
-    <div className="report-note">The signed agreement for this race determined the insurance payout. Your choice below applies to the next weekend, so you can change terms before the next green flag.</div>
+    <div className="report-note">AGREEMENT APPLIED THIS RACE: <strong>{CRASH_LIABILITY_CONTRACTS.find((contract) => contract.id === (race.lastCrashContract ?? "team-cover"))?.title ?? "TEAM ACCEPTS LIABILITY"}</strong>. Your selection below applies to the next weekend, before the next green flag.</div>
     <section className="crash-contracts" aria-label="Crash liability contracts">
       <div className="crash-contract-heading"><span className="section-kicker">CONTRACT OFFICE</span><h4>Who pays when the car comes back in pieces?</h4><p>Sign a liability agreement for the next race. The premium is charged after that weekend, alongside any repair bill.</p></div>
       <div className="crash-contract-grid">
         {CRASH_LIABILITY_CONTRACTS.map((contract) => <article className={"crash-contract-card" + (activeContract === contract.id ? " contract-selected" : "")} key={contract.id}>
-          <span className="contract-status">{activeContract === contract.id ? "CURRENTLY SIGNED" : "AVAILABLE TERMS"}</span>
+          <span className="contract-status">{activeContract === contract.id ? "SELECTED FOR NEXT ROUND" : "AVAILABLE TERMS"}</span>
           <h5>{contract.title}</h5><p>{contract.description}</p>
           <div className="contract-coverage"><span>PREMIUM / WEEKEND</span><strong>{money(contract.premium)}</strong><small>{contract.coverage}</small></div>
           <button className={activeContract === contract.id ? "contract-sign-button contract-current-button" : "contract-sign-button"} disabled={!canSign || activeContract === contract.id} onClick={() => onSignContract(contract.id)}>{activeContract === contract.id ? "AGREEMENT ACTIVE" : canSign ? "SIGN FOR NEXT ROUND" : "CAMPAIGN CLOSED"}</button>
