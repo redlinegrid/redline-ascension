@@ -1439,3 +1439,30 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .market-driver-lock button{grid-column:1/-1;width:100%;padding:10px;border:1px solid #70552c;background:linear-gradient(110deg,#392b18,#252018);color:#ffcf83;font:800 8px var(--mono);letter-spacing:.07em;cursor:pointer}
 .market-driver-lock button:disabled{border-color:#343640;background:#191b21;color:#777e8c;cursor:not-allowed}
 @media(max-width:600px){.driver-market-heading{flex-direction:column}.driver-market-heading-side{align-items:flex-start}.market-driver-lock button{padding:11px}}
+
+
+/* Crash liability contracts */
+.liability-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:16px;border:1px solid var(--line);background:var(--line)}
+.liability-summary>div{display:flex;flex-direction:column;gap:7px;padding:12px;background:#17181d;min-width:0}
+.liability-summary span,.contract-coverage span{font:8px var(--mono);letter-spacing:.07em;color:#90939e}
+.liability-summary strong{font:700 13px var(--mono);color:#f3f3f5;font-variant-numeric:tabular-nums}
+.liability-summary .liability-positive{color:#78dca2}
+.crash-contracts{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.crash-contract-heading .section-kicker{color:#ffc16f}
+.crash-contract-heading h4{margin:7px 0 5px;font:600 19px var(--display);color:#f2f2f4}
+.crash-contract-heading p{margin:0;color:#9da1ac;font-size:10px;line-height:1.6}
+.crash-contract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.crash-contract-card{display:flex;flex-direction:column;min-width:0;padding:13px;border:1px solid #353741;border-radius:8px;background:linear-gradient(155deg,#202127,#15161b)}
+.crash-contract-card.contract-selected{border-color:#c88c40;background:linear-gradient(155deg,rgba(200,140,64,.12),#17181d 75%)}
+.contract-status{font:800 7px var(--mono);letter-spacing:.08em;color:#9297a4}
+.contract-selected .contract-status{color:#ffc16f}
+.crash-contract-card h5{margin:9px 0 7px;font:700 11px var(--mono);line-height:1.45;color:#f1f2f5}
+.crash-contract-card>p{margin:0 0 13px;color:#a8acb7;font-size:9px;line-height:1.65;flex:1}
+.contract-coverage{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid #343640}
+.contract-coverage strong{font:800 13px var(--mono);color:#f1f2f5}
+.contract-coverage small{font-size:8px;color:#a5a9b5;line-height:1.5}
+.contract-sign-button{width:100%;min-height:34px;padding:8px 6px;border:1px solid #6d512d;border-radius:4px;background:#2b2116;color:#ffd18b;font:800 7px var(--mono);letter-spacing:.04em;cursor:pointer}
+.contract-sign-button:hover:not(:disabled){background:#45311a}
+.contract-sign-button:disabled{border-color:#363841;background:#1b1c22;color:#8e929d;cursor:default}
+.contract-current-button:disabled{border-color:#6d512d;color:#ffc16f}
+@media(max-width:760px){.crash-contract-grid{grid-template-columns:1fr}.crash-contract-card{padding:14px}.crash-contract-card h5{font-size:12px}.contract-sign-button{font-size:8px}.liability-summary strong{font-size:10px}.liability-summary>div{padding:9px 7px}.liability-summary span{font-size:7px}}

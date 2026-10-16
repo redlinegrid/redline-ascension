@@ -202,12 +202,20 @@ lastLap:number;
 bestLap:number;
 finishTime:number|null;
 finished:boolean;
+incidentCooldown?:number;
 }
 export interface RaceEvent{id:number;lap:number;message:string;kind:"info"|"pit"|"battle"|"warning"|"finish";}
 export interface PaddockChoice{id:string;label:string;description:string;cashDelta:number;moraleDelta:number;reputationDelta:number;weekendEffect?:"wet-prepared"|"wet-unprepared"|"directive-compliant"|"directive-restricted"|"spares-secured"|"parts-shortage"|"feud-attack"|"feud-composed";}
 export interface PaddockEvent{id:string;category:"FIA PROTEST"|"PADDOCK POLITICS"|"TEAM DRAMA"|"COMMERCIAL";title:string;source:string;story:string;choices:PaddockChoice[];}
 export interface DriverContract{id:string;driverName:string;salaryPerRace:number;expiresAtRound:number;renewed:boolean;loyalty:number;}
 export interface ChampionshipObjective{id:"score-points"|"podium"|"double-points"|"beat-nemesis";title:string;detail:string;targetTeam?:string;reward:number;completed?:boolean;}
+export type CrashContractId="team-cover"|"shared-cover"|"catastrophe-cover";
+export interface CrashLiabilityContract{id:CrashContractId;title:string;description:string;premium:number;coverage:string;}
+export const CRASH_LIABILITY_CONTRACTS:CrashLiabilityContract[]=[
+{id:"team-cover",title:"TEAM ACCEPTS LIABILITY",description:"No insurance premium. Your team pays the full repair and rebuild bill.",premium:0,coverage:"0% covered"},
+{id:"shared-cover",title:"SHARED LIABILITY",description:"Pay RM65,000 per race weekend; the insurer covers 45% of eligible repair costs.",premium:65000,coverage:"45% of repairs covered"},
+{id:"catastrophe-cover",title:"CATASTROPHE COVER",description:"Pay RM25,000 per weekend. The team pays the first RM250,000; insurance covers 70% of the remainder.",premium:25000,coverage:"70% above RM250,000"},
+];
 export interface RaceState{
 version:1;
 mode?:GameMode;
@@ -220,6 +228,11 @@ eventSequence:number;
 cars:CarState[];
 events:RaceEvent[];
 cash:number;
+crashContract?:CrashContractId;
+lastRepairBill?:number;
+lastCrashContract?:CrashContractId;
+lastInsurancePayout?:number;
+lastContractPremium?:number;
 upgradeLevel:number;
 upgradeModules:UpgradeModules;
 installedUpgrades?:InstalledUpgrade[];
@@ -371,7 +384,7 @@ const circuitSeed=(seed ^ Math.imul(weekendNumber+37,2246822519))>>>0;
 const circuitNames=["Copperhead Ring","Monsoon Park","Granite Valley","Nightfall Circuit","Cobalt Coast","Redwood Raceway","Sundown Autodrome","Ironclad Park","Tempest Circuit","Silver Basin","Emberstone GP","Highland Loop","Mirage International","Blackstone Raceway","Aurora Park","Thunder Ridge","Mariner Circuit","Crimson Dunes","Summit Ring","Neon Harbour"];
 const circuitName=circuitNames[(circuitSeed>>>8)% circuitNames.length];
 const circuitLengthFactor=0.94+((circuitSeed>>>16)% 1200)/ 10000;
-const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},championshipObjective:mode!=="championship"?undefined:weekendNumber%4===0?{id:"podium",title:"Podium Push",detail:"Finish in the top three to impress the board and commercial partners.",reward:170000}:weekendNumber%3===0?{id:"double-points",title:"Double Points",detail:"Get both of your drivers into the top ten.",reward:145000}:{id:"score-points",title:"Score Points",detail:"Bring at least one car home in the top ten.",reward:100000},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
+const state:RaceState={version:1,mode,status:"ready",lap:1,totalLaps:18,elapsedSeconds:0,seed,eventSequence:0,cash,crashContract:"team-cover",upgradeLevel,upgradeModules:{aero:0,power:0,suspension:0,reliability:0},buildTraits:[],weekendNumber,playerTeamName:safeTeamName,playerPrincipalName:playerPrincipalName.trim().slice(0,32)||"Team Principal",circuitSeed,circuitName,circuitLengthFactor,teamPoints:{},championshipObjective:mode!=="championship"?undefined:weekendNumber%4===0?{id:"podium",title:"Podium Push",detail:"Finish in the top three to impress the board and commercial partners.",reward:170000}:weekendNumber%3===0?{id:"double-points",title:"Double Points",detail:"Get both of your drivers into the top ten.",reward:145000}:{id:"score-points",title:"Score Points",detail:"Bring at least one car home in the top ten.",reward:100000},rivalryWins:{},rivalryBattles:{},rivalryHistory:{},raceDramaLap:5+((circuitSeed>>>4)% 8),raceDramaTriggered:false,cars:[],events:[],teamMorale:62,teamReputation:45,pendingPaddockEvent:null,paddockEventRound:0,resolvedPaddockEvents:[],driverContracts:[]};
 const roster:Array<{id:string;driver:string;team:string;color:string;player:boolean;progress:number}>=[
 {id:"rp-1",driver:firstDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0.025},
 {id:"rp-2",driver:secondDriverName,team:safeTeamName,color:"#f04438",player:true,progress:0},
@@ -436,6 +449,7 @@ const oldPositions=new Map(oldOrder.map((car,index)=>[car.id,index]));
 const oldLap=state.lap;
 for(const car of state.cars){
 if(car.finished)continue;
+if((car.incidentCooldown??0)>0)car.incidentCooldown=Math.max(0,(car.incidentCooldown??0)-1);
 if(car.pitDelay>0){car.pitDelay -=1;car.fuel=Math.max(0,car.fuel - 0.08);continue;}
 const tyrePenalty=car.tyreWear>0.82?(car.tyreWear - 0.82)*13:car.tyreWear>0.58?(car.tyreWear - 0.58)*5:0;
 const fuelPenalty=car.fuel<8?2.4:(100 - car.fuel)*0.009;
@@ -511,44 +525,53 @@ const runningCars=state.cars.filter((car)=>!car.finished);
 const incidentRisk=(car:CarState)=>{
 const traits=car.playerCar?(state.buildTraits??[]):[];
 const nearby=runningCars.some((other)=>other.id!==car.id&&Math.abs(other.progress-car.progress)<0.055);
+const inBattle=nearby&&(car.battleMode==="OVERTAKE"||car.battleMode==="DEFEND");
 const wearRisk=car.tyreWear>0.85?0.5:car.tyreWear>0.65?0.28:0;
 const conditionRisk=car.condition<45?0.65:car.condition<70?0.32:0;
-const paceRisk=car.pace==="PUSH"?0.3:0;
-const battleRisk=car.battleMode==="OVERTAKE"?0.38:0;
-const driverRisk=Math.max(0,(78-car.driverConsistency)*0.012);
-const racecraftProtection=Math.max(0,(car.driverRacecraft-80)*0.008);
+const paceRisk=car.pace==="PUSH"?0.3:car.pace==="CONSERVE"?-0.08:0;
+// Aggressive overtakes are dangerous mainly when there is another car to fight.
+const battleRisk=car.battleMode==="OVERTAKE"?(nearby?0.55:0.22):car.battleMode==="DEFEND"&&nearby?0.18:0;
+const consistencyRisk=Math.max(-0.22,Math.min(0.5,(82-car.driverConsistency)*0.012));
+const racecraftRisk=nearby?Math.max(-0.22,Math.min(0.45,(82-car.driverRacecraft)*0.012)):Math.max(-0.12,Math.min(0.18,(70-car.driverRacecraft)*0.004));
+const tyreCareRisk=car.tyreWear>0.6?Math.max(-0.1,Math.min(0.18,(82-car.driverTyreManagement)*0.005)):0;
 const weatherRisk=state.weekendEffect==="wet-unprepared"?0.3:0;
 const partsRisk=state.weekendEffect==="parts-shortage"?0.18:0;
 const buildRisk=traits.includes("risk-reward")?0.48:traits.includes("reliability-first")?-0.3:0;
+const styleRisk=car.rivalStyle==="high-risk-attacker"?0.3:car.rivalStyle==="aggressive-racer"?0.2:car.rivalStyle==="reliability-leader"?-0.2:0;
 const reliabilityProtection=car.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):car.rivalStyle==="reliability-leader"?0.28:0;
-return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+driverRisk+(nearby?0.28:0)+weatherRisk+partsRisk+buildRisk-racecraftProtection-reliabilityProtection);
+return Math.max(0.15,1+wearRisk+conditionRisk+paceRisk+battleRisk+consistencyRisk+racecraftRisk+tyreCareRisk+(nearby?0.18:0)+(inBattle?0.1:0)+weatherRisk+partsRisk+buildRisk+styleRisk-reliabilityProtection);
 };
-const risks=runningCars.map((car)=>({car,risk:incidentRisk(car)}));
+// A short recovery window stops one unlucky car suffering repeated incidents on consecutive simulation ticks.
+// Driver skill, tyre care, weather, condition, traffic and the selected race modes all affect incident exposure.
+const risks=runningCars.filter((car)=>(car.incidentCooldown??0)<=0).map((car)=>({car,risk:incidentRisk(car)*(car.playerCar?1.8:1)}));
 const highestRisk=risks.reduce((highest,item)=>Math.max(highest,item.risk),0);
 const incidentChance=Math.min(0.009,0.0035+Math.max(0,highestRisk-1)*0.0024);
-if(runningCars.length>0&&random(state)<incidentChance){
+if(risks.length>0&&random(state)<incidentChance){
 const totalWeight=risks.reduce((sum,item)=>sum+item.risk,0);
 let ticket=random(state)*totalWeight;
 let selected=risks[risks.length-1];
 for(const item of risks){ticket-=item.risk;if(ticket<=0){selected=item;break;}}
 const candidate=selected.car;
 const risk=selected.risk;
-const incidentCause=candidate.tyreWear>0.8?"on heavily worn tyres":state.weekendEffect==="wet-unprepared"?"in difficult wet conditions":candidate.pace==="PUSH"||candidate.battleMode==="OVERTAKE"?"while pushing or fighting for position":candidate.condition<70?"after repeated component stress":"after losing control";
+const inTraffic=runningCars.some((other)=>other.id!==candidate.id&&Math.abs(other.progress-candidate.progress)<0.055);
+const incidentCause=state.weekendEffect==="wet-unprepared"?"in the slippery conditions":candidate.tyreWear>0.8?"on badly worn tyres":candidate.battleMode==="OVERTAKE"&&inTraffic&&candidate.driverRacecraft<82?"after misjudging an overtaking gap":candidate.pace==="PUSH"?"after braking too late while pushing":inTraffic&&candidate.driverRacecraft<75?"after losing a wheel-to-wheel battle":candidate.driverConsistency<75?"after a concentration error":candidate.battleMode==="OVERTAKE"&&inTraffic?"while fighting for position":"after losing control";
 state.incidentCount=(state.incidentCount??0)+1;
 const reliabilityProtection=candidate.playerCar?Math.min(0.45,(state.upgradeModules?.reliability??0)*0.06):candidate.rivalStyle==="reliability-leader"?0.28:0;
 const traitDamageFactor=candidate.playerCar&&(state.buildTraits??[]).includes("reliability-first")?0.55:candidate.playerCar&&(state.buildTraits??[]).includes("risk-reward")?1.45:1;
 const weekendDamageFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.35:1;
 const damage=(base:number)=>Math.max(2,Math.round(base*(1-reliabilityProtection)*traitDamageFactor*weekendDamageFactor));
 const roll=random(state);
-const minorLimit=Math.max(0.32,0.54-Math.max(0,risk-1)*0.08);
-const majorLimit=Math.max(minorLimit+0.18,0.84-Math.max(0,risk-1)*0.04);
-const mechanicalLimit=Math.max(majorLimit+0.1,0.97-Math.max(0,risk-1)*0.015);
+const riskPressure=Math.max(-0.5,Math.min(1.8,risk-1));
+const minorLimit=Math.max(0.34,Math.min(0.64,0.56-riskPressure*0.075));
+const majorLimit=Math.max(minorLimit+0.16,Math.min(0.91,0.84-riskPressure*0.045));
+const mechanicalLimit=Math.max(majorLimit+0.06,Math.min(0.985,0.975-riskPressure*0.03));
 let seriousIncident=false;
 if(roll<minorLimit){
 const hit=damage(8+Math.floor(random(state)*6));
 candidate.condition=Math.max(35,candidate.condition-hit);
 candidate.progress=Math.max(0,candidate.progress-0.03);
-addEvent(state,"MINOR INCIDENT — "+candidate.driver+" runs wide under pressure. The floor is damaged; pace and the post-race repair bill will suffer.","warning");
+candidate.incidentCooldown=5;
+addEvent(state,"DRIVER ERROR — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" locks up and runs wide "+incidentCause+". Minor floor damage costs time and adds to the repair bill.","warning");
 }else if(roll<majorLimit){
 seriousIncident=true;
 const hit=damage(17+Math.floor(random(state)*10));
@@ -558,7 +581,8 @@ candidate.pitDelay=Math.max(candidate.pitDelay,3);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
-addEvent(state,"MAJOR INCIDENT — "+candidate.driver+" makes contact "+incidentCause+". Heavy damage forces an unscheduled repair stop and costs track position.","warning");
+candidate.incidentCooldown=9;
+addEvent(state,"CRASH — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+(candidate.battleMode==="OVERTAKE"||inTraffic?" misjudges the battle and collides with a rival ":" loses control ")+incidentCause+". Heavy damage forces an unscheduled repair stop, costs track position and raises the repair bill.","warning");
 }else if(roll<mechanicalLimit){
 seriousIncident=true;
 const hit=damage(27+Math.floor(random(state)*14));
@@ -568,7 +592,8 @@ candidate.pitDelay=Math.max(candidate.pitDelay,4);
 candidate.pitStops+=1;
 candidate.tyreWear=Math.min(candidate.tyreWear,0.08);
 candidate.tyre=candidate.nextTyre;
-addEvent(state,"MECHANICAL DAMAGE — "+candidate.driver+" suffers a component failure after sustained stress. Severe damage triggers a long unscheduled pit stop and lost positions.","warning");
+candidate.incidentCooldown=12;
+addEvent(state,"MECHANICAL DAMAGE — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" suffers a component failure after sustained stress. Severe damage triggers a long unscheduled pit stop and lost positions.","warning");
 }else{
 seriousIncident=true;
 candidate.condition=Math.max(0,candidate.condition-damage(40+Math.floor(random(state)*8)));
@@ -576,7 +601,7 @@ candidate.progress=Math.max(0,candidate.progress-0.15);
 candidate.retired=true;
 candidate.finished=true;
 candidate.finishTime=state.elapsedSeconds+state.totalLaps*180+Math.floor(random(state)*30);
-addEvent(state,"RETIREMENT — "+candidate.driver+" cannot continue after irreparable damage. The car is classified as a DNF.","warning");
+addEvent(state,"CRASH OUT — "+(candidate.playerCar?"YOUR DRIVER "+candidate.driver:candidate.driver)+" makes a costly mistake "+incidentCause+" and hits the barriers. The car cannot continue and is classified as a DNF.","warning");
 }
 if(seriousIncident&&random(state)<(candidate.retired?0.72:0.42)){
 state.safetyCarTicks=3;state.safetyCarActive=true;
@@ -612,12 +637,19 @@ const payout=firstPlayer===1?1100000:firstPlayer<=3?750000:firstPlayer<=6?520000
 const sponsorBonus=(state.buildTraits??[]).includes("sponsor-network")?120000:0;
 const playerCars=state.cars.filter((car)=>car.playerCar);
 const repairBill=playerCars.reduce((sum,car)=>sum+Math.round(Math.max(0,100-car.condition)*4500)+(car.retired?300000:0),0);
-state.cash+=payout+sponsorBonus-repairBill;
-if(repairBill>0){
-state.teamMorale=Math.max(0,(state.teamMorale??62)-(playerCars.some((car)=>car.retired)?12:Math.min(8,Math.ceil(repairBill/100000))));
-addEvent(state,"REPAIR BILL — "+(playerCars.some((car)=>car.retired)?"A retired car requires a major rebuild. ":"") +"Damage repairs and replacement parts cost RM"+repairBill.toLocaleString("en-MY")+". The bill is deducted from prize income and team reserves.","warning");
-}
-if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
+const contract=CRASH_LIABILITY_CONTRACTS.find((item)=>item.id===(state.crashContract??"team-cover"))??CRASH_LIABILITY_CONTRACTS[0];
+const insurancePayout=contract.id==="shared-cover"?Math.round(repairBill*0.45):contract.id==="catastrophe-cover"?Math.round(Math.max(0,repairBill-250000)*0.7):0;
+const contractPremium=contract.premium;
+const teamRepairCost=Math.max(0,repairBill-insurancePayout);
+state.lastRepairBill=repairBill;
+state.lastCrashContract=contract.id;
+state.lastInsurancePayout=insurancePayout;
+state.lastContractPremium=contractPremium;
+state.cash+=payout+sponsorBonus-teamRepairCost-contractPremium;
+if(repairBill>0||contractPremium>0){
+state.teamMorale=Math.max(0,(state.teamMorale??62)-(playerCars.some((car)=>car.retired)?12:repairBill>0?Math.min(8,Math.ceil(teamRepairCost/100000)):0));
+addEvent(state,"REPAIR & LIABILITY — "+(playerCars.some((car)=>car.retired)?"A retired car requires a major rebuild. ":"")+"Gross repairs: RM"+repairBill.toLocaleString("en-MY")+". "+(insurancePayout>0?"Insurance covers RM"+insurancePayout.toLocaleString("en-MY")+". ":"")+"Team pays RM"+teamRepairCost.toLocaleString("en-MY")+(contractPremium>0?" plus RM"+contractPremium.toLocaleString("en-MY")+" contract premium":"")+".","warning");
+}if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
 state.teamPoints??={};
 state.rivalryWins??={};
 state.rivalryBattles??={};
@@ -838,6 +870,14 @@ next.cars=fresh.cars;
 next.cars.forEach((car)=>{car.condition=Math.max(72,car.condition -(car.playerCar?2.5:0));if(car.playerCar){car.tyre="MEDIUM";car.nextTyre="HARD";car.tyreWear=0.02;car.fuel=100;car.pitLap=7;}});
 addEvent(next,"Weekend "+(next.weekendNumber - 1)+": drafted "+card.title+". "+card.effect);
 for(const evolutionId of next.activeEvolutions??[]){if(previouslyActiveEvolutions.has(evolutionId))continue;const evolution=UPGRADE_EVOLUTIONS.find((item)=>item.id===evolutionId);if(evolution)addEvent(next,"TECH EVOLUTION UNLOCKED: "+evolution.title+". "+evolution.rewardText,"info");}
+return next;
+}
+export function setCrashContract(state:RaceState,contractId:CrashContractId):RaceState{
+if(state.status!=="finished"||!CRASH_LIABILITY_CONTRACTS.some((contract)=>contract.id===contractId)||state.crashContract===contractId)return state;
+const next=structuredClone(state);
+next.crashContract=contractId;
+const contract=CRASH_LIABILITY_CONTRACTS.find((item)=>item.id===contractId)!;
+addEvent(next,"LIABILITY AGREEMENT SIGNED — "+contract.title+". This agreement applies from the next race weekend; premium and coverage are settled after that race.","info");
 return next;
 }
 export function standings(state:RaceState):CarState[]{return[...state.cars].sort((a,b)=>{if(!!a.retired!==!!b.retired)return a.retired?1:-1;if(a.finished&&b.finished)return(a.finishTime??Infinity)-(b.finishTime??Infinity);if(a.finished)return -1;if(b.finished)return 1;return b.progress - a.progress;});}

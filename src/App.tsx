@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
+import { applyStartingUpgrade, buildSynergies, CAMPAIGN_LENGTH, CHAMPIONSHIP_ACHIEVEMENTS, createRace, draftUpgradeCards, DRIVER_MARKET, ensureFullGrid, formatLapTime, getStrategyAdvice, setCrashContract, setDriverStrategy, standings, stepRace, upgradeCar, UPGRADE_CARD_POOL, CRASH_LIABILITY_CONTRACTS, type CrashContractId, type BattleMode, type CarState, type FuelMode, type Pace, type RaceState, type StrategyAdvice, type Tyre, type PaddockEvent, type GameMode, UPGRADE_EVOLUTIONS } from "./simulation";
 import { RIVAL_STYLE_INFO } from "./rivals";
 
 const SAVE_KEY = "redline-paddock-prototype-v1";
@@ -225,7 +225,7 @@ function loadRace(): RaceState {
       const saved = JSON.parse(raw) as RaceState;
       if (saved.version === 1 && Array.isArray(saved.cars) && saved.cars.length >= 10) {
         const playerDrivers = saved.cars.filter((car) => car.playerCar).slice(0, 2);
-        const migrated: RaceState = { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }, teamMorale: saved.teamMorale ?? 62, teamReputation: saved.teamReputation ?? 45, pendingPaddockEvent: saved.pendingPaddockEvent ?? null, paddockEventRound: saved.paddockEventRound ?? 0, resolvedPaddockEvents: saved.resolvedPaddockEvents ?? [], driverContracts: saved.driverContracts?.length ? saved.driverContracts : playerDrivers.map((car, index) => ({ id: "driver-" + (index + 1), driverName: car.driver, salaryPerRace: driverSalary(car.driver), expiresAtRound: 10, renewed: false, loyalty: 60 })) };
+        const migrated: RaceState = { ...saved, upgradeModules: saved.upgradeModules ?? { aero: 0, power: 0, suspension: 0, reliability: 0 }, teamMorale: saved.teamMorale ?? 62, teamReputation: saved.teamReputation ?? 45, pendingPaddockEvent: saved.pendingPaddockEvent ?? null, paddockEventRound: saved.paddockEventRound ?? 0, resolvedPaddockEvents: saved.resolvedPaddockEvents ?? [], crashContract: saved.crashContract ?? "team-cover", driverContracts: saved.driverContracts?.length ? saved.driverContracts : playerDrivers.map((car, index) => ({ id: "driver-" + (index + 1), driverName: car.driver, salaryPerRace: driverSalary(car.driver), expiresAtRound: 10, renewed: false, loyalty: 60 })) };
         return ensureFullGrid(migrated);
       }
     }
@@ -1159,7 +1159,7 @@ export default function App() {
 
         {(race.status === "finished" || race.status === "gameover") && <div className="finish-banner"><div><span className="section-kicker">CHEQUERED FLAG</span><h3>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "Administration called." : "Campaign complete.") : "Race complete."}</h3><p>{race.status === "gameover" ? (race.endReason === "bankruptcy" ? "The team could not cover the next weekend’s committed costs. This run ends here." : "The 20-round season is complete. Final championship points are locked.") : "Prize income and classification are ready for review."}</p></div><button className="secondary-button" onClick={() => setShowResults(!showResults)}>{showResults ? "HIDE REPORT" : "VIEW RACE REPORT"} ↗</button></div>}
         {(race.status === "finished" || race.status === "gameover") && race.latestChampionshipMilestone && <section className="championship-milestone" aria-label="Championship milestone"><div className="milestone-mark">★</div><div className="milestone-copy"><span className="section-kicker">CHAMPIONSHIP MILESTONE · ROUND {race.latestChampionshipMilestone.round}/{CAMPAIGN_LENGTH}</span><h3>{race.latestChampionshipMilestone.title}</h3><p>{race.latestChampionshipMilestone.detail}</p><small>CHAMPIONSHIP POSITION · P{race.latestChampionshipMilestone.position}</small></div><div className="milestone-reward"><span>COMMERCIAL REWARD</span><strong>+{money(race.latestChampionshipMilestone.reward)}</strong></div></section>}
-        {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race}/>}
+        {showResults && (race.status === "finished" || race.status === "gameover") && <RaceReport race={race} onSignContract={(contractId) => setRace((current) => setCrashContract(current, contractId))}/>}
       </section>
 
       {(race.mode ?? "championship") === "championship" && race.championshipObjective && <section className={"championship-objective-panel" + (race.status === "finished" ? race.championshipObjective.completed ? " objective-complete" : " objective-missed" : "")} aria-label="Championship weekend objective">
@@ -1298,11 +1298,39 @@ export default function App() {
   </main>;
 }
 
-function RaceReport({ race }: { race: RaceState }) {
+function RaceReport({ race, onSignContract }: { race: RaceState; onSignContract: (contractId: CrashContractId) => void }) {
   const order = standings(race);
   const best = [...race.cars].filter((car) => car.bestLap > 0).sort((a, b) => a.bestLap - b.bestLap)[0];
   const playerBest = [...race.cars].filter((car) => car.playerCar && car.bestLap > 0).sort((a, b) => a.bestLap - b.bestLap)[0];
   const playerPositions = order.map((car, index) => car.playerCar ? index + 1 : 0).filter(Boolean);
   const playerPosition = playerPositions[0] ?? 0;
-  return <div className="report-box"><div className="report-heading"><span>POST-RACE ANALYSIS</span><strong>ROUND {String(race.weekendNumber).padStart(2, "0")}</strong></div><h3>{order.some((car) => car.playerCar && car.retired) ? "A retirement changes everything." : playerPosition <= 3 ? "Good work on the pit wall." : "The data tells a story."}</h3><p>{order.some((car) => car.playerCar && car.retired) ? "A car failed to finish. The lost result, repair bill and morale hit will carry into the team's finances." : playerPosition <= 3 ? "A strong result. Keep building on this performance." : playerPosition <= 6 ? "A solid foundation. There is room to improve the next package." : "A difficult result, but useful data for the engineering team."}</p><div className="report-stats"><div><span>BEST LAP</span><strong>{best ? formatLapTime(best.bestLap) : "—"}</strong><small>{best ? best.driver : "No timing"}</small></div><div><span>REDLINE BEST</span><strong>{playerBest ? formatLapTime(playerBest.bestLap) : "—"}</strong><small>{playerBest ? playerBest.driver : "No timing"}</small></div><div><span>TEAM RESULT</span><strong>P{playerPosition} / P{playerPositions[1] ?? "—"}</strong><small>Two-car classification</small></div></div><div className="report-note">Incidents can damage components, force unscheduled stops or retire a car. Player-car damage is charged against prize income and team reserves; retirements also hurt team morale.</div></div>;
+  const activeContract = race.crashContract ?? "team-cover";
+  const canSign = race.status === "finished";
+  return <div className="report-box">
+    <div className="report-heading"><span>POST-RACE ANALYSIS</span><strong>ROUND {String(race.weekendNumber).padStart(2, "0")}</strong></div>
+    <h3>{order.some((car) => car.playerCar && car.retired) ? "A retirement changes everything." : playerPosition <= 3 ? "Good work on the pit wall." : "The data tells a story."}</h3>
+    <p>{order.some((car) => car.playerCar && car.retired) ? "A car failed to finish. The lost result, repair bill and morale hit will carry into the team's finances." : playerPosition <= 3 ? "A strong result. Keep building on this performance." : playerPosition <= 6 ? "A solid foundation. There is room to improve the next package." : "A difficult result, but useful data for the engineering team."}</p>
+    <div className="report-stats">
+      <div><span>BEST LAP</span><strong>{best ? formatLapTime(best.bestLap) : "—"}</strong><small>{best ? best.driver : "No timing"}</small></div>
+      <div><span>REDLINE BEST</span><strong>{playerBest ? formatLapTime(playerBest.bestLap) : "—"}</strong><small>{playerBest ? playerBest.driver : "No timing"}</small></div>
+      <div><span>TEAM RESULT</span><strong>P{playerPosition} / P{playerPositions[1] ?? "—"}</strong><small>Two-car classification</small></div>
+    </div>
+    <div className="liability-summary">
+      <div><span>GROSS REPAIRS</span><strong>{money(race.lastRepairBill ?? 0)}</strong></div>
+      <div><span>INSURANCE PAYOUT</span><strong className="liability-positive">−{money(race.lastInsurancePayout ?? 0)}</strong></div>
+      <div><span>CONTRACT PREMIUM</span><strong>{money(race.lastContractPremium ?? 0)}</strong></div>
+    </div>
+    <div className="report-note">AGREEMENT APPLIED THIS RACE: <strong>{CRASH_LIABILITY_CONTRACTS.find((contract) => contract.id === (race.lastCrashContract ?? "team-cover"))?.title ?? "TEAM ACCEPTS LIABILITY"}</strong>. Your selection below applies to the next weekend, before the next green flag.</div>
+    <section className="crash-contracts" aria-label="Crash liability contracts">
+      <div className="crash-contract-heading"><span className="section-kicker">CONTRACT OFFICE</span><h4>Who pays when the car comes back in pieces?</h4><p>Sign a liability agreement for the next race. The premium is charged after that weekend, alongside any repair bill.</p></div>
+      <div className="crash-contract-grid">
+        {CRASH_LIABILITY_CONTRACTS.map((contract) => <article className={"crash-contract-card" + (activeContract === contract.id ? " contract-selected" : "")} key={contract.id}>
+          <span className="contract-status">{activeContract === contract.id ? "SELECTED FOR NEXT ROUND" : "AVAILABLE TERMS"}</span>
+          <h5>{contract.title}</h5><p>{contract.description}</p>
+          <div className="contract-coverage"><span>PREMIUM / WEEKEND</span><strong>{money(contract.premium)}</strong><small>{contract.coverage}</small></div>
+          <button className={activeContract === contract.id ? "contract-sign-button contract-current-button" : "contract-sign-button"} disabled={!canSign || activeContract === contract.id} onClick={() => onSignContract(contract.id)}>{activeContract === contract.id ? "AGREEMENT ACTIVE" : canSign ? "SIGN FOR NEXT ROUND" : "CAMPAIGN CLOSED"}</button>
+        </article>)}
+      </div>
+    </section>
+  </div>;
 }
