@@ -19,7 +19,7 @@ export const CHAMPIONSHIP_ACHIEVEMENTS=[
 {id:"world-champion",title:"WORLD CHAMPION",description:"Finish the season first in the championship.",cashReward:500000,researchReward:6},
 ] as const;
 export type UpgradeType="aero"|"power"|"suspension"|"reliability";
-export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first";
+export type RunTrait="tyre-saver"|"pit-crew"|"risk-reward"|"sponsor-network"|"reliability-first"|"signature-aero"|"signature-endurance"|"signature-commercial"|"signature-pitwall"|"signature-reliability";
 export interface UpgradeModules{aero:number;power:number;suspension:number;reliability:number;}
 export interface InstalledUpgrade{id:string;title:string;subtitle:string;rarity:UpgradeRarity;effect:string;upgradeType?:UpgradeType;amount?:number;cashBonus?:number;trait?:RunTrait;}
 export interface UpgradeEvolution {
@@ -127,7 +127,12 @@ export const UPGRADE_CARD_POOL:UpgradeCard[]=[
 {id:"pit-wall-strategy",title:"Pit-Wall Strategy Cell",subtitle:"OPERATIONS BUILD",rarity:"RARE",description:"A dedicated strategy group improves race-weekend execution and commercial decision-making.",effect:"+RM200,000 team funds",cashBonus:200000,buildPath:"operations"},
 {id:"sponsor-activation",title:"Sponsor Activation Campaign",subtitle:"COMMERCIAL BUILD",rarity:"UNCOMMON",description:"A well-timed sponsor activation turns team visibility into immediate development funding.",effect:"+RM225,000 team funds",cashBonus:225000,buildPath:"sponsor-network"},
 {id:"lightweight-components",title:"Lightweight Component Set",subtitle:"MECHANICAL GRIP",rarity:"EPIC",description:"A lighter component package sharpens the mechanical platform while preserving structural strength.",effect:"Suspension +2",upgradeType:"suspension",amount:2},
-{id:"opponent-telemetry",title:"Opponent Telemetry Analysis",subtitle:"RACE STRATEGY",rarity:"RARE",description:"Rival data reveals where the car can gain time through its setup and deployment.",effect:"Power unit +1",upgradeType:"power",amount:1}
+{id:"opponent-telemetry",title:"Opponent Telemetry Analysis",subtitle:"RACE STRATEGY",rarity:"RARE",description:"Rival data reveals where the car can gain time through its setup and deployment.",effect:"Power unit +1",upgradeType:"power",amount:1},
+{id:"signature-aero-overdrive",title:"Aero Overdrive",subtitle:"SIGNATURE TECHNOLOGY",rarity:"LEGENDARY",description:"A radical active-flow package reshapes the car around qualifying pace. Faster laps come with a little extra tyre stress.",effect:"Lap pace +2% · tyre wear +10%",trait:"signature-aero",buildPath:"signature-aero"},
+{id:"signature-endurance-dna",title:"Endurance DNA",subtitle:"SIGNATURE TECHNOLOGY",rarity:"LEGENDARY",description:"A complete chassis, cooling and tyre-management philosophy built to survive long stints.",effect:"Tyre wear −25% for the whole run",trait:"signature-endurance",buildPath:"signature-endurance"},
+{id:"signature-commercial-engine",title:"Commercial Engine",subtitle:"SIGNATURE TECHNOLOGY",rarity:"LEGENDARY",description:"A headline partnership funds the team every time it brings a race weekend to a close.",effect:"+RM250,000 race-return bonus",trait:"signature-commercial",buildPath:"signature-commercial"},
+{id:"signature-lightning-pitwall",title:"Lightning Pit Wall",subtitle:"SIGNATURE TECHNOLOGY",rarity:"LEGENDARY",description:"Crew choreography and predictive calls turn the pit lane into a competitive weapon.",effect:"Pit-stop delay reduced to 0.5 seconds",trait:"signature-pitwall",buildPath:"signature-pitwall"},
+{id:"signature-active-reliability",title:"Active Reliability Control",subtitle:"SIGNATURE TECHNOLOGY",rarity:"LEGENDARY",description:"Live stress monitoring and adaptive component protection sharply reduce condition loss.",effect:"Condition wear −45% for the whole run",trait:"signature-reliability",buildPath:"signature-reliability"}
 ];
 export function draftUpgradeCards(state:RaceState,progression:{discoveredCount?:number;rerollCount?:number}={}):UpgradeCard[]{
 const pool=[...UPGRADE_CARD_POOL];
@@ -400,7 +405,7 @@ const baseRivalPace=car.playerCar?1:car.rivalStyle==='qualifying-ace'?0.991:car.
 const rivalryPressure=!car.playerCar?Math.min(0.012,(state.rivalryBattles?.[car.team]??0)*0.003):0;
 const safetyCarFactor=state.safetyCarActive?1.34:1;
 const traits=state.buildTraits??[];
-const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1):1;
+const traitPaceFactor=car.playerCar?(traits.includes("risk-reward")?0.985:1)*(traits.includes("reliability-first")?1.003:1)*(traits.includes("signature-aero")?0.98:1):1;
 const weekendPaceFactor=state.weekendEffect==="wet-prepared"?(car.playerCar?0.975:1.012):state.weekendEffect==="wet-unprepared"?(car.playerCar?1.025:1):state.weekendEffect==="directive-compliant"?(car.playerCar?1.006:1):state.weekendEffect==="directive-restricted"?(car.playerCar?1.018:1):state.weekendEffect==="feud-attack"?(car.playerCar?0.982:car.team===state.rivalryFeudTeam?1.025:1):state.weekendEffect==="feud-composed"?(car.playerCar?0.995:car.team===state.rivalryFeudTeam?1.01:1):1;
 const rivalAhead=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress>car.progress&&other.progress-car.progress<0.065);
 const rivalBehind=state.cars.some((other)=>!other.finished&&other.id!==car.id&&other.progress<car.progress&&car.progress-other.progress<0.045);
@@ -413,7 +418,7 @@ const previousProgress=car.progress;
 const progressDelta=5 / lapSeconds;
 car.progress+=progressDelta;
 const driverTyreCare=Math.max(0.72,1 -(car.driverTyreManagement - 80)*0.004);
-const traitWearFactor=car.playerCar?((state.buildTraits??[]).includes("tyre-saver")?0.85:1)*((state.buildTraits??[]).includes("risk-reward")?1.18:1)*((state.buildTraits??[]).includes("reliability-first")?0.72:1)*(state.mode==="championship"&&state.nemesisTarget==="tyre-management"&&state.nemesisTeam?1.08:1):car.rivalStyle==="tyre-specialist"?0.78:car.rivalStyle==="aggressive-racer"?1.22:car.rivalStyle==="high-risk-attacker"?1.32:1;
+const traitWearFactor=car.playerCar?((state.buildTraits??[]).includes("tyre-saver")?0.85:1)*((state.buildTraits??[]).includes("risk-reward")?1.18:1)*((state.buildTraits??[]).includes("reliability-first")?0.72:1)*((state.buildTraits??[]).includes("signature-aero")?1.1:1)*((state.buildTraits??[]).includes("signature-endurance")?0.75:1)*(state.mode==="championship"&&state.nemesisTarget==="tyre-management"&&state.nemesisTeam?1.08:1):car.rivalStyle==="tyre-specialist"?0.78:car.rivalStyle==="aggressive-racer"?1.22:car.rivalStyle==="high-risk-attacker"?1.32:1;
 const wearReduction=(car.playerCar?Math.max(0.65,1 -(state.upgradeModules?.suspension??0)*0.06):1)*driverTyreCare*traitWearFactor;
 const aeroTyreLoad=car.playerCar?1+(state.upgradeModules?.aero??0)*0.025:1;
 const enduranceWearBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
@@ -425,14 +430,14 @@ const fuelModeFactor=car.fuelMode==="DEPLOY"?1.22:car.fuelMode==="SAVE"?0.68:1;
 car.fuel=Math.max(0,car.fuel -(car.pace==="PUSH"?0.78:car.pace==="CONSERVE"?0.53:0.65)*progressDelta*powerFuelLoad*fuelModeFactor*(state.safetyCarActive?0.5:1));
 const reliabilityProtection=car.playerCar?Math.min(0.75,(state.upgradeModules?.reliability??0)*0.005):0;
 const enduranceConditionBonus=car.playerCar&&modules.suspension>=2&&modules.reliability>=2?0.9:1;
-const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1):1;
+const traitConditionFactor=car.playerCar?((state.buildTraits??[]).includes("risk-reward")?1.8:1)*((state.buildTraits??[]).includes("reliability-first")?0.65:1)*((state.buildTraits??[]).includes("signature-reliability")?0.55:1):1;
 const rivalCondition=!car.playerCar&&car.rivalStyle==="reliability-leader"?0.48:!car.playerCar&&car.rivalStyle==="high-risk-attacker"?1.7:1;
 const weekendConditionFactor=state.weekendEffect==="spares-secured"?0.55:state.weekendEffect==="parts-shortage"?1.8:1;
 car.condition=Math.max(62,car.condition - 0.002*(1 - reliabilityProtection)*enduranceConditionBonus*traitConditionFactor*rivalCondition*weekendConditionFactor);
 if(Math.floor(car.progress)>Math.floor(previousProgress)){
 const completedLap=Math.floor(car.progress);
 if(car.pitStops===0&&completedLap>=car.pitLap&&car.progress<state.totalLaps){
-car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;
+car.pitDelay=car.playerCar&&((state.buildTraits??[]).includes("signature-pitwall"))?0.5:car.playerCar&&((state.buildTraits??[]).includes("pit-crew")||(state.permanentPerks?.["pit-crew-training"]??0)>0)?1:2;car.pitStops+=1;car.tyreWear=0.02;
 car.tyre=car.nextTyre;
 addEvent(state,car.playerCar?car.driver+" pits for "+car.tyre.toLowerCase()+" tyres.":car.driver+" ("+car.team+") pits.","pit");
 }
@@ -490,9 +495,9 @@ state.status="finished";
 state.cars.sort((a,b)=>(a.finishTime??Infinity)-(b.finishTime??Infinity));
 const firstPlayer=state.cars.findIndex((car)=>car.playerCar)+1;
 const payout=firstPlayer===1?1100000:firstPlayer<=3?750000:firstPlayer<=6?520000:350000;
-const sponsorBonus=(state.buildTraits??[]).includes("sponsor-network")?120000:0;
+const sponsorBonus=((state.buildTraits??[]).includes("sponsor-network")?120000:0)+((state.buildTraits??[]).includes("signature-commercial")?250000:0);
 state.cash+=payout+sponsorBonus;
-if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor network adds RM120,000 to the race return.","info");
+if(sponsorBonus)addEvent(state,"Commercial build pays off: sponsor and signature partnerships add RM"+sponsorBonus.toLocaleString("en-MY")+" to the race return.","info");
 state.teamPoints??={};
 state.rivalryWins??={};
 state.rivalryBattles??={};
