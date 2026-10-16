@@ -540,6 +540,14 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .intermission-section-heading h2 { margin:4px 0 0; font-size:22px; }
 .intermission-section-heading small { color:#89919e; }
 .intermission-upgrade-grid { margin-top:0; }
+/* Keep upgrade-draft cards visually aligned when titles, descriptions, and evolution hints vary. */
+@media (min-width:1101px) {
+  .rogue-draft-grid:not(.initial-rogue-grid) .rogue-card { height:100%; box-sizing:border-box; }
+  .rogue-draft-grid:not(.initial-rogue-grid) .rogue-card > strong { min-height:2.3em; }
+  .rogue-draft-grid:not(.initial-rogue-grid) .rogue-card > p { min-height:4.65em; }
+  .rogue-draft-grid:not(.initial-rogue-grid) .rogue-card-effect { margin-top:12px; }
+  .rogue-draft-grid:not(.initial-rogue-grid) .rogue-card-pick { margin-top:auto; }
+}
 .intermission-action-row { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px; margin-top:14px; border:1px solid #303641; border-radius:10px; background:#11141b; }
 .intermission-action-row > div { display:grid; gap:5px; }
 .intermission-action-row .section-kicker { color:#89919e; font-size:10px; letter-spacing:.1em; }
