@@ -1,14 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="100 0 330 160" role="img" aria-labelledby="title desc">
-<title id="title">Redline Ascension</title><desc id="desc">The original red and silver Redline Ascension racing emblem.</desc>
-<defs>
-<linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff5059"/><stop offset="1" stop-color="#d70e27"/></linearGradient>
-<linearGradient id="s" x1="0" y1="0" x2="0.2" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#aeb4bf"/></linearGradient>
-</defs>
-<g transform="translate(0 1)">
-<path fill="url(#r)" d="M184 19h53l-36 59h-53zM246 19h53l-36 59h-53zM308 19h53l-36 59h-53zM149 80h53l-36 59h-53zM211 80h53l-36 59h-53zM273 80h53l-36 59h-53z"/>
-<path fill="url(#r)" d="M181 146 252 27h43l-71 119z"/>
-<path fill="url(#s)" d="M310 26h118l-35 58H342l-37 61h-53z"/>
-<path fill="url(#s)" d="M304 99h51l64 47h-63z"/>
-<path fill="url(#r)" d="M356 99h45l-34 47h-47z"/>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="title desc">
+  <title id="title">Redline Ascension</title>
+  <desc id="desc">An angular silver ascent mark crossed by a red racing line, built for the Redline motorsport identity.</desc>
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.52" stop-color="#d9dde4"/>
+      <stop offset="1" stop-color="#858d9b"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff5962"/>
+      <stop offset="1" stop-color="#d70e27"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#metal)" d="M22 142 78 18h70l57 124h-39l-13-31H74l-14 31H22Zm67-64h50L114 36 89 78Z"/>
+  <path fill="#090b10" d="m89 78 25-42 25 42H89Z"/>
+  <path fill="url(#red)" d="M12 91h143l-14 18H3l9-18Z"/>
+  <path fill="url(#red)" d="m133 91 28-28h48l-28 28h-48Z"/>
+  <path fill="#f4f5f7" opacity=".92" d="m160 112 13 30h38l-13-30h-38Z"/>
+  <path fill="#090b10" d="m82 119 10-22h48l9 22H82Z"/>
 </svg>
