@@ -4518,3 +4518,340 @@ body {
   .circuit-theme .sector-tab{padding:9px 3px;font-size:6.5px}
   .circuit-theme .circuit-detail-panel{padding:9px}
 }
+
+
+/* Realism pass: race dashboard, shared instrument panels, research and permanent upgrades. */
+.app-shell {
+  --panel: #0b0e13;
+  --line: #29313b;
+  --muted: #8994a4;
+}
+.app-shell .page-heading {
+  position: relative;
+  padding-top: 28px;
+  border-bottom: 1px solid rgba(151, 168, 190, .16);
+  margin-bottom: 20px;
+}
+.app-shell .page-heading:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 76px;
+  height: 2px;
+  background: var(--red);
+}
+.app-shell .page-heading h1 {
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+.app-shell .eyebrow,
+.app-shell .section-kicker {
+  color: #9aa8ba;
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+.app-shell .stat-strip {
+  position: relative;
+  background: linear-gradient(180deg, #111720, #090c11);
+  border: 1px solid #303b49;
+  border-radius: 2px;
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.app-shell .stat-cell {
+  position: relative;
+  padding: 15px 18px 14px;
+  border-right: 1px solid rgba(151,168,190,.15);
+}
+.app-shell .stat-cell:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 2px;
+  background: #46566a;
+}
+.app-shell .stat-cell>span {
+  color: #8795a8;
+  font-size: 8px;
+  letter-spacing: .13em;
+}
+.app-shell .stat-cell>strong {
+  font-family: var(--mono);
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+.app-shell .stat-cell small { color: #718096; font-size: 8px; }
+.app-shell .panel {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(17,23,32,.98), rgba(8,11,16,.99) 72%);
+  border: 1px solid #2a3441;
+  border-radius: 2px;
+  box-shadow: inset 0 1px rgba(255,255,255,.025), 0 10px 28px rgba(0,0,0,.12);
+}
+.app-shell .panel:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 42px;
+  height: 2px;
+  background: #58697d;
+  pointer-events: none;
+}
+.app-shell .panel-heading {
+  position: relative;
+  padding: 16px 18px 13px;
+  background: linear-gradient(90deg, rgba(138,157,183,.055), transparent 65%);
+  border-bottom: 1px solid #28323f;
+}
+.app-shell .panel-heading h2,
+.app-shell .upgrade-copy h2 {
+  font-size: clamp(17px, 1.7vw, 22px);
+  letter-spacing: -.025em;
+  text-transform: uppercase;
+}
+.app-shell .lap-badge,
+.app-shell .field-count,
+.app-shell .strategy-count,
+.app-shell .event-count {
+  border-radius: 2px;
+  border-color: #344253;
+  background: rgba(5,8,12,.7);
+  color: #9ba9bb;
+}
+.app-shell .content-grid .panel .panel-heading + * { min-width: 0; }
+.app-shell .standings-row,
+.app-shell .table-header {
+  border-bottom-color: rgba(146,164,187,.13);
+}
+.app-shell .table-header {
+  background: rgba(112,134,160,.055);
+  color: #7f8ea2;
+  letter-spacing: .12em;
+}
+.app-shell .standings-row {
+  background: transparent;
+  color: #c6cfdb;
+}
+.app-shell .standings-row:hover { background: rgba(121,147,177,.055); }
+.app-shell .standings-row.player-row {
+  background: linear-gradient(90deg, rgba(255,63,52,.105), rgba(255,63,52,.018));
+  box-shadow: inset 2px 0 #ff594e;
+}
+.app-shell .strategy-panel .driver-strategy,
+.app-shell .strategy-panel .strategy-row,
+.app-shell .event-item {
+  border-color: rgba(146,164,187,.15);
+}
+.app-shell .strategy-panel .strategy-row select,
+.app-shell .strategy-panel select {
+  border-radius: 2px;
+  border-color: #354252;
+  background-color: #0a0e14;
+}
+.app-shell .event-item {
+  background: rgba(255,255,255,.012);
+}
+.app-shell .primary-button,
+.app-shell .secondary-button {
+  min-height: 38px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.app-shell .primary-button {
+  background: linear-gradient(105deg, #e83a30, #b9231d);
+  border-color: #f04a40;
+  box-shadow: inset 0 1px rgba(255,255,255,.12);
+}
+.app-shell .primary-button:hover:not(:disabled) { background: #f04439; }
+.app-shell .secondary-button {
+  background: #111720;
+  border-color: #3a4655;
+  color: #c4cedb;
+}
+.app-shell .secondary-button:hover {
+  background: #1a2430;
+  border-color: #687b91;
+}
+.app-shell .upgrade-panel {
+  background: linear-gradient(115deg, #111720, #0a0d12 72%);
+  border: 1px solid #303b49;
+  border-radius: 2px;
+}
+.app-shell .upgrade-copy { padding: 23px 25px; }
+.app-shell .upgrade-action {
+  background: rgba(3,6,10,.32);
+  border-left-color: #2d3744;
+}
+.app-shell .upgrade-symbol {
+  border: 1px solid #6b3835;
+  border-radius: 2px;
+  background: rgba(255,54,43,.09);
+}
+.app-shell .report-box { background: #0b0f15; }
+.app-shell .report-stats { border-color: #2d3744; }
+.app-shell .report-stats>div { border-color: #2d3744; }
+
+/* Research Lab: engineering facility / technical workstation rather than a rounded game card. */
+.app-shell .research-lab-panel,
+.app-shell .garage-progression-panel,
+.app-shell .current-upgrades-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #303c4b;
+  border-radius: 2px;
+  background: linear-gradient(145deg, #111821, #090c11 70%);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.app-shell .research-lab-panel:before,
+.app-shell .garage-progression-panel:before,
+.app-shell .current-upgrades-panel:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 58px;
+  height: 2px;
+  background: #ff5147;
+}
+.app-shell .research-lab-heading h2,
+.app-shell .garage-progression-panel .panel-heading h2,
+.app-shell .current-upgrades-panel .panel-heading h2 {
+  text-transform: uppercase;
+  letter-spacing: -.025em;
+}
+.app-shell .research-lab-balance,
+.app-shell .research-counter {
+  border-radius: 2px;
+  border-color: #465365;
+  background: #0a0f15;
+}
+.app-shell .research-lab-balance strong { color: #ff786e; }
+.app-shell .research-lab-copy,
+.app-shell .garage-progression-intro { color: #9eabba; }
+.app-shell .research-milestone {
+  border-radius: 2px;
+  border-color: #303b49;
+  background: linear-gradient(145deg, #101720, #090d12);
+}
+.app-shell .research-milestone.unlocked {
+  border-color: rgba(255,91,79,.55);
+  background: linear-gradient(145deg, rgba(255,64,53,.11), #0b1017 76%);
+  box-shadow: inset 2px 0 rgba(255,83,72,.75);
+}
+.app-shell .research-milestone span { color: #8797aa; }
+.app-shell .research-milestone strong { font-size: 11px; text-transform: uppercase; }
+.app-shell .garage-perk-card {
+  position: relative;
+  border-radius: 2px;
+  border-color: #303b49;
+  background: linear-gradient(145deg, rgba(22,30,41,.9), rgba(8,12,17,.96));
+  padding: 15px;
+}
+.app-shell .garage-perk-card:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 2px;
+  background: #4d5e73;
+}
+.app-shell .garage-perk-card.garage-perk-owned {
+  border-color: rgba(89,177,143,.42);
+  background: linear-gradient(145deg, rgba(28,57,48,.3), rgba(8,14,15,.98));
+}
+.app-shell .garage-perk-card h3 { text-transform: uppercase; letter-spacing: -.02em; }
+.app-shell .garage-perk-level i { border-radius: 0; }
+.app-shell .garage-perk-button {
+  min-height: 38px;
+  border-radius: 2px;
+  border-color: rgba(255,83,72,.5);
+  background: rgba(255,62,51,.075);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.app-shell .garage-perk-button:hover:not(:disabled) {
+  background: rgba(255,62,51,.16);
+  border-color: #ff665c;
+}
+.app-shell .garage-perk-button.owned {
+  border-radius: 2px;
+  border-color: rgba(89,177,143,.45);
+}
+.app-shell .current-upgrades-panel { padding: 20px; }
+.app-shell .upgrade-count-badge {
+  border-radius: 2px;
+  border-color: #394656;
+  background: #0a0e14;
+}
+.app-shell .upgrade-module-meter,
+.app-shell .installed-upgrade-item,
+.app-shell .upgrade-empty-state {
+  border-radius: 2px;
+  border-color: #303b49;
+  background: linear-gradient(145deg, #111720, #090d12);
+}
+.app-shell .upgrade-module-icon,
+.app-shell .installed-upgrade-icon {
+  border-radius: 2px;
+  background: #111b27;
+}
+.app-shell .upgrade-module-track { border-radius: 0; background: #27313e; }
+.app-shell .upgrade-module-track i { background: linear-gradient(90deg, #a9201b, #ff5147); }
+.app-shell .upgrade-empty-state { border-style: dashed; }
+.app-shell .upgrade-option {
+  border-radius: 2px;
+  border-color: #303b49;
+  background: linear-gradient(145deg, #111720, #090d12);
+}
+.app-shell .upgrade-option:hover { border-color: #6b7e94; }
+.app-shell .upgrade-option-selected {
+  border-color: #ff554b;
+  background: linear-gradient(145deg, rgba(255,64,53,.13), #0b0f15 76%);
+  box-shadow: inset 2px 0 #ff554b;
+}
+.app-shell .upgrade-option-top i {
+  border: 1px solid #3b4858;
+  border-radius: 2px;
+  background: #0c121a;
+}
+.app-shell .upgrade-option>strong { text-transform: uppercase; letter-spacing: -.015em; }
+.app-shell .upgrade-effect { color: #9bc9b1; }
+.app-shell .upgrade-module-meter small,
+.app-shell .upgrade-empty-state p { color: #8492a4; }
+
+@media (max-width: 760px) {
+  .app-shell .page-heading { padding-top: 22px; margin-bottom: 14px; }
+  .app-shell .page-heading h1 { font-size: clamp(30px, 8vw, 42px); }
+  .app-shell .stat-strip { border-radius: 2px; margin-bottom: 14px; }
+  .app-shell .stat-cell { padding: 12px 10px 11px; }
+  .app-shell .stat-cell>strong { font-size: clamp(16px, 4.5vw, 21px); }
+  .app-shell .panel-heading { padding: 13px 13px 11px; }
+  .app-shell .panel-heading h2 { font-size: 17px; }
+  .app-shell .research-lab-panel,
+  .app-shell .garage-progression-panel { padding: 16px; }
+  .app-shell .research-lab-heading { align-items: flex-start; }
+  .app-shell .research-lab-balance { padding: 9px 10px; }
+  .app-shell .research-milestone { min-height: 0; }
+  .app-shell .garage-perk-card { padding: 14px; }
+  .app-shell .upgrade-copy { padding: 18px; }
+  .app-shell .upgrade-action { padding: 17px; border-left: 0; border-top: 1px solid #2d3744; }
+  .app-shell .current-upgrades-panel { padding: 14px; }
+  .app-shell .upgrade-module-strip { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; }
+  .app-shell .upgrade-module-meter { padding: 9px; }
+}
+@media (max-width: 420px) {
+  .app-shell .stat-cell { padding-left: 7px; padding-right: 7px; }
+  .app-shell .stat-cell>span { font-size: 7px; letter-spacing: .06em; }
+  .app-shell .stat-cell small { font-size: 7px; }
+  .app-shell .research-lab-heading { flex-direction: column; }
+  .app-shell .research-lab-balance { align-items: flex-start; width: 100%; box-sizing: border-box; }
+}
