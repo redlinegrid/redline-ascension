@@ -583,184 +583,52 @@ function UpgradeIcon({ type }: { type: string | undefined }) {
 }
 
 function StartScreenCarGraphic({ primary, secondary }: { primary: string; secondary: string }) {
-  return <div className="start-car-art" aria-hidden="true" style={{ "--car-primary": primary, "--car-secondary": secondary } as React.CSSProperties}>
-    <div className="start-car-art-glow" />
-    <div className="start-car-art-label start-car-label-top"><span>R-01</span> OPEN-WHEEL CHASSIS <i /> TECHNICAL PROFILE</div>
-    <svg viewBox="0 0 720 470" role="presentation" focusable="false">
-      <defs>
-        <linearGradient id="start-car-paint" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={primary} />
-          <stop offset="48%" stopColor={primary} />
-          <stop offset="100%" stopColor="#151820" />
-        </linearGradient>
-        <linearGradient id="start-car-carbon" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#414753" />
-          <stop offset="100%" stopColor="#101218" />
-        </linearGradient>
-        <linearGradient id="start-car-tyre" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#363a42" />
-          <stop offset="55%" stopColor="#090a0e" />
-          <stop offset="100%" stopColor="#20232a" />
-        </linearGradient>
-        <filter id="start-car-shadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="13" />
-        </filter>
-      </defs>
-      <g className="start-car-blueprint" fill="none" stroke="#9ba5b7">
-        <ellipse cx="360" cy="235" rx="280" ry="190" strokeOpacity=".13" strokeDasharray="3 8" />
-        <ellipse cx="360" cy="235" rx="235" ry="157" strokeOpacity=".08" />
-        <path d="M60 235H660 M360 20V450" strokeOpacity=".13" strokeDasharray="4 8" />
-        <path d="M85 90h90M85 90v48M635 90h-90M635 90v48M85 380h90M85 380v-48M635 380h-90M635 380v-48" strokeOpacity=".32" />
-      </g>
-      <g transform="translate(0 4)">
-        <path d="M360 54 C343 68 335 94 329 122 L314 171 L291 196 L282 236 L292 279 L316 304 L333 345 L343 375 L350 390 L370 390 L377 375 L387 345 L404 304 L428 279 L438 236 L429 196 L406 171 L391 122 C385 94 377 68 360 54Z" fill={primary} opacity=".13" filter="url(#start-car-shadow)" />
-        {/* Front wing and endplates: the broad, unmistakable Formula-car nose. */}
-        <path d="M285 103 L327 111 L343 123 L360 128 L377 123 L393 111 L435 103 L445 117 L413 135 L389 142 L331 142 L307 135 L275 117Z" fill="url(#start-car-carbon)" stroke="#747b89" strokeWidth="1.4" />
-        <path d="M275 117 L306 126 L329 132 L391 132 L414 126 L445 117 L438 135 L407 146 L389 149 L331 149 L313 146 L282 135Z" fill={primary} stroke={secondary} strokeOpacity=".7" strokeWidth="1.1" />
-        <path d="M291 118 L312 124 L312 141 L285 133Z M429 118 L408 124 L408 141 L435 133Z" fill={secondary} opacity=".9" />
-        {/* Exposed front tyres, separate from the narrow central nose. */}
-        <g stroke="#515762" strokeWidth="2">
-          <path d="M264 137 Q262 127 273 124 L298 126 Q306 132 306 146 L303 175 Q299 184 286 181 L268 174 Q261 166 264 137Z" fill="url(#start-car-tyre)" />
-          <path d="M456 137 Q458 127 447 124 L422 126 Q414 132 414 146 L417 175 Q421 184 434 181 L452 174 Q459 166 456 137Z" fill="url(#start-car-tyre)" />
-        </g>
-        <g stroke="#858c98" strokeWidth="1.2" opacity=".75">
-          <path d="M274 139l22 6M273 149l24 6M274 159l22 6M446 139l-22 6M447 149l-24 6M446 159l-22 6" />
-        </g>
-        {/* Front suspension wishbones. */}
-        <g fill="none" stroke="#c4c9d2" strokeWidth="2" strokeLinecap="round">
-          <path d="M292 163L331 181L347 190M428 163L389 181L373 190" />
-          <path d="M300 174L333 185M420 174L387 185" stroke="#777e8a" />
-        </g>
-        {/* Slim pointed nose, driver cell, halo and sidepods. */}
-        <path d="M343 133 L377 133 L385 169 L379 218 L374 258 L366 291 L354 291 L346 258 L341 218 L335 169Z" fill="url(#start-car-paint)" stroke={secondary} strokeOpacity=".65" strokeWidth="1.2" />
-        <path d="M350 142L370 142L371 196L366 231L354 231L349 196Z" fill={secondary} opacity=".86" />
-        <path d="M351 155L369 155L367 191L353 191Z" fill="#121923" />
-        <path d="M342 174L330 188L337 202L350 208M378 174L390 188L383 202L370 208" fill="none" stroke="#d6dbe4" strokeWidth="3" strokeLinecap="round" />
-        <path d="M350 201 Q360 190 370 201 L376 224 L371 245 L349 245 L344 224Z" fill="#0a0d12" stroke="#727b8a" strokeWidth="1.2" />
-        <path d="M350 208 Q360 201 370 208 L369 222 L351 222Z" fill="#252c38" />
-        <path d="M341 231 L326 243 L318 267 L334 283 L347 266Z M379 231 L394 243 L402 267 L386 283 L373 266Z" fill="url(#start-car-paint)" stroke={secondary} strokeOpacity=".45" strokeWidth="1" />
-        <path d="M318 256L338 264L342 277L328 290L309 279Z M402 256L382 264L378 277L392 290L411 279Z" fill={primary} />
-        {/* Rear tyres: wider and set back, framing the rear bodywork. */}
-        <g stroke="#515762" strokeWidth="2">
-          <path d="M260 284 Q259 273 270 269 L296 270 Q306 276 306 291 L303 324 Q300 335 286 331 L268 324 Q260 316 260 284Z" fill="url(#start-car-tyre)" />
-          <path d="M460 284 Q461 273 450 269 L424 270 Q414 276 414 291 L417 324 Q420 335 434 331 L452 324 Q460 316 460 284Z" fill="url(#start-car-tyre)" />
-        </g>
-        <g stroke="#858c98" strokeWidth="1.2" opacity=".75">
-          <path d="M270 284l25 6M269 295l26 6M270 306l24 6M450 284l-25 6M451 295l-26 6M450 306l-24 6" />
-        </g>
-        {/* Engine cover and sculpted rear body. */}
-        <path d="M347 263 L373 263 L389 289 L389 316 L378 345 L369 364 L351 364 L342 345 L331 316 L331 289Z" fill="url(#start-car-paint)" stroke={secondary} strokeOpacity=".65" strokeWidth="1.2" />
-        <path d="M351 273L369 273L377 307L369 335L351 335L343 307Z" fill={secondary} opacity=".9" />
-        <path d="M355 278H365L368 308L364 327H356L352 308Z" fill="#151a23" />
-        <path d="M331 292L309 287L300 301L313 322L335 319M389 292L411 287L420 301L407 322L385 319" fill="#222731" stroke="#7c8491" strokeWidth="1.2" />
-        <path d="M336 321L351 338L369 338L384 321L379 347L369 366L351 366L341 347Z" fill={primary} />
-        {/* Rear wing, pylons and endplates. */}
-        <path d="M282 365L324 357L343 363L377 363L396 357L438 365L446 386L400 394L377 388L343 388L320 394L274 386Z" fill="url(#start-car-carbon)" stroke="#7a818e" strokeWidth="1.3" />
-        <path d="M274 386L320 382L343 377L377 377L400 382L446 386L439 399L397 403L377 397L343 397L323 403L281 399Z" fill={primary} stroke={secondary} strokeOpacity=".7" strokeWidth="1.1" />
-        <path d="M292 369L320 367L320 385L285 390Z M428 369L400 367L400 385L435 390Z" fill={secondary} opacity=".9" />
-        <path d="M345 360L345 380M375 360L375 380" stroke="#9da4b1" strokeWidth="3" />
-        <path d="M345 371H375" stroke="#fff" strokeOpacity=".65" strokeWidth="1.2" />
-      </g>
-      <g className="start-car-callouts" fill="none" stroke="#aeb6c5" strokeOpacity=".6" strokeWidth="1">
-        <path d="M285 142H185L157 118H105" /><path d="M391 211H486L512 187H590" /><path d="M407 377H492L516 399H595" />
-      </g>
-      <g fill="#c7ccd5" fontFamily="IBM Plex Mono, monospace" fontSize="9" letterSpacing="1.4">
-        <text x="101" y="111" textAnchor="end">FRONT WING</text>
-        <text x="594" y="180">HALO / COCKPIT</text>
-        <text x="600" y="411">REAR WING</text>
-      </g>
-      <text x="360" y="446" textAnchor="middle" fill="#7f8795" fontFamily="IBM Plex Mono, monospace" fontSize="9" letterSpacing="3">OPEN-WHEEL AERODYNAMIC PLATFORM · R-01</text>
-    </svg>
-    <div className="start-car-art-label start-car-label-bottom"><span>TECHNICAL DRAWING / 001</span><b>22 CARS · 20 ROUNDS</b></div>
+  return <div className="start-car-art realism-car-scene" aria-hidden="true" style={{ "--car-primary": primary, "--car-secondary": secondary } as React.CSSProperties}>
+    <div className="realism-garage-lights" />
+    <div className="realism-garage-beams"><i/><i/><i/><i/></div>
+    <div className="realism-garage-haze" />
+    <div className="realism-car-stage">
+      <div className="realism-car-shadow" />
+      <div className="realism-car-wheel realism-wheel-left"><i/><b/></div>
+      <div className="realism-car-wheel realism-wheel-right"><i/><b/></div>
+      <div className="realism-car-undertray" />
+      <div className="realism-car-sidepod realism-sidepod-left" />
+      <div className="realism-car-sidepod realism-sidepod-right" />
+      <div className="realism-car-nose" />
+      <div className="realism-car-cockpit"><i/><b/></div>
+      <div className="realism-car-halo" />
+      <div className="realism-car-engine-cover" />
+      <div className="realism-car-fin" />
+      <div className="realism-car-front-wing"><i/><b/></div>
+      <div className="realism-car-rear-wing"><i/><b/></div>
+      <div className="realism-car-reflection" />
+    </div>
+    <div className="realism-scene-label realism-label-top"><span>R-01 / DEVELOPMENT PROTOTYPE</span><b>CARBON MONOCOQUE · HYBRID POWERTRAIN</b></div>
+    <div className="realism-scene-label realism-label-bottom"><span>REDLINE MOTORSPORTS</span><b>ENGINEERING BAY 01</b></div>
+    <div className="realism-scene-vignette" />
   </div>;
 }
 
 function PitWallGraphic() {
-  return <div className="hero-art pitwall-art" aria-hidden="true">
-    <div className="hero-art-glow" />
-    <svg viewBox="0 0 760 250" role="presentation" focusable="false">
-      <defs>
-        <linearGradient id="pitwall-room" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#252a33"/><stop offset="100%" stopColor="#11141a"/>
-        </linearGradient>
-        <linearGradient id="pitwall-screen" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#1d3440"/><stop offset="100%" stopColor="#101a24"/>
-        </linearGradient>
-        <linearGradient id="pitwall-glass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1d2731" stopOpacity=".28"/><stop offset="100%" stopColor="#090c12" stopOpacity=".88"/>
-        </linearGradient>
-        <filter id="pitwall-soft-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
-      </defs>
-      {/* Pitbox glass wall and overhead structure */}
-      <path d="M22 26H738V181H22Z" fill="url(#pitwall-room)" stroke="#59616d" strokeOpacity=".7"/>
-      <path d="M22 26H738V43H22Z" fill="#303742"/>
-      <path d="M35 31H725M35 38H725" stroke="#79818d" strokeOpacity=".35"/>
-      <path d="M30 48H730V176H30Z" fill="url(#pitwall-glass)" stroke="#4a5665" strokeOpacity=".6"/>
-      <path d="M270 48V176M515 48V176" stroke="#687381" strokeOpacity=".38" strokeWidth="2"/>
-      <path d="M39 53L205 53L170 170H39Z M283 53H501L485 170H283Z M528 53H720V170H548Z" fill="#a5b8c9" opacity=".025"/>
-      {/* Wall-mounted telemetry displays */}
-      <g stroke="#667381" strokeWidth="1.2">
-        <rect x="47" y="60" width="130" height="63" rx="2" fill="#0a1018"/>
-        <rect x="190" y="60" width="65" height="63" rx="2" fill="#0a1018"/>
-        <rect x="288" y="60" width="115" height="63" rx="2" fill="#0a1018"/>
-        <rect x="415" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
-        <rect x="535" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
-        <rect x="628" y="60" width="82" height="63" rx="2" fill="#0a1018"/>
-      </g>
-      <g fill="#aeb9c8" fontFamily="monospace" fontSize="6" letterSpacing=".8">
-        <text x="55" y="70">LIVE TELEMETRY</text><text x="198" y="70">TYRE STATUS</text>
-        <text x="296" y="70">CAR 01 · DATA</text><text x="423" y="70">SECTOR TIMES</text>
-        <text x="543" y="70">STRATEGY</text><text x="636" y="70">WEATHER</text>
-      </g>
-      <g fill="none" strokeWidth="1.6">
-        <path d="M55 107L68 100L80 104L94 86L107 95L122 88L137 96L151 81L167 88" stroke="#5cb9e8"/>
-        <path d="M55 114L76 111L90 116L106 105L124 109L145 101L167 106" stroke="#d5a84f"/>
-        <path d="M297 105L312 98L325 103L341 84L354 91L370 80L394 91" stroke="#65c9a2"/>
-        <path d="M424 92H488M424 101H476M424 110H482" stroke="#667b91"/>
-        <path d="M544 86H603M544 96H590M544 106H600" stroke="#667b91"/>
-      </g>
-      <g fill="#e4b45c">
-        <circle cx="203" cy="86" r="4"/><circle cx="218" cy="86" r="4" fill="#e5e7eb"/><circle cx="233" cy="86" r="4" fill="#e5e7eb"/>
-      </g>
-      <g fill="#66c89c"><rect x="544" y="113" width="15" height="3"/><rect x="563" y="113" width="15" height="3" opacity=".65"/><rect x="582" y="113" width="15" height="3" opacity=".35"/></g>
-      <g fill="#d5a84f"><rect x="637" y="83" width="13" height="5"/><rect x="653" y="83" width="13" height="5"/><rect x="669" y="83" width="13" height="5" opacity=".5"/></g>
-      <path d="M38 137H721V174H38Z" fill="#0b0e13" opacity=".65"/>
-      <path d="M38 137H721" stroke="#ff352a" strokeOpacity=".6"/>
-      {/* Pitwall desk and consoles */}
-      <path d="M20 180L740 180L760 210L0 210Z" fill="#252b34" stroke="#59616d"/>
-      <path d="M20 181H740" stroke="#ff352a" strokeWidth="2" opacity=".8"/>
-      <path d="M0 211H760V228H0Z" fill="#11141a"/>
-      <g stroke="#697382" strokeWidth="1">
-        <path d="M45 188H180L194 204H32Z" fill="#080b10"/>
-        <path d="M213 188H345L358 204H200Z" fill="#080b10"/>
-        <path d="M384 188H510L523 204H370Z" fill="#080b10"/>
-        <path d="M549 188H688L704 204H535Z" fill="#080b10"/>
-      </g>
-      <g fill="#5db8e6">
-        <rect x="53" y="192" width="5" height="3"/><rect x="63" y="192" width="5" height="3"/><rect x="73" y="192" width="5" height="3"/>
-        <rect x="221" y="192" width="5" height="3"/><rect x="231" y="192" width="5" height="3"/><rect x="241" y="192" width="5" height="3"/>
-        <rect x="393" y="192" width="5" height="3"/><rect x="403" y="192" width="5" height="3"/><rect x="413" y="192" width="5" height="3"/>
-      </g>
-      <g fill="#d6d9df" opacity=".9">
-        {/* Engineers viewed from behind */}
-        <path d="M80 161Q81 147 94 147Q107 147 108 161L113 181H75Z" fill="#3b4553"/>
-        <circle cx="94" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
-        <path d="M288 161Q289 147 302 147Q315 147 316 161L322 181H282Z" fill="#3b4553"/>
-        <circle cx="302" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
-        <path d="M463 161Q464 147 477 147Q490 147 491 161L497 181H457Z" fill="#3b4553"/>
-        <circle cx="477" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
-        <path d="M645 161Q646 147 659 147Q672 147 673 161L679 181H639Z" fill="#3b4553"/>
-        <circle cx="659" cy="143" r="10" fill="#171c24" stroke="#727d8b"/>
-      </g>
-      <g fill="none" stroke="#aab3c1" strokeOpacity=".4" strokeWidth="1">
-        <path d="M94 154L88 166M302 154L296 166M477 154L471 166M659 154L653 166"/>
-      </g>
-      {/* Ambient pit-lane light and engineering-room framing */}
-      <path d="M22 26H738" stroke="#ff352a" strokeWidth="2" opacity=".75"/>
-      <path d="M26 229H734" stroke="#7a8493" strokeOpacity=".35"/>
-      <text x="28" y="244" fill="#8c96a5" fontFamily="monospace" fontSize="7" letterSpacing="2">REDLINE RACE OPERATIONS · PIT WALL</text>
-      <text x="731" y="244" textAnchor="end" fill="#c5cad2" fontFamily="monospace" fontSize="7" letterSpacing="1.5">LIVE DATA / 01</text>
-    </svg>
+  return <div className="hero-art pitwall-art realism-pitwall-scene" aria-hidden="true">
+    <div className="pitwall-room-light" />
+    <div className="pitwall-room-ceiling"><i/><i/><i/></div>
+    <div className="pitwall-glass-wall">
+      <div className="pitwall-display pitwall-display-wide"><span>LIVE TELEMETRY / CAR 07</span><i/><i/><i/><b>THROTTLE</b></div>
+      <div className="pitwall-display pitwall-display-small"><span>TYRE STATUS</span><b><i/><i/><i/></b><em>SOFT / 18 LAPS</em></div>
+      <div className="pitwall-display pitwall-display-mid"><span>SECTOR DELTA</span><i/><i/><i/><b>−0.284</b></div>
+      <div className="pitwall-display pitwall-display-weather"><span>TRACK CONDITIONS</span><b>DRY</b><i/><i/><em>28° C · 34% HUMIDITY</em></div>
+      <div className="pitwall-screen-reflection" />
+    </div>
+    <div className="pitwall-desk">
+      <div className="pitwall-console"><i/><i/><i/><b>RACE STRATEGY</b></div>
+      <div className="pitwall-console"><i/><i/><i/><b>CAR PERFORMANCE</b></div>
+      <div className="pitwall-console"><i/><i/><i/><b>LIVE TIMING</b></div>
+      <div className="pitwall-engineer engineer-one"><i/><b/></div>
+      <div className="pitwall-engineer engineer-two"><i/><b/></div>
+      <div className="pitwall-engineer engineer-three"><i/><b/></div>
+    </div>
+    <div className="pitwall-room-depth" />
     <div className="hero-art-caption"><span>LIVE</span><i /> PIT WALL OPERATIONS <b>RACE CONTROL</b></div>
   </div>;
 }
