@@ -652,33 +652,6 @@ function UpgradeIcon({ type }: { type: string | undefined }) {
   </svg>;
 }
 
-function StartScreenCarGraphic({ primary, secondary }: { primary: string; secondary: string }) {
-  return <div className="start-car-art realism-car-scene" aria-hidden="true" style={{ "--car-primary": primary, "--car-secondary": secondary } as React.CSSProperties}>
-    <div className="realism-garage-lights" />
-    <div className="realism-garage-beams"><i/><i/><i/><i/></div>
-    <div className="realism-garage-haze" />
-    <div className="realism-car-stage">
-      <div className="realism-car-shadow" />
-      <div className="realism-car-wheel realism-wheel-left"><i/><b/></div>
-      <div className="realism-car-wheel realism-wheel-right"><i/><b/></div>
-      <div className="realism-car-undertray" />
-      <div className="realism-car-sidepod realism-sidepod-left" />
-      <div className="realism-car-sidepod realism-sidepod-right" />
-      <div className="realism-car-nose" />
-      <div className="realism-car-cockpit"><i/><b/></div>
-      <div className="realism-car-halo" />
-      <div className="realism-car-engine-cover" />
-      <div className="realism-car-fin" />
-      <div className="realism-car-front-wing"><i/><b/></div>
-      <div className="realism-car-rear-wing"><i/><b/></div>
-      <div className="realism-car-reflection" />
-    </div>
-    <div className="realism-scene-label realism-label-top"><span>R-01 / DEVELOPMENT PROTOTYPE</span><b>CARBON MONOCOQUE · HYBRID POWERTRAIN</b></div>
-    <div className="realism-scene-label realism-label-bottom"><span>REDLINE MOTORSPORTS</span><b>ENGINEERING BAY 01</b></div>
-    <div className="realism-scene-vignette" />
-  </div>;
-}
-
 function PitWallGraphic() {
   return <div className="hero-art pitwall-art realism-pitwall-scene" aria-hidden="true">
     <div className="pitwall-room-light" />
