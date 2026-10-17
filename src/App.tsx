@@ -533,10 +533,21 @@ function DriverPortrait({ driver, index }: { driver: { name: string; color: stri
           <stop offset="38%" stopColor="#333741" stopOpacity=".32" />
           <stop offset="100%" stopColor="#07090d" stopOpacity=".98" />
         </linearGradient>
+        <linearGradient id={id + "-skin"} x1="0" y1="0" x2="1" y2=".25">
+          <stop offset="0%" stopColor="#8d929b" />
+          <stop offset="28%" stopColor="#565b65" />
+          <stop offset="62%" stopColor="#343842" />
+          <stop offset="100%" stopColor="#12151b" />
+        </linearGradient>
         <linearGradient id={id + "-skinrim"} x1="0" y1="0" x2="1" y2=".1">
-          <stop offset="0%" stopColor="#c8ccd2" stopOpacity=".62" />
-          <stop offset="52%" stopColor="#737985" stopOpacity=".2" />
+          <stop offset="0%" stopColor="#dce0e6" stopOpacity=".72" />
+          <stop offset="42%" stopColor="#9299a5" stopOpacity=".26" />
           <stop offset="100%" stopColor="#171a20" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={id + "-hair"} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#343943" />
+          <stop offset="32%" stopColor="#11141a" />
+          <stop offset="100%" stopColor="#020306" />
         </linearGradient>
         <linearGradient id={id + "-suit"} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#363b45" />
@@ -553,27 +564,35 @@ function DriverPortrait({ driver, index }: { driver: { name: string; color: stri
       <g clipPath={"url(#" + id + "-clip)"}>
         <rect width="88" height="94" fill="#0b0d12" />
         <rect width="88" height="94" fill={"url(#" + id + "-studio)"} />
-        <ellipse cx="44" cy="35" rx="34" ry="43" fill="#9ca2ad" opacity=".055" />
-        {/* Shoulder silhouette and high-collar race suit */}
+        {/* Paddock-light backdrop and layered race suit */}
+        <path d="M8 0H24L8 54H0V18Z" fill="#c4cad4" opacity=".055" />
+        <path d="M72 0H88V47L80 60L67 24Z" fill={accent} opacity=".075" />
+        <ellipse cx="44" cy="35" rx="34" ry="43" fill="#c4cad4" opacity=".07" />
         <path d="M3 98 C5 80 13 71 27 66 L36 62 L53 62 L63 67 C76 71 83 82 86 98Z" fill="#030407" />
         <path d="M13 98 C15 81 23 73 34 69 L44 78 L54 69 C66 73 74 82 76 98Z" fill={"url(#" + id + "-suit)"} />
+        <path d="M15 88C22 77 27 73 35 70L40 77L31 91Z" fill="#6e7580" opacity=".18" />
+        <path d="M73 88C66 77 61 73 53 70L48 77L57 91Z" fill="#000" opacity=".56" />
         <path d="M33 54 L33 67 L44 78 L55 66 L55 53Z" fill="#090b10" />
-        <path d="M34 63 L44 75 L54 63 L52 59 L36 59Z" fill="#717782" opacity=".24" />
-        <path d="M44 78 L44 94" stroke={accent} strokeWidth="1.3" strokeOpacity=".48" />
-        <path d="M17 94 C20 81 25 74 34 70 L40 77 L32 88Z" fill="#454b56" opacity=".26" />
-        <path d="M71 94 C68 81 62 74 54 70 L48 77 L56 88Z" fill="#000" opacity=".5" />
-        {/* Head shape, ears, and restrained studio edge light */}
-        <path d={profile.head} fill="#050609" />
-        <path d="M30 34 C26 31 26 38 30 42 L33 43Z" fill="#0a0c11" />
-        <path d="M58 34 C63 31 63 38 58 43 L56 43Z" fill="#030407" />
-        <path d={profile.hair} fill="#020306" />
-        <path d={profile.fringe} fill="#07090d" />
-        <path d="M30 31 C29 43 34 54 43 59" fill="none" stroke="#b7bdc7" strokeOpacity=".25" strokeWidth="1.05" />
-        <path d="M31 40 C32 49 36 55 42 58" fill="none" stroke="#717783" strokeOpacity=".22" strokeWidth="2.2" />
-        <path d="M58 34 C60 43 56 53 49 58" fill="none" stroke="#7b818d" strokeOpacity=".18" strokeWidth="1.1" />
-        <path d="M28 31 C26 21 32 12 40 9" fill="none" stroke="#d2d5dc" strokeOpacity=".3" strokeWidth="1.2" />
-        {/* Face stays anonymous: no eyes, mouth, or illustrated expression */}
-        <path d="M35 31 C36 37 36 43 39 47" fill="none" stroke="#7d838e" strokeOpacity=".1" strokeWidth="1" />
+        <path d="M34 63 L44 75 L54 63 L52 59 L36 59Z" fill="#9299a5" opacity=".28" />
+        <path d="M44 78 L44 94" stroke={accent} strokeWidth="1.3" strokeOpacity=".65" />
+        <path d="M19 94L24 80M69 94L64 80" stroke="#b7bdc7" strokeOpacity=".17" strokeWidth=".7" />
+        <path d="M30 34 C26 31 26 38 30 42 L33 43Z" fill="#30343d" />
+        <path d="M58 34 C63 31 63 38 58 43 L56 43Z" fill="#20242c" />
+        {/* Sculpted face planes with restrained, low-contrast features */}
+        <path d={profile.head} fill={"url(#" + id + "-skin)"} />
+        <path d="M31 29C33 20 39 15 45 15C53 15 57 22 57 31L55 43C53 51 49 55 45 57C39 54 34 48 32 40Z" fill="#a4aab4" opacity=".075" />
+        <path d="M31 35C34 32 38 32 41 34M48 34C51 32 55 32 57 35" fill="none" stroke="#11141a" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M32 36C35 34 38 34 40 36M49 36C52 34 55 34 56 36" fill="none" stroke="#b0b6c0" strokeOpacity=".32" strokeWidth=".65" strokeLinecap="round" />
+        <path d="M44 35L42 43L45 45" fill="none" stroke="#11141a" strokeOpacity=".7" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M39 49C42 50 47 50 50 48" fill="none" stroke="#11141a" strokeOpacity=".9" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M39 50C42 51 47 51 50 49" fill="none" stroke="#aab0ba" strokeOpacity=".18" strokeWidth=".6" strokeLinecap="round" />
+        <path d={profile.hair} fill={"url(#" + id + "-hair)"} />
+        <path d={profile.fringe} fill="#10131a" />
+        <path d="M30 31 C29 43 34 54 43 59" fill="none" stroke="#d1d6de" strokeOpacity=".32" strokeWidth="1.05" />
+        <path d="M31 40 C32 49 36 55 42 58" fill="none" stroke="#8b929e" strokeOpacity=".28" strokeWidth="2.2" />
+        <path d="M58 34 C60 43 56 53 49 58" fill="none" stroke="#a1a8b3" strokeOpacity=".24" strokeWidth="1.1" />
+        <path d="M28 31 C26 21 32 12 40 9" fill="none" stroke="#e0e4ea" strokeOpacity=".4" strokeWidth="1.2" />
+        <path d="M33 17C38 11 48 10 54 17" fill="none" stroke="#aeb5c0" strokeOpacity=".18" strokeWidth=".75" />
         <path d="M0 0 H88 V94 H0Z" fill={"url(#" + id + "-skinrim)"} />
         <path d="M0 0 H2 V94 H0Z" fill={accent} opacity=".3" />
         <rect width="88" height="94" filter={"url(#" + id + "-grain)"} opacity=".26" />
