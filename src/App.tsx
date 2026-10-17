@@ -603,13 +603,42 @@ function DriverPortrait({ driver, index }: { driver: { name: string; color: stri
   </div>;
 }
 function MobileTabIcon({ id }: { id: string }) {
-  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  return <svg className="mobile-tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    {id === "race" && <g {...common}><path d="M4 18 6 9l2-3h8l2 3 2 9M3 18h18M6 13h12M8 6l2 7m6-7-2 7"/><circle cx="7" cy="18" r="1.4"/><circle cx="17" cy="18" r="1.4"/></g>}
-    {id === "strategy" && <g {...common}><rect x="4" y="4" width="16" height="16"/><path d="m7 15 3-4 3 2 4-6M7 7h3M7 18h10"/></g>}
-    {id === "standings" && <g {...common}><rect x="4" y="4" width="16" height="16"/><path d="M4 9h16M4 14h16M9 4v16M14 4v16"/></g>}
-    {id === "garage" && <g {...common}><path d="m4 8 8-4 8 4v9l-8 4-8-4zM4.5 8.5 12 13l7.5-4.5M12 13v8M8 6l8 4.5"/></g>}
-    {id === "more" && <g {...common}><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r=".8" fill="currentColor"/><circle cx="12" cy="12" r=".8" fill="currentColor"/><circle cx="17" cy="18" r=".8" fill="currentColor"/></g>}
+  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.45, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return <svg className={"mobile-tab-icon mobile-tab-icon-" + id} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    {id === "race" && <g {...common}>
+      <path d="M5 22.5 7.5 13l4-4h9l4 4 2.5 9.5v3H5z"/>
+      <path d="m9 13 2.5-2.5h8L22 13l1.5 5h-16z"/>
+      <path d="M10 18h12M12 22h8M8 25.5v2M24 25.5v2"/>
+      <path d="M3 15h3M26 15h3" opacity=".6"/>
+      <path d="M12 9V6h8v3" opacity=".75"/>
+    </g>}
+    {id === "strategy" && <g {...common}>
+      <path d="M5 6.5h22v19H5z"/>
+      <path d="M9 11h5M9 15h3M9 19h4"/>
+      <path d="m15 22 3-5 3 2 4-7"/>
+      <path d="M22 12h3v3" opacity=".75"/>
+      <path d="M8 3.5h16" opacity=".5"/>
+    </g>}
+    {id === "standings" && <g {...common}>
+      <path d="M6 4.5h20v23H6z"/>
+      <path d="M6 11h20M6 18h20M13 4.5v23"/>
+      <path d="M9 7.5h1.5M16 7.5h6M9 14.5h1.5M16 14.5h6M9 21.5h1.5M16 21.5h6"/>
+      <path d="M3 8v16M29 8v16" opacity=".55"/>
+    </g>}
+    {id === "garage" && <g {...common}>
+      <path d="m3.5 13 12.5-8 12.5 8"/>
+      <path d="M6.5 12v15h19V12"/>
+      <path d="M10 27v-8.5h12V27"/>
+      <path d="M12 15h8M14 12.5h4"/>
+      <path d="M12 22h8M12 24.5h8" opacity=".6"/>
+    </g>}
+    {id === "more" && <g {...common}>
+      <path d="M5 7h22M5 16h22M5 25h22"/>
+      <circle cx="11" cy="7" r="2.2" fill="#0b0e13"/>
+      <circle cx="21" cy="16" r="2.2" fill="#0b0e13"/>
+      <circle cx="14" cy="25" r="2.2" fill="#0b0e13"/>
+      <path d="M11 4.5v5M21 13.5v5M14 22.5v5" opacity=".7"/>
+    </g>}
   </svg>;
 }
 function GaragePerkIcon({ effect }: { effect: string }) {
