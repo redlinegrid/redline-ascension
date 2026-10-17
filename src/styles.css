@@ -4855,3 +4855,229 @@ body {
   .app-shell .research-lab-heading { flex-direction: column; }
   .app-shell .research-lab-balance { align-items: flex-start; width: 100%; box-sizing: border-box; }
 }
+
+ 
+/* Desktop start-screen polish: balanced columns, tighter hierarchy, consistent controls. */
+@media (min-width: 761px) {
+  .start-screen {
+    grid-template-columns: minmax(0, 1.04fr) minmax(360px, .96fr);
+    align-items: stretch;
+  }
+  .start-screen-content {
+    width: 100%;
+    max-width: none;
+    padding: clamp(28px, 3.2vw, 52px) clamp(28px, 3.5vw, 58px) 58px;
+    gap: 0;
+    scrollbar-gutter: stable;
+  }
+  .start-screen-brand {
+    gap: 12px;
+    margin-bottom: clamp(22px, 3.3vh, 34px) !important;
+  }
+  .brand-lockup-icon-start {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+  .brand-lockup-copy-start strong {
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.1;
+    letter-spacing: .07em;
+  }
+  .brand-lockup-copy-start > span {
+    margin-top: 2px;
+    font-size: 8px;
+    letter-spacing: .13em;
+  }
+  .start-screen-kicker {
+    margin-top: 2px;
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: .16em;
+  }
+  .start-screen-content h1 {
+    max-width: 640px;
+    margin: 12px 0 12px;
+    font-size: clamp(42px, 4.1vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -.045em;
+  }
+  .start-screen-intro {
+    max-width: 540px;
+    margin: 0 0 20px;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .onboarding-step-indicator {
+    width: 100%;
+    box-sizing: border-box;
+    gap: 20px;
+    margin: 0 0 16px;
+    padding: 0 0 12px;
+    border-bottom-color: rgba(160, 177, 198, .18);
+  }
+  .onboarding-step-indicator span {
+    font-size: 8px;
+    letter-spacing: .13em;
+  }
+  .mode-select-section {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 2px 0 14px;
+    padding: 16px;
+    border-radius: 3px;
+    border-color: rgba(151, 167, 189, .2);
+    background: linear-gradient(145deg, rgba(23, 29, 38, .84), rgba(8, 11, 16, .92));
+  }
+  .mode-select-section .team-customization-heading {
+    margin-bottom: 12px;
+  }
+  .mode-select-section .team-customization-heading h2 {
+    font-size: clamp(20px, 2vw, 25px);
+    line-height: 1.1;
+  }
+  .mode-select-grid {
+    gap: 10px;
+  }
+  .mode-choice-card {
+    min-height: 178px;
+    padding: 15px;
+    gap: 10px;
+    border-radius: 3px;
+    border-color: rgba(151, 167, 189, .22);
+    background: linear-gradient(150deg, rgba(22, 29, 39, .94), rgba(8, 11, 16, .98));
+  }
+  .mode-choice-number {
+    font-size: 8px;
+    letter-spacing: .13em;
+  }
+  .mode-choice-card strong {
+    font-size: clamp(16px, 1.5vw, 20px);
+    line-height: 1.15;
+  }
+  .mode-choice-card p {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+  .mode-choice-footer {
+    font-size: 7px;
+    line-height: 1.4;
+    letter-spacing: .08em;
+  }
+  .onboarding-step-footer {
+    margin: 14px 0 12px;
+    padding-top: 12px;
+    border-top-color: rgba(160, 177, 198, .18);
+  }
+  .onboarding-step-footer > div {
+    flex-wrap: nowrap;
+  }
+  .onboarding-step-footer .primary-button,
+  .onboarding-step-footer .secondary-button {
+    min-height: 42px;
+    padding: 11px 15px;
+    font-size: 9px;
+  }
+  .start-menu-actions {
+    width: min(100%, 540px);
+    margin: 12px 0 8px;
+    gap: 9px;
+  }
+  .start-menu-actions .start-new-game-button,
+  .start-menu-actions .continue-career-button {
+    min-height: 60px;
+    padding: 17px 18px;
+    border-radius: 2px;
+    font-size: 10px;
+  }
+  .start-screen-content[data-onboarding-step="home"] .start-screen-brand {
+    margin-bottom: clamp(24px, 4vh, 44px) !important;
+  }
+  .start-screen-content[data-onboarding-step="home"] .start-screen-intro {
+    max-width: 510px;
+    margin-bottom: 18px;
+  }
+  .start-screen-content[data-onboarding-step="home"] .research-lab-entry-button {
+    width: min(100%, 540px);
+    min-height: 52px;
+    box-sizing: border-box;
+    margin-top: 12px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-name-label,
+  .start-screen-content[data-onboarding-step="team"] .team-name-input,
+  .start-screen-content[data-onboarding-step="team"] .team-customization,
+  .start-screen-content[data-onboarding-step="team"] .start-screen-preview,
+  .start-screen-content[data-onboarding-step="team"] .team-next {
+    width: 100%;
+    max-width: 760px;
+    box-sizing: border-box;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-customization {
+    margin-top: 0;
+    padding: 16px;
+    border-radius: 3px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-controls {
+    gap: 10px;
+  }
+  .start-screen-content[data-onboarding-step="team"] .team-color-presets {
+    gap: 7px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market {
+    max-width: 760px;
+    margin-top: 4px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-card {
+    padding: 12px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-portrait {
+    flex-basis: 66px;
+    width: 66px;
+    height: 78px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .market-driver-actions button {
+    min-height: 34px;
+    padding: 7px 4px;
+    font-size: 8px;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .start-career-button {
+    width: min(100%, 760px);
+    min-height: 48px;
+    margin-top: 12px;
+  }
+  .start-screen-visual {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    align-self: start;
+  }
+  .start-engineering-topline,
+  .start-engineering-footer {
+    letter-spacing: .1em;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .start-screen {
+    grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+  }
+  .start-screen-content {
+    padding-left: 26px;
+    padding-right: 26px;
+  }
+  .start-screen-content h1 {
+    font-size: clamp(38px, 4.2vw, 48px);
+  }
+  .mode-select-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mode-choice-card {
+    min-height: 0;
+  }
+  .start-screen-content[data-onboarding-step="drivers"] .driver-market-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
