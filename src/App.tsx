@@ -411,14 +411,26 @@ function CircuitMap({ cars, lap, teamName, speed = 1, circuitSeed = 8241, circui
         <filter id="player-glow" x="-200%" y="-200%" width="400%" height="400%">
           <feGaussianBlur stdDeviation="2.5" />
         </filter>
+        <linearGradient id="track-asphalt" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#59616b" />
+          <stop offset="48%" stopColor="#343b45" />
+          <stop offset="100%" stopColor="#20262e" />
+        </linearGradient>
+        <pattern id="pitwall-grid" width="12" height="12" patternUnits="userSpaceOnUse">
+          <path d="M12 0H0V12" fill="none" stroke="#8c9aad" strokeOpacity=".09" strokeWidth=".45" />
+        </pattern>
       </defs>
-      {/* Redline Grid-inspired circuit treatment: clean white outline on black, with restrained sector colours. */}
-      <path d={trackPath} fill="none" stroke="#000000" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={trackPath} fill="none" stroke="#f0f2f6" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={trackPath} pathLength="300" fill="none" stroke="#ff453a" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="0" strokeLinecap="butt" />
-      <path d={trackPath} pathLength="300" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-100" strokeLinecap="butt" />
-      <path d={trackPath} pathLength="300" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="100 200" strokeDashoffset="-200" strokeLinecap="butt" />
-      <path className="track-telemetry-flow" d={trackPath} pathLength="300" fill="none" stroke="#ff645b" strokeWidth="1.5" strokeDasharray="8 292" strokeDashoffset="0" strokeLinecap="round" />
+      <rect x="0" y="0" width="380" height="220" fill="url(#pitwall-grid)" />
+      <path d="M12 16h22M12 16v22M368 16h-22M368 16v22M12 204h22M12 204v-22M368 204h-22M368 204v-22" fill="none" stroke="#748296" strokeOpacity=".42" strokeWidth=".7" />
+      {/* Layered asphalt, painted edge lines and timing-sector overlays inspired by a live pit-wall track map. */}
+      <path d={trackPath} fill="none" stroke="#080a0e" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} fill="none" stroke="#a9b1bc" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" opacity=".52" />
+      <path d={trackPath} fill="none" stroke="url(#track-asphalt)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={trackPath} fill="none" stroke="#d4d9e0" strokeOpacity=".48" strokeWidth=".7" strokeDasharray="2 2.5" strokeLinecap="butt" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#ff5147" strokeWidth="3" strokeDasharray="100 200" strokeDashoffset="0" strokeLinecap="butt" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#49a7ff" strokeWidth="3" strokeDasharray="100 200" strokeDashoffset="-100" strokeLinecap="butt" />
+      <path d={trackPath} pathLength="300" fill="none" stroke="#f4c95d" strokeWidth="3" strokeDasharray="100 200" strokeDashoffset="-200" strokeLinecap="butt" />
+      <path className="track-telemetry-flow" d={trackPath} pathLength="300" fill="none" stroke="#fff1e9" strokeWidth="1.2" strokeDasharray="7 293" strokeDashoffset="0" strokeLinecap="round" />
       <g transform={"translate(" + startFinish.x + " " + startFinish.y + ")"}>
         <circle r="7" fill="#050609" stroke="#f4f5f7" strokeWidth="1.4" />
         <path d="M-5 -5h10v10h-10z" fill="#f4f5f7" />
