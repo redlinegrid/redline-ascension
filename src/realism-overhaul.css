@@ -373,3 +373,88 @@ button.active,button.selected,button[aria-pressed="true"],.mode-choice-card.acti
 @media(prefers-reduced-motion: reduce) {
   .start-screen-content .team-color-preset { transition: none; }
 }
+
+
+/* Desktop start screen: place the player inside a race engineer's live pit-wall workstation. */
+.start-screen-engineering-visual{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 52% 38%,rgba(73,111,143,.12),transparent 48%),
+    linear-gradient(180deg,#0e131a 0%,#090c12 72%,#05070a 100%) !important;
+}
+.start-screen-engineering-visual .start-pitwall-scene,
+.start-screen-engineering-visual .realism-pitwall-scene{
+  left:0!important;right:0!important;top:0!important;bottom:0!important;
+  width:100%;height:100%;opacity:1!important;border-left:0;
+  background:linear-gradient(180deg,#141c27 0%,#080b11 100%);
+}
+.start-screen-engineering-visual .pitwall-room-ceiling{inset:0 3% 40%;opacity:.9}
+.start-screen-engineering-visual .pitwall-glass-wall{
+  top:12%;left:5%;right:5%;height:49%;padding:5% 2.5% 2%;
+  gap:1.5%;border-color:#8b9eb54a;
+  background:linear-gradient(180deg,#101a27f5,#060a10f5);
+  box-shadow:inset 0 0 35px #000c,0 12px 30px #0009,0 0 0 5px #05070b66;
+}
+.start-screen-engineering-visual .pitwall-display{
+  height:83%;gap:10px;padding:10px;
+  background:linear-gradient(145deg,#111e2b,#070b11);
+  border-color:#70859c77;
+  box-shadow:inset 0 0 16px #000b,0 0 14px #60bfe20b;
+  font-size:8px;
+}
+.start-screen-engineering-visual .pitwall-display span{font-size:7px;letter-spacing:.11em}
+.start-screen-engineering-visual .pitwall-display b{font-size:13px}
+.start-screen-engineering-visual .pitwall-display em{font-size:7px}
+.start-screen-engineering-visual .pitwall-desk{
+  top:62%;height:38%;
+  background:linear-gradient(180deg,#313b49 0%,#171e29 13%,#090d13 48%,#05070a 100%);
+  box-shadow:0 -14px 40px #000b;
+}
+.start-screen-engineering-visual .pitwall-console{
+  top:9%;height:34%;padding:8px;
+  background:linear-gradient(145deg,#080b10,#202a37);
+  border-color:#61748b88;
+}
+.start-screen-engineering-visual .pitwall-console b{font-size:6px}
+.start-screen-engineering-visual .pitwall-console i{width:5px;height:4px}
+.start-screen-engineering-visual .pitwall-engineer{filter:drop-shadow(0 5px 10px #000b)}
+.start-screen-engineering-visual .pitwall-room-depth{
+  background:linear-gradient(90deg,#06090ed9,transparent 12%,transparent 88%,#06090ed9),
+    linear-gradient(180deg,#05070a20 0%,transparent 48%,#030508a8 100%);
+}
+.start-screen-engineering-visual .hero-art-caption{display:none}
+.start-engineering-overlay{position:absolute;z-index:8;inset:0;pointer-events:none;color:#b8c5d5;font-family:var(--mono)}
+.start-engineering-topline{
+  position:absolute;top:4%;left:5%;right:5%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 12px;border:1px solid #9cabbc2e;background:#080c12c9;
+  box-shadow:0 8px 22px #0004;font-size:8px;letter-spacing:.13em;
+}
+.start-engineering-topline span{display:flex;align-items:center;gap:8px}
+.start-engineering-topline i{width:6px;height:6px;border-radius:50%;background:#69d3a4;box-shadow:0 0 10px #69d3a477}
+.start-engineering-topline b{font-weight:500;color:#7f8da0;text-align:right}
+.start-engineering-readout{
+  position:absolute;right:6%;top:22%;width:112px;padding:12px;
+  border:1px solid #8294aa55;background:#080d14df;box-shadow:0 8px 24px #0008;
+  display:flex;flex-direction:column;gap:8px;font-size:7px;letter-spacing:.08em;
+}
+.start-engineering-readout span{color:#8595a8}
+.start-engineering-readout b{font-size:12px;color:#72d2a7;font-weight:500}
+.start-engineering-readout i{display:block;height:3px;background:linear-gradient(90deg,#60bde2 0 72%,#263343 72%)}
+.start-engineering-readout i:nth-of-type(2){background:linear-gradient(90deg,#e7b95f 0 54%,#263343 54%)}
+.start-engineering-readout i:nth-of-type(3){background:linear-gradient(90deg,#70d0a7 0 84%,#263343 84%)}
+.start-engineering-footer{
+  position:absolute;left:5%;right:5%;bottom:4%;display:flex;justify-content:space-between;gap:12px;
+  padding:11px 12px;border-top:1px solid #a3b1c22b;background:linear-gradient(90deg,#070a10d9,transparent);
+  font-size:7px;letter-spacing:.12em;color:#78879a;
+}
+.start-engineering-footer b{font-weight:500;color:#a6b3c2;text-align:right}
+@media(max-width:1100px) and (min-width:851px){
+  .start-engineering-readout{right:4%;top:23%;width:92px;padding:9px}
+  .start-engineering-topline,.start-engineering-footer{left:4%;right:4%;font-size:7px}
+  .start-screen-engineering-visual .pitwall-display{padding:7px;gap:7px}
+}
+@media(max-width:850px){
+  .start-screen-engineering-visual{display:none!important}
+}
