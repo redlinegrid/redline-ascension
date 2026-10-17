@@ -4403,3 +4403,118 @@ body {
     min-height:56px;
   }
 }
+
+
+/* Pit-wall circuit display: layered asphalt, restrained telemetry colours and instrument-panel framing. */
+.circuit-theme{
+  padding:12px 14px 14px!important;
+  overflow:hidden;
+  border:1px solid #2b333e!important;
+  border-top:2px solid #424c59!important;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    radial-gradient(ellipse at 50% 45%,rgba(69,91,115,.15),transparent 68%),
+    linear-gradient(180deg,#0b0f15 0%,#080b10 100%)!important;
+  background-size:24px 24px,24px 24px,auto,auto;
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 10px 30px rgba(0,0,0,.18);
+}
+.circuit-theme:after{
+  content:"TRACK DATA • SIMULATION VIEW";
+  position:absolute;right:13px;bottom:4px;z-index:2;
+  color:#566171;font:600 6px var(--mono);letter-spacing:.12em;
+  pointer-events:none;
+}
+.circuit-theme .circuit-hud{
+  min-height:24px;margin-bottom:3px;padding:3px 5px 7px;
+  border-bottom:1px solid rgba(157,173,195,.16);
+  color:#9ba8b9;font-size:8px;letter-spacing:.16em;
+}
+.circuit-theme .circuit-hud>span{gap:8px}
+.circuit-theme .circuit-hud>span i{
+  width:6px;height:6px;background:#ef5147;
+  box-shadow:0 0 8px rgba(239,81,71,.55);
+}
+.circuit-theme .circuit-hud>b{
+  padding:4px 6px;border:1px solid rgba(146,163,186,.2);
+  background:rgba(0,0,0,.25);color:#bac3d0;font-size:7px;
+}
+.circuit-theme>svg{
+  display:block;width:100%;height:auto;max-height:330px;
+  margin:2px auto 0;
+}
+.circuit-theme .track-center-label{font-size:10px;letter-spacing:.18em;fill:#f3f6fa}
+.circuit-theme .track-center-sub{font-size:6px;letter-spacing:.12em;fill:#a7b4c5}
+.circuit-theme .track-center-live{font-size:5px;letter-spacing:.13em;fill:#f16b61}
+.circuit-theme .track-marker-label{
+  fill:#edf2f8;stroke:#080b10;stroke-width:2.6px;paint-order:stroke;
+  font:700 5.4px var(--mono);letter-spacing:.06em;
+}
+.circuit-theme .track-sector circle{fill:#0c121b;stroke-width:1.4}
+.circuit-theme .track-sector.sector-one circle{stroke:#ff655b}
+.circuit-theme .track-sector.sector-two circle{stroke:#65b3ff}
+.circuit-theme .track-sector text{font:800 5px var(--mono);fill:#f7f9fc}
+.circuit-theme .track-turn circle{filter:drop-shadow(0 1px 2px #000)}
+.circuit-theme .track-turn text{font:800 5.5px var(--mono)}
+.circuit-theme .map-legend{
+  margin-top:0!important;padding:9px 5px 4px!important;
+  border-top:1px solid rgba(157,173,195,.16)!important;
+  display:flex;flex-wrap:wrap;gap:8px 13px!important;
+  color:#aab5c4;font:600 7px var(--mono)!important;letter-spacing:.035em;
+}
+.circuit-theme .map-legend>span{display:inline-flex;align-items:center;gap:5px}
+.circuit-theme .map-legend .dot{width:6px;height:6px;box-shadow:0 0 5px currentColor}
+.circuit-theme .circuit-controls{margin-top:9px;padding-top:10px;border-top:1px solid rgba(157,173,195,.16)}
+.circuit-theme .sector-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:11px}
+.circuit-theme .sector-tab{
+  min-width:0;padding:9px 7px;border:1px solid #303a47;border-radius:2px;
+  background:linear-gradient(180deg,#151b24,#0d1118);color:#9da9ba;
+  font:700 7px var(--mono);letter-spacing:.08em;
+}
+.circuit-theme .sector-tab.active{
+  border-color:#e65349;background:linear-gradient(180deg,rgba(230,83,73,.22),rgba(115,31,31,.12));
+  color:#fff;box-shadow:inset 0 2px #ef5a50,0 0 12px rgba(230,83,73,.07);
+}
+.circuit-theme .circuit-battle-watch,.circuit-theme .circuit-time-gain,.circuit-theme .circuit-detail-panel{
+  border:1px solid #2a3441;border-radius:2px;
+  background:linear-gradient(145deg,rgba(18,24,33,.96),rgba(8,11,16,.98));
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+}
+.circuit-theme .circuit-battle-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding-bottom:8px;border-bottom:1px solid rgba(157,173,195,.12);
+}
+.circuit-theme .circuit-panel-kicker{color:#d7e0eb;font-size:8px;letter-spacing:.12em}
+.circuit-theme .circuit-battle-heading small{color:#7e8b9d;font:600 6px var(--mono);letter-spacing:.07em;text-align:right}
+.circuit-theme .circuit-time-gain-row{border-color:#2d3744;background:rgba(4,7,11,.7)}
+.circuit-theme .circuit-time-gain-row>b{color:#ff8177}
+.circuit-theme .circuit-time-gain-row strong{color:#e9eef5}
+.circuit-theme .circuit-time-gain-row em{color:#f0c86d}
+.circuit-theme .circuit-battle-row{border-color:rgba(157,173,195,.12)}
+.circuit-theme .circuit-battle-row.player-battle{background:rgba(239,81,71,.075);border-color:rgba(239,81,71,.32)}
+.circuit-theme .circuit-gap,.circuit-theme .battle-gap{color:#f0c86d}
+.circuit-theme .circuit-detail-panel{padding:12px}
+.circuit-theme .circuit-turn-row{
+  border-bottom:1px solid rgba(157,173,195,.09);border-radius:0;
+  background:rgba(255,255,255,.018);min-height:32px;
+}
+.circuit-theme .circuit-turn-row.active{
+  border-color:rgba(239,81,71,.45);background:rgba(239,81,71,.1);
+  box-shadow:inset 2px 0 #ef5147;
+}
+.circuit-theme .circuit-timing-head{
+  margin-top:9px;padding:7px 4px;background:rgba(255,255,255,.025);
+  color:#77869a;border-bottom:1px solid rgba(157,173,195,.14);
+}
+.circuit-theme .circuit-timing-row{border-bottom:1px solid rgba(157,173,195,.08)}
+.circuit-theme .circuit-timing-row.player-timing{background:rgba(239,81,71,.07)}
+.circuit-theme .circuit-timing-row strong{color:#e7edf5}
+.circuit-theme .circuit-timing-note{color:#768397;font-size:7px;line-height:1.5}
+@media(max-width:760px){
+  .circuit-theme{padding:9px 8px 13px!important}
+  .circuit-theme>svg{max-height:260px}
+  .circuit-theme .circuit-hud{font-size:7px}
+  .circuit-theme .map-legend{gap:7px 9px!important;font-size:6px!important}
+  .circuit-theme .sector-tab{padding:9px 3px;font-size:6.5px}
+  .circuit-theme .circuit-detail-panel{padding:9px}
+}
