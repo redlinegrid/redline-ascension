@@ -575,3 +575,347 @@ button.active,button.selected,button[aria-pressed="true"],.mode-choice-card.acti
   .start-track-window { width:44%; }
   .start-engineering-readout { display:none; }
 }
+
+
+/* Mobile experience pass: retain the pit-wall identity without sacrificing usable space. */
+@media (max-width: 850px) {
+  .start-screen {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 0 minmax(0, 1fr) !important;
+    align-items: stretch;
+  }
+  .start-screen-engineering-visual {
+    display: none !important;
+  }
+  .start-screen-content {
+    grid-column: 1;
+    grid-row: 2;
+    position: relative;
+    z-index: 2;
+    width: 100% !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    padding: 24px clamp(18px, 5vw, 28px) calc(28px + env(safe-area-inset-bottom)) !important;
+    gap: 0;
+  }
+  .start-screen-brand {
+    gap: 10px;
+    margin-bottom: 24px !important;
+  }
+  .brand-lockup-icon-start {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+  .brand-lockup-copy-start strong {
+    font-size: 21px !important;
+    line-height: 1;
+  }
+  .brand-lockup-copy-start > span {
+    display: block;
+    margin-top: 4px;
+    font-size: 7px;
+    letter-spacing: .12em;
+  }
+  .start-screen-kicker {
+    margin-bottom: 8px;
+    font-size: 8px;
+    line-height: 1.5;
+    letter-spacing: .13em !important;
+  }
+  .start-screen-content h1 {
+    margin: 8px 0 10px;
+    font-size: clamp(42px, 11vw, 56px) !important;
+    line-height: .96;
+    letter-spacing: -.035em !important;
+  }
+  .start-screen-intro {
+    max-width: 38rem;
+    margin-bottom: 18px;
+    font-size: 10px !important;
+    line-height: 1.65;
+  }
+  .start-screen-content .start-new-game-button,
+  .start-screen-content .continue-career-button,
+  .start-screen-content .start-career-button,
+  .start-screen-content .primary-button {
+    min-height: 48px;
+    width: 100%;
+  }
+  .start-screen-content .start-save-transfer {
+    min-height: 42px;
+    max-width: 100%;
+  }
+  .start-screen-content .mode-choice-card {
+    min-height: 0;
+    padding: 15px;
+  }
+  .start-screen-content .mode-select-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .start-screen-content .onboarding-step-indicator {
+    gap: 10px;
+    overflow: hidden;
+  }
+  .start-screen-content .onboarding-step-indicator span {
+    min-width: 0;
+    font-size: 7px;
+    letter-spacing: .07em;
+  }
+
+  /* On the landing step, a compact scene sits above the copy; setup screens stay focused. */
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) {
+    grid-template-rows: 178px minmax(0, 1fr) !important;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-screen-engineering-visual {
+    display: block !important;
+    position: relative !important;
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    height: 178px;
+    min-height: 178px;
+    overflow: hidden;
+    opacity: 1;
+    border-bottom: 1px solid rgba(183, 196, 214, .18);
+    background:
+      linear-gradient(180deg, rgba(4, 7, 11, .02), rgba(4, 7, 11, .5)),
+      #080b11 !important;
+    pointer-events: none;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-screen-content {
+    grid-row: 2;
+    padding-top: 20px !important;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .realism-pitwall-scene {
+    position: absolute;
+    inset: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    opacity: .78;
+    overflow: hidden;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-glass-wall {
+    top: 10%;
+    left: 4%;
+    right: 20%;
+    height: 48%;
+    padding: 5% 2% 1%;
+    gap: 2%;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-display {
+    min-width: 0;
+    padding: 4px;
+    gap: 4px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-display span {
+    font-size: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-display b {
+    font-size: 8px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-desk {
+    top: 64%;
+    height: 36%;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-console {
+    padding: 4px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .pitwall-console b {
+    font-size: 4px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .hero-art-caption {
+    right: 4%;
+    bottom: 4%;
+    font-size: 6px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-track-window {
+    position: absolute;
+    z-index: 2;
+    top: 5%;
+    right: 0;
+    width: 43%;
+    height: 56%;
+    overflow: hidden;
+    border-left: 1px solid rgba(137, 157, 179, .34);
+    background: linear-gradient(180deg, #687c8c 0%, #a7b3bc 44%, #26343d 45%, #0d151b 100%);
+    clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
+    opacity: .75;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-track-grandstand {
+    position: absolute;
+    inset: 8% 0 28%;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 6px, rgba(20,30,39,.55) 7px 9px),
+      repeating-linear-gradient(90deg, rgba(20,29,38,.72) 0 3px, transparent 3px 8px),
+      linear-gradient(180deg,#a6b3bc,#657b89 55%,#293a45);
+    transform: skewY(-7deg) scale(1.1);
+    filter: blur(1px);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-track-circuit {
+    position: absolute;
+    left: -8%;
+    right: -12%;
+    bottom: 8%;
+    height: 34%;
+    transform: rotate(-7deg);
+    background: linear-gradient(180deg,#343e43,#151c21);
+    border-top: 4px solid #d5d8d4;
+    box-shadow: 0 -3px 0 #bd303a, 0 -6px 0 rgba(237,240,235,.85);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-track-barrier {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 13%;
+    background: repeating-linear-gradient(90deg,#d8d9d5 0 18px,#b52b37 18px 36px);
+    opacity: .8;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-silhouette {
+    position: absolute;
+    z-index: 5;
+    right: -5%;
+    bottom: -5%;
+    width: 48%;
+    height: 93%;
+    pointer-events: none;
+    filter: drop-shadow(-12px 0 18px rgba(0,0,0,.7));
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-head {
+    position: absolute;
+    top: 3%;
+    left: 38%;
+    width: 32%;
+    height: 37%;
+    border-radius: 48% 48% 42% 44%;
+    background: radial-gradient(ellipse at 35% 23%,#222831 0%,#11151b 36%,#05070b 76%);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-head:before {
+    content: "";
+    position: absolute;
+    top: 8%;
+    left: 5%;
+    width: 90%;
+    height: 28%;
+    border-radius: 50% 50% 22% 22%;
+    background: #080a0e;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-head:after {
+    content: "";
+    position: absolute;
+    top: 45%;
+    left: -3%;
+    width: 104%;
+    height: 13%;
+    border: 3px solid #080b10;
+    border-right-color: #242d38;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #65718255;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-neck {
+    position: absolute;
+    z-index: 2;
+    top: 31%;
+    left: 43%;
+    width: 22%;
+    height: 17%;
+    background: linear-gradient(90deg,#07090d,#161b22 55%,#06080c);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-body {
+    position: absolute;
+    top: 42%;
+    left: 8%;
+    right: -3%;
+    bottom: 0;
+    background:
+      linear-gradient(105deg,transparent 0 18%,rgba(147,29,42,.6) 18.5% 20%,transparent 20.5% 72%,rgba(135,25,37,.55) 72.5% 74%,transparent 74.5%),
+      radial-gradient(ellipse at 47% 0%,#222831 0%,#10141a 32%,#05070a 76%);
+    clip-path: polygon(24% 0,43% 4%,61% 0,80% 12%,100% 28%,100% 100%,0 100%,0 42%,12% 17%);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-headset {
+    position: absolute;
+    z-index: 4;
+    top: 7%;
+    left: 32%;
+    width: 39%;
+    height: 28%;
+    border: 5px solid transparent;
+    border-left-color: #080b10;
+    border-right-color: #080b10;
+    border-radius: 48%;
+    transform: rotate(-8deg);
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineer-mic {
+    position: absolute;
+    z-index: 5;
+    top: 31%;
+    left: 31%;
+    width: 22%;
+    height: 2px;
+    background: #080b10;
+    transform: rotate(23deg);
+    transform-origin: right;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineering-topline,
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineering-footer {
+    left: 4%;
+    right: 4%;
+    font-size: 6px;
+    letter-spacing: .08em;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineering-readout {
+    display: none;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-engineering-footer {
+    bottom: 3%;
+    padding-top: 5px;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-screen-grid {
+    opacity: .06;
+    pointer-events: none;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-screen-content .start-screen-brand {
+    margin-bottom: 18px !important;
+  }
+  .start-screen-content .team-color-presets {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .start-screen-content .team-color-preset {
+    min-height: 62px;
+    padding: 5px 2px;
+  }
+  .start-screen-content .team-color-preset small {
+    font-size: 6px;
+  }
+  .start-screen-content .driver-market-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .start-screen-content .market-driver-card {
+    grid-template-columns: 66px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .start-screen-content .driver-portrait {
+    width: 66px;
+    height: 76px;
+  }
+}
+@media (max-width: 390px) {
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) {
+    grid-template-rows: 150px minmax(0, 1fr) !important;
+  }
+  .start-screen:has(.start-screen-content[data-onboarding-step="home"]) .start-screen-engineering-visual {
+    height: 150px;
+    min-height: 150px;
+  }
+  .start-screen-content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
